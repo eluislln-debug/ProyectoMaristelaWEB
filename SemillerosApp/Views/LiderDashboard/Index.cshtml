@@ -1,0 +1,340 @@
+﻿@model SemillerosApp.Models.LiderDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutLider.cshtml";
+    ViewBag.Title = "Mi Semillero";
+    ViewBag.Subtitle = Model.Semillero != null ? Model.Semillero.nombreSemillero : "Sin semillero asignado";
+}
+
+@section Styles {
+    <style>
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: transform .2s,box-shadow .2s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-label {
+            font-size: .75rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #117a65;
+            line-height: 1;
+        }
+
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .card-panel-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #117a65;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0;
+        }
+
+        .badge-activo {
+            background: #d5f5e3;
+            color: #1e8449;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-inactivo {
+            background: #fde8e8;
+            color: #a93226;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            padding: 20px 22px;
+        }
+
+        .info-item label {
+            font-size: .7rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .info-item span {
+            font-size: .88rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .btn-sm-action {
+            border: none;
+            border-radius: 7px;
+            padding: 5px 11px;
+            font-size: .75rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-sm-action:hover {
+                opacity: .82;
+            }
+
+        .btn-primary-sm {
+            background: linear-gradient(135deg,#117a65,#28b463);
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .table-integrantes th {
+            font-size: .72rem;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .table-integrantes td {
+            font-size: .83rem;
+            vertical-align: middle;
+            padding: 10px 12px;
+        }
+
+        .table-integrantes tr:hover td {
+            background: #f0faf6;
+        }
+    </style>
+}
+
+@if (Model.Semillero == null)
+{
+    <div class="alert alert-warning" style="border-radius:14px">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        No tienes un semillero asignado. Contacta al administrador.
+    </div>
+}
+else
+{
+    <!-- ── TARJETAS STATS ─────────────────────────────────────── -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#d5f5e3;color:#117a65"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="stat-label">Integrantes</div>
+                    <div class="stat-value">@Model.TotalIntegrantes</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eaf4fb;color:#2e86c1"><i class="fas fa-project-diagram"></i></div>
+                <div>
+                    <div class="stat-label">Proyectos</div>
+                    <div class="stat-value" style="color:#2e86c1">@Model.TotalProyectos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef9e7;color:#d4ac0d"><i class="fas fa-spinner"></i></div>
+                <div>
+                    <div class="stat-label">En Proceso</div>
+                    <div class="stat-value" style="color:#d4ac0d">@Model.ProyectosActivos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── INFO DEL SEMILLERO + GRÁFICAS ─────────────────────── -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-5">
+            <div class="card-panel h-100">
+                <div class="card-panel-header">
+                    <div class="section-title"><i class="fas fa-info-circle"></i> Información del Semillero</div>
+                    <span class="@(Model.Semillero.estadoSemillero=="Activo" ? "badge-activo" : "badge-inactivo")">
+                        @Model.Semillero.estadoSemillero
+                    </span>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Nombre</label>
+                        <span>@Model.Semillero.nombreSemillero</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Línea de Investigación</label>
+                        <span>@Model.Semillero.lineaInvestigacion</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Líder</label>
+                        <span>@Model.NombreLider</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Fecha de Creación</label>
+                        <span>@Model.Semillero.fechacreaSemillero.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="info-item" style="grid-column:span 2">
+                        <label>Descripción</label>
+                        <span>@Model.Semillero.descripcionSemillero</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-panel h-100">
+                <div class="card-panel-header">
+                    <div class="section-title"><i class="fas fa-chart-pie"></i> Por Género</div>
+                </div>
+                <div style="padding:20px;height:220px;display:flex;align-items:center;justify-content:center">
+                    <canvas id="chartGeneros"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-panel h-100">
+                <div class="card-panel-header">
+                    <div class="section-title"><i class="fas fa-chart-bar"></i> Por Tipo</div>
+                </div>
+                <div style="padding:20px;height:220px;display:flex;align-items:center;justify-content:center">
+                    <canvas id="chartTipos"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TABLA INTEGRANTES (preview) ───────────────────────── -->
+    <div class="card-panel">
+        <div class="card-panel-header">
+            <div class="section-title"><i class="fas fa-users"></i> Integrantes del Semillero</div>
+            <a href="@Url.Action("AgregarIntegrante","LiderDashboard")"
+               class="btn-sm-action btn-primary-sm">
+                <i class="fas fa-plus me-1"></i>Agregar Integrante
+            </a>
+        </div>
+        <div class="p-0">
+            <div class="table-responsive">
+                <table class="table table-integrantes mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3">Nombre</th>
+                            <th>Tipo</th>
+                            <th>Email</th>
+                            <th>Género</th>
+                            <th class="pe-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model.Integrantes.Take(5))
+                        {
+                            <tr>
+                                <td class="ps-3"><strong>@i.nombreInvestigador</strong></td>
+                                <td>@i.tipoInvestigador</td>
+                                <td>@i.emailInvestigador</td>
+                                <td>@i.generoInvestigador</td>
+                                <td class="pe-3">
+                                    <a href="@Url.Action("EditarIntegrante","LiderDashboard", new { id = i.idInvestigadores })"
+                                       class="btn-sm-action" style="background:#eaf4fb;color:#2e86c1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Integrantes.Any())
+                        {
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No hay integrantes registrados</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.Integrantes.Count > 5)
+            {
+                <div style="padding:12px 22px;border-top:1px solid #f0f4f8">
+                    <a href="@Url.Action("Integrantes","LiderDashboard")" style="font-size:.82rem;color:#117a65;font-weight:600">
+                        Ver todos los integrantes (@Model.TotalIntegrantes) →
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+@if (Model.Semillero != null)
+{
+    <text>
+    new Chart(document.getElementById('chartGeneros').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels:   @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartGeneros.Select(x => x.Label))),
+            datasets: [{ data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartGeneros.Select(x => x.Value))),
+                backgroundColor:['#28b463','#e74c3c','#f39c12'], borderWidth:2, borderColor:'#fff' }]
+        },
+        options:{ responsive:true, maintainAspectRatio:false,
+                  plugins:{ legend:{ position:'bottom', labels:{ font:{ family:'Poppins', size:10 }}}}}
+    });
+    new Chart(document.getElementById('chartTipos').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels:   @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartTipos.Select(x => x.Label))),
+            datasets: [{ data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartTipos.Select(x => x.Value))),
+                backgroundColor:'rgba(17,122,101,.75)', borderRadius:8 }]
+        },
+        options:{ responsive:true, maintainAspectRatio:false,
+                  plugins:{ legend:{ display:false }},
+                  scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 }}, x:{ grid:{ display:false }}}}
+    });
+    </text>
+}
+    </script>
+}

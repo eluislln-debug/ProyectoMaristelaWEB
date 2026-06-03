@@ -1,0 +1,441 @@
+﻿@model SemillerosApp.Models.AgregarIntegranteViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutLider.cshtml";
+    ViewBag.Title = "Agregar Integrante";
+    ViewBag.Subtitle = "Semillero: " + ViewBag.NombreSemillero;
+}
+
+@section Styles {
+    <style>
+        .form-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            overflow: hidden;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg, #0b2d24, #117a65);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+            .form-card-header .hicon {
+                width: 46px;
+                height: 46px;
+                background: rgba(255,255,255,.15);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .form-card-header .hicon i {
+                    font-size: 1.3rem;
+                    color: #fff;
+                }
+
+            .form-card-header h4 {
+                color: #fff;
+                font-weight: 700;
+                margin: 0;
+                font-size: 1.05rem;
+            }
+
+            .form-card-header p {
+                color: rgba(255,255,255,.65);
+                font-size: .78rem;
+                margin: 0;
+            }
+
+        .form-card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #117a65;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: .9rem;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .form-control {
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s, box-shadow .25s;
+            width: 100%;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #117a65;
+                box-shadow: 0 0 0 3px rgba(17,122,101,.12);
+            }
+
+            .form-control.is-valid {
+                border-color: #28b463 !important;
+            }
+
+            .form-control.is-invalid {
+                border-color: #e74c3c !important;
+            }
+
+        .status-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: .9rem;
+            display: none;
+        }
+
+        .form-control.is-valid ~ .status-icon {
+            display: block;
+            color: #28b463;
+        }
+
+        .form-control.is-invalid ~ .status-icon {
+            display: block;
+            color: #e74c3c;
+        }
+
+        .field-msg {
+            font-size: .73rem;
+            margin-top: 4px;
+            min-height: 18px;
+            display: block;
+            padding-left: 2px;
+        }
+
+            .field-msg.error {
+                color: #e74c3c;
+            }
+
+            .field-msg.ok {
+                color: #28b463;
+            }
+
+        .form-select {
+            padding: 10px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s;
+            width: 100%;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23aaa' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+            .form-select:focus {
+                outline: none;
+                border-color: #117a65;
+                box-shadow: 0 0 0 3px rgba(17,122,101,.12);
+            }
+
+            .form-select.is-valid {
+                border-color: #28b463;
+            }
+
+            .form-select.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .btn-guardar {
+            background: linear-gradient(135deg, #0b2d24, #117a65);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 32px;
+            font-size: .92rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: opacity .2s, transform .2s;
+        }
+
+            .btn-guardar:hover {
+                opacity: .88;
+                transform: translateY(-1px);
+            }
+
+            .btn-guardar:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .btn-cancelar {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: .88rem;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background .2s;
+        }
+
+            .btn-cancelar:hover {
+                background: #dee2e6;
+                color: #333;
+            }
+
+        .section-divider {
+            font-size: .7rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #f0f4f8;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+            margin-top: 8px;
+        }
+    </style>
+}
+
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="hicon"><i class="fas fa-user-plus"></i></div>
+        <div>
+            <h4>Agregar Integrante</h4>
+            <p>Semillero: @ViewBag.NombreSemillero</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        @using (Html.BeginForm("AgregarIntegrante", "LiderDashboard", FormMethod.Post,
+                new { id = "formAgregar", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Semillero_idSemillero)
+
+            <div class="section-divider">Datos Personales</div>
+            <div class="row g-3 mb-3">
+
+                <!-- Nombre -->
+                <div class="col-md-12">
+                    <label class="form-label">Nombre completo *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        @Html.TextBoxFor(m => m.nombreInvestigador, new
+                        {
+                            @class = "form-control",
+                            placeholder = "Ej: Juan Pérez López",
+                            id = "nombreInvestigador",
+                            autocomplete = "off"
+                        })
+                        <span class="status-icon"><i class="fas fa-check-circle is-valid-icon"></i><i class="fas fa-times-circle is-invalid-icon"></i></span>
+                    </div>
+                    <span class="field-msg" id="msg-nombre">
+                        @Html.ValidationMessageFor(m => m.nombreInvestigador)
+                    </span>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                    <label class="form-label">Correo electrónico *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                        @Html.TextBoxFor(m => m.emailInvestigador, new
+                        {
+                            @class = "form-control",
+                            placeholder = "correo@ejemplo.com",
+                            id = "emailInvestigador",
+                            autocomplete = "off"
+                        })
+                        <span class="status-icon"><i class="fas fa-check-circle is-valid-icon"></i><i class="fas fa-times-circle is-invalid-icon"></i></span>
+                    </div>
+                    <span class="field-msg" id="msg-email">
+                        @Html.ValidationMessageFor(m => m.emailInvestigador)
+                    </span>
+                </div>
+
+                <!-- Teléfono -->
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-phone"></i></span>
+                        @Html.TextBoxFor(m => m.telefonoInvestigador, new
+                        {
+                            @class = "form-control",
+                            placeholder = "3001234567",
+                            id = "telefonoInvestigador",
+                            maxlength = "10"
+                        })
+                        <span class="status-icon"><i class="fas fa-check-circle is-valid-icon"></i><i class="fas fa-times-circle is-invalid-icon"></i></span>
+                    </div>
+                    <span class="field-msg" id="msg-telefono">
+                        @Html.ValidationMessageFor(m => m.telefonoInvestigador)
+                    </span>
+                </div>
+            </div>
+
+            <div class="section-divider">Clasificación</div>
+            <div class="row g-3 mb-4">
+
+                <!-- Género -->
+                <div class="col-md-6">
+                    <label class="form-label">Género *</label>
+                    @Html.DropDownListFor(m => m.generoInvestigador,
+                        ViewBag.Generos as List<SelectListItem>,
+                        "-- Selecciona --",
+                        new { @class = "form-select", id = "generoInvestigador" })
+                    <span class="field-msg" id="msg-genero">
+                        @Html.ValidationMessageFor(m => m.generoInvestigador)
+                    </span>
+                </div>
+
+                <!-- Tipo -->
+                <div class="col-md-6">
+                    <label class="form-label">Tipo de Investigador *</label>
+                    @Html.DropDownListFor(m => m.tipoInvestigador,
+                        ViewBag.Tipos as List<SelectListItem>,
+                        "-- Selecciona --",
+                        new { @class = "form-select", id = "tipoInvestigador" })
+                    <span class="field-msg" id="msg-tipo">
+                        @Html.ValidationMessageFor(m => m.tipoInvestigador)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-3 justify-content-end">
+                <a href="@Url.Action("Integrantes","LiderDashboard")" class="btn-cancelar">
+                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn-guardar" id="btnGuardar">
+                    <i class="fas fa-user-plus me-2"></i>Agregar Integrante
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+// ── Helpers ────────────────────────────────────────────────────
+function setValid(inputId, msgId, okText) {
+    var $el = $('#' + inputId);
+    $el.removeClass('is-invalid').addClass('is-valid');
+    var $msg = $('#' + msgId);
+    $msg.removeClass('error').addClass('ok').text(okText || '✓ Correcto');
+    // íconos
+    $el.siblings('.status-icon').find('.is-valid-icon').show();
+    $el.siblings('.status-icon').find('.is-invalid-icon').hide();
+}
+function setInvalid(inputId, msgId, errText) {
+    var $el = $('#' + inputId);
+    $el.removeClass('is-valid').addClass('is-invalid');
+    var $msg = $('#' + msgId);
+    $msg.removeClass('ok').addClass('error').text(errText);
+    $el.siblings('.status-icon').find('.is-valid-icon').hide();
+    $el.siblings('.status-icon').find('.is-invalid-icon').show();
+}
+function clearState(inputId, msgId) {
+    $('#' + inputId).removeClass('is-valid is-invalid');
+    $('#' + msgId).removeClass('ok error').text('');
+    $('#' + inputId).siblings('.status-icon').find('i').hide();
+}
+
+// ── Nombre ─────────────────────────────────────────────────────
+$('#nombreInvestigador').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (v.length === 0)         clearState('nombreInvestigador', 'msg-nombre');
+    else if (v.length < 3)      setInvalid('nombreInvestigador', 'msg-nombre', '✗ Mínimo 3 caracteres');
+    else if (v.length > 50)     setInvalid('nombreInvestigador', 'msg-nombre', '✗ Máximo 50 caracteres');
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v))
+                                setInvalid('nombreInvestigador', 'msg-nombre', '✗ Solo letras y espacios');
+    else                        setValid('nombreInvestigador',  'msg-nombre', '✓ Nombre válido');
+});
+
+// ── Email ──────────────────────────────────────────────────────
+$('#emailInvestigador').on('input blur', function () {
+    var v = $(this).val().trim();
+    var re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+    if (v.length === 0)    clearState('emailInvestigador', 'msg-email');
+    else if (!re.test(v))  setInvalid('emailInvestigador', 'msg-email', '✗ Formato de email inválido');
+    else                   setValid('emailInvestigador',   'msg-email', '✓ Email válido');
+});
+
+// ── Teléfono ───────────────────────────────────────────────────
+$('#telefonoInvestigador').on('input', function () {
+    // Solo números
+    this.value = this.value.replace(/[^0-9]/g, '');
+}).on('input blur', function () {
+    var v = $(this).val().trim();
+    if (v.length === 0)        clearState('telefonoInvestigador', 'msg-telefono');
+    else if (v.length !== 10)  setInvalid('telefonoInvestigador', 'msg-telefono', '✗ Debe tener exactamente 10 dígitos');
+    else                       setValid('telefonoInvestigador',   'msg-telefono', '✓ Teléfono válido');
+});
+
+// ── Selects ────────────────────────────────────────────────────
+$('#generoInvestigador').on('change', function () {
+    if ($(this).val())  { $(this).addClass('is-valid').removeClass('is-invalid'); $('#msg-genero').text(''); }
+    else                { $(this).addClass('is-invalid').removeClass('is-valid'); $('#msg-genero').addClass('error').text('✗ Selecciona un género'); }
+});
+$('#tipoInvestigador').on('change', function () {
+    if ($(this).val())  { $(this).addClass('is-valid').removeClass('is-invalid'); $('#msg-tipo').text(''); }
+    else                { $(this).addClass('is-invalid').removeClass('is-valid'); $('#msg-tipo').addClass('error').text('✗ Selecciona un tipo'); }
+});
+
+// ── Validación final antes de enviar ──────────────────────────
+$('#formAgregar').on('submit', function (e) {
+    var ok = true;
+
+    // Disparar validación de todos los campos
+    $('#nombreInvestigador').trigger('blur');
+    $('#emailInvestigador').trigger('blur');
+    $('#telefonoInvestigador').trigger('blur');
+    $('#generoInvestigador').trigger('change');
+    $('#tipoInvestigador').trigger('change');
+
+    // Verificar si alguno quedó inválido
+    if ($('.is-invalid').length > 0) {
+        e.preventDefault();
+        ok = false;
+        // Scroll al primer error
+        $('html, body').animate({
+            scrollTop: $('.is-invalid').first().offset().top - 100
+        }, 300);
+    }
+
+    if (ok) {
+        $('#btnGuardar').prop('disabled', true)
+                        .html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+    }
+});
+    </script>
+}

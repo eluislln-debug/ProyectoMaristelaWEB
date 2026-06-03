@@ -1,0 +1,383 @@
+﻿@model SemillerosApp.Models.LoginViewModel
+@{
+    Layout = null;
+    ViewBag.Title = "Iniciar Sesión";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - Sistema de Semilleros</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #1a5276;
+            --secondary: #2e86c1;
+            --accent: #28b463;
+            --danger: #e74c3c;
+            --light: #eaf4fb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0d1b2a 0%, var(--primary) 50%, var(--secondary) 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                width: 550px;
+                height: 550px;
+                background: rgba(46,134,193,0.12);
+                border-radius: 50%;
+                top: -180px;
+                right: -180px;
+                animation: float 9s ease-in-out infinite;
+            }
+
+            body::after {
+                content: '';
+                position: absolute;
+                width: 380px;
+                height: 380px;
+                background: rgba(40,180,99,0.09);
+                border-radius: 50%;
+                bottom: -130px;
+                left: -130px;
+                animation: float 11s ease-in-out infinite reverse;
+            }
+
+        @@keyframes float {
+            0%, 100% {
+                transform: translate(0,0) scale(1);
+            }
+
+            50% {
+                transform: translate(18px,-18px) scale(1.04);
+            }
+        }
+
+        .login-card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 22px;
+            padding: 42px 46px;
+            width: 100%;
+            max-width: 445px;
+            box-shadow: 0 28px 65px rgba(0,0,0,0.38);
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.55s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(42px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            box-shadow: 0 8px 22px rgba(26,82,118,0.38);
+        }
+
+            .brand-icon i {
+                font-size: 30px;
+                color: #fff;
+            }
+
+        .brand h1 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .brand p {
+            font-size: 0.83rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 5px;
+        }
+
+        .input-group-text {
+            background: var(--light);
+            border: 2px solid #dee2e6;
+            border-right: none;
+            color: var(--secondary);
+        }
+
+        .form-control {
+            border: 2px solid #dee2e6;
+            border-left: none;
+            padding: 10px 14px;
+            font-size: .91rem;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+            .form-control:focus {
+                border-color: var(--secondary);
+                box-shadow: 0 0 0 3px rgba(46,134,193,.15);
+                outline: none;
+            }
+
+            .form-control.is-valid {
+                border-color: var(--accent) !important;
+            }
+
+            .form-control.is-invalid {
+                border-color: var(--danger) !important;
+            }
+
+        .input-group:focus-within .input-group-text {
+            border-color: var(--secondary);
+        }
+
+        .toggle-pw {
+            cursor: pointer;
+            background: var(--light);
+            border: 2px solid #dee2e6;
+            border-left: none;
+            padding: 0 13px;
+            display: flex;
+            align-items: center;
+            border-radius: 0 8px 8px 0 !important;
+            color: #95a5a6;
+            transition: color .2s;
+        }
+
+            .toggle-pw:hover {
+                color: var(--secondary);
+            }
+
+        .field-validation-error {
+            font-size: .76rem;
+            color: var(--danger);
+            display: block;
+            margin-top: 3px;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 13px;
+            font-size: .98rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+            margin-top: 8px;
+            letter-spacing: .4px;
+            box-shadow: 0 5px 16px rgba(26,82,118,.32);
+            transition: opacity .2s, transform .2s;
+        }
+
+            .btn-login:hover {
+                opacity: .9;
+                transform: translateY(-2px);
+            }
+
+            .btn-login:active {
+                transform: translateY(0);
+            }
+
+            .btn-login:disabled {
+                opacity: .65;
+                cursor: not-allowed;
+            }
+
+        .spinner-border {
+            width: 17px;
+            height: 17px;
+            border-width: 2px;
+            display: none;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .btn-login.loading .spinner-border {
+            display: inline-block;
+        }
+
+        .btn-login.loading .btn-text {
+            display: none;
+        }
+
+        .alert-danger {
+            background: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            font-size: .86rem;
+            padding: 11px 14px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 22px;
+            font-size: .76rem;
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+
+        <div class="brand">
+            <div class="brand-icon"><i class="fas fa-seedling"></i></div>
+            <h1>Sistema de Semilleros</h1>
+            <p>Gestión de Investigación Académica</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""] != null)
+        {
+            <div class="alert alert-danger mb-3">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                @Html.ValidationSummary(true)
+            </div>
+        }
+
+        @using (Html.BeginForm("Login", "Account", FormMethod.Post,
+                new { id = "loginForm", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                <div class="input-group">
+                    <span class="input-group-text" style="border-radius:8px 0 0 8px">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                    @Html.TextBoxFor(m => m.Email, new
+                    {
+                        @class = "form-control",
+                        placeholder = "correo@ejemplo.com",
+                        autocomplete = "email",
+                        id = "Email"
+                    })
+                </div>
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "field-validation-error" })
+            </div>
+
+            <div class="mb-3">
+                @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                <div class="input-group">
+                    <span class="input-group-text" style="border-radius:8px 0 0 8px">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    @Html.PasswordFor(m => m.Password, new
+                    {
+                        @class = "form-control",
+                        placeholder = "••••••••",
+                        autocomplete = "current-password",
+                        id = "Password"
+                    })
+                    <span class="toggle-pw" onclick="togglePw()">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </span>
+                </div>
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "field-validation-error" })
+            </div>
+
+            <div class="mb-3 d-flex align-items-center gap-2">
+                @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input mt-0" })
+                <label class="form-check-label" style="font-size:.84rem;color:#555">
+                    Mantener sesión iniciada
+                </label>
+            </div>
+
+            <button type="submit" class="btn-login" id="btnLogin">
+                <span class="spinner-border" role="status"></span>
+                <span class="btn-text">
+                    <i class="fas fa-sign-in-alt me-2"></i>Ingresar al Sistema
+                </span>
+            </button>
+        }
+
+        <div class="footer-note">
+            <i class="fas fa-shield-alt me-1"></i>
+            Acceso restringido &middot; Solo personal autorizado
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+    function togglePw() {
+        var inp  = document.getElementById('Password');
+        var icon = document.getElementById('eyeIcon');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            inp.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    $('#Email').on('input blur', function () {
+        var email = $(this).val();
+        var ok = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email);
+        $(this).toggleClass('is-valid',   ok);
+        $(this).toggleClass('is-invalid', !ok && $(this).val() !== '');
+    });
+
+    $('#Password').on('input blur', function () {
+        var n = $(this).val().length;
+        $(this).toggleClass('is-valid',   n >= 4);
+        $(this).toggleClass('is-invalid', n > 0 && n < 4);
+    });
+
+    $('.form-control').on('focus', function () {
+        $(this).removeClass('is-invalid');
+    });
+
+    $('#loginForm').on('submit', function () {
+        if ($(this).valid())
+            $('#btnLogin').addClass('loading').prop('disabled', true);
+    });
+    </script>
+</body>
+</html>

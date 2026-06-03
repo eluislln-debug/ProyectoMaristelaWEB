@@ -1,0 +1,351 @@
+﻿@model SemillerosApp.Models.AdminDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Dashboard";
+    ViewBag.Subtitle = "Visión general del sistema";
+}
+
+@section Styles {
+    <style>
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-label {
+            font-size: .75rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a5276;
+            line-height: 1;
+        }
+
+        .stat-sub {
+            font-size: .72rem;
+            color: #95a5a6;
+            margin-top: 2px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a5276;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .section-title i {
+                color: #2e86c1;
+            }
+
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .card-panel-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-panel-body {
+            padding: 20px 22px;
+        }
+
+        .table-semilleros th {
+            font-size: .72rem;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f4f8;
+        }
+
+        .table-semilleros td {
+            font-size: .83rem;
+            vertical-align: middle;
+            padding: 10px 12px;
+        }
+
+        .table-semilleros tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge-activo {
+            background: #d5f5e3;
+            color: #1e8449;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-inactivo {
+            background: #fde8e8;
+            color: #a93226;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .btn-sm-action {
+            border: none;
+            border-radius: 7px;
+            padding: 5px 11px;
+            font-size: .75rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-sm-action:hover {
+                opacity: .82;
+            }
+
+        .btn-toggle {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .btn-delete {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .btn-primary-sm {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+        }
+    </style>
+}
+
+<!-- ── TARJETAS DE ESTADÍSTICAS ─────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eaf4fb;color:#2e86c1"><i class="fas fa-leaf"></i></div>
+            <div>
+                <div class="stat-label">Total Semilleros</div>
+                <div class="stat-value">@Model.TotalSemilleros</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#d5f5e3;color:#1e8449"><i class="fas fa-check-circle"></i></div>
+            <div>
+                <div class="stat-label">Activos</div>
+                <div class="stat-value" style="color:#1e8449">@Model.SemillerosActivos</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fde8e8;color:#a93226"><i class="fas fa-pause-circle"></i></div>
+            <div>
+                <div class="stat-label">Inactivos</div>
+                <div class="stat-value" style="color:#a93226">@Model.SemillerosInactivos</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef9e7;color:#d4ac0d"><i class="fas fa-users"></i></div>
+            <div>
+                <div class="stat-label">Investigadores</div>
+                <div class="stat-value" style="color:#d4ac0d">@Model.TotalInvestigadores</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f4f0fb;color:#7d3c98"><i class="fas fa-user-shield"></i></div>
+            <div>
+                <div class="stat-label">Usuarios</div>
+                <div class="stat-value" style="color:#7d3c98">@Model.TotalUsuarios</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef5ec;color:#ca6f1e"><i class="fas fa-project-diagram"></i></div>
+            <div>
+                <div class="stat-label">Proyectos</div>
+                <div class="stat-value" style="color:#ca6f1e">@Model.TotalProyectos</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── GRÁFICAS ─────────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-5">
+        <div class="card-panel">
+            <div class="card-panel-header">
+                <div class="section-title mb-0"><i class="fas fa-chart-pie"></i> Semilleros por Estado</div>
+            </div>
+            <div class="card-panel-body" style="height:240px;display:flex;align-items:center;justify-content:center">
+                <canvas id="chartEstados"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card-panel">
+            <div class="card-panel-header">
+                <div class="section-title mb-0"><i class="fas fa-chart-bar"></i> Semilleros por Línea de Investigación</div>
+            </div>
+            <div class="card-panel-body" style="height:240px">
+                <canvas id="chartLineas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── TABLA DE SEMILLEROS ──────────────────────────────────── -->
+<div class="card-panel" id="semilleros">
+    <div class="card-panel-header">
+        <div class="section-title mb-0"><i class="fas fa-leaf"></i> Gestión de Semilleros</div>
+        <a href="@Url.Action("CrearSemillero","AdminDashboard")"
+           class="btn-sm-action btn-primary-sm">
+            <i class="fas fa-plus me-1"></i>Nuevo Semillero
+        </a>
+    </div>
+    <div class="card-panel-body p-0">
+        <div class="table-responsive">
+            <table class="table table-semilleros mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">#</th>
+                        <th>Nombre</th>
+                        <th>Líder</th>
+                        <th>Línea de Investigación</th>
+                        <th>Fecha Creación</th>
+                        <th>Estado</th>
+                        <th class="pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Semilleros)
+                    {
+                        <tr>
+                            <td class="ps-3 text-muted">@s.idSemillero</td>
+                            <td><strong>@s.nombreSemillero</strong><br /><small class="text-muted">@s.descripcionSemillero</small></td>
+                            <td>@(s.Investigadores?.nombreInvestigador ?? "—")</td>
+                            <td>@s.lineaInvestigacion</td>
+                            <td>@s.fechacreaSemillero.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="@(s.estadoSemillero == "Activo" ? "badge-activo" : "badge-inactivo")">
+                                    @s.estadoSemillero
+                                </span>
+                            </td>
+                            <td class="pe-3">
+                                @using (Html.BeginForm("ToggleEstadoSemillero", "AdminDashboard",
+                                        new { id = s.idSemillero }, FormMethod.Post,
+                                        new { style = "display:inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-sm-action btn-toggle me-1"
+                                            title="@(s.estadoSemillero=="Activo"?"Desactivar":"Activar")">
+                                        <i class="fas fa-@(s.estadoSemillero=="Activo" ? "pause" : "play")"></i>
+                                    </button>
+                                }
+                                @using (Html.BeginForm("EliminarSemillero", "AdminDashboard",
+                                        new { id = s.idSemillero }, FormMethod.Post,
+                                        new
+                                        {
+                                            style = "display:inline",
+                                            onsubmit = $"return confirm('¿Eliminar el semillero {s.nombreSemillero}? Esta acción no se puede deshacer.')"
+                                        }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-sm-action btn-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Semilleros.Any())
+                    {
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No hay semilleros registrados</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+// ── Gráfica de Torta: Estados ──────────────────────────────
+var ctxE = document.getElementById('chartEstados').getContext('2d');
+new Chart(ctxE, {
+    type: 'doughnut',
+    data: {
+        labels:   @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartEstados.Select(x => x.Label))),
+        datasets: [{ data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartEstados.Select(x => x.Value))),
+            backgroundColor: ['#28b463','#e74c3c','#f39c12','#3498db'],
+            borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+               plugins: { legend: { position: 'bottom', labels: { font: { family:'Poppins', size:11 } } } } }
+});
+
+// ── Gráfica de Barras: Líneas ──────────────────────────────
+var ctxL = document.getElementById('chartLineas').getContext('2d');
+new Chart(ctxL, {
+    type: 'bar',
+    data: {
+        labels:   @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartLineas.Select(x => x.Label))),
+        datasets: [{ label: 'Semilleros', data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ChartLineas.Select(x => x.Value))),
+            backgroundColor: 'rgba(46,134,193,.75)', borderRadius: 8, borderSkipped: false }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, font:{family:'Poppins'} }, grid: { color:'#f0f4f8' } },
+            x: { ticks: { font:{family:'Poppins', size:11} }, grid: { display:false } }
+        }
+    }
+});
+    </script>
+}

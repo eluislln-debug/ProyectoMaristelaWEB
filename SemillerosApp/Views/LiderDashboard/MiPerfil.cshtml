@@ -1,0 +1,444 @@
+﻿@model SemillerosApp.Models.Usuario
+@{
+    Layout = "~/Views/Shared/_LayoutLider.cshtml";
+    ViewBag.Title = "Mi Perfil";
+    ViewBag.Subtitle = "Administra tu información personal";
+}
+
+@section Styles {
+    <style>
+        .form-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            overflow: hidden;
+            max-width: 680px;
+            margin: 0 auto 24px auto;
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg,#0b2d24,#117a65);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+            border: 3px solid rgba(255,255,255,.3);
+        }
+
+        .form-card-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .form-card-header p {
+            color: rgba(255,255,255,.65);
+            font-size: .78rem;
+            margin: 0;
+        }
+
+        .form-card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #117a65;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: .9rem;
+            pointer-events: none;
+        }
+
+        .form-control {
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s,box-shadow .25s;
+            width: 100%;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #117a65;
+                box-shadow: 0 0 0 3px rgba(17,122,101,.12);
+            }
+
+            .form-control.is-valid {
+                border-color: #28b463 !important;
+            }
+
+            .form-control.is-invalid {
+                border-color: #e74c3c !important;
+            }
+
+        .field-msg {
+            font-size: .73rem;
+            margin-top: 4px;
+            min-height: 18px;
+            display: block;
+            padding-left: 2px;
+        }
+
+            .field-msg.error {
+                color: #e74c3c;
+            }
+
+            .field-msg.ok {
+                color: #28b463;
+            }
+
+        .section-divider {
+            font-size: .7rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #f0f4f8;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 0;
+        }
+
+            .toggle-pw:hover {
+                color: #117a65;
+            }
+
+        .btn-guardar {
+            background: linear-gradient(135deg,#0b2d24,#117a65);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 32px;
+            font-size: .92rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-guardar:hover {
+                opacity: .88;
+            }
+
+            .btn-guardar:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .badge-rol {
+            background: #d5f5e3;
+            color: #117a65;
+            font-size: .7rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .pw-card-header {
+            background: linear-gradient(135deg,#1a252f,#2c3e50);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+            .pw-card-header h4 {
+                color: #fff;
+                font-weight: 700;
+                margin: 0;
+                font-size: 1rem;
+            }
+
+            .pw-card-header p {
+                color: rgba(255,255,255,.55);
+                font-size: .75rem;
+                margin: 0;
+            }
+
+        .pw-icon {
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .pw-icon i {
+                color: #fff;
+                font-size: 1.1rem;
+            }
+    </style>
+}
+
+{{-- Tarjeta 1: Datos personales --}}
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="profile-avatar">@Model.nombreUsuario.Substring(0, 1).ToUpper()</div>
+        <div>
+            <h4>@Model.nombreUsuario @Model.apellidoUsuario</h4>
+            <p>@Model.emailUsuario &nbsp;·&nbsp; <span class="badge-rol">@Model.rolUsuario</span></p>
+        </div>
+    </div>
+    <div class="form-card-body">
+        @using (Html.BeginForm("ActualizarDatos", "LiderDashboard", FormMethod.Post,
+                new { id = "formDatos", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="section-divider">Información Personal</div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" name="nombreUsuario" id="nombreUsuario"
+                               class="form-control" value="@Model.nombreUsuario" />
+                    </div>
+                    <span class="field-msg" id="msg-nombre"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Apellido *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" name="apellidoUsuario" id="apellidoUsuario"
+                               class="form-control" value="@Model.apellidoUsuario" />
+                    </div>
+                    <span class="field-msg" id="msg-apellido"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Correo electrónico *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                        <input type="email" name="emailUsuario" id="emailUsuario"
+                               class="form-control" value="@Model.emailUsuario" />
+                    </div>
+                    <span class="field-msg" id="msg-email"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-phone"></i></span>
+                        <input type="text" name="telefonoUsuario" id="telefonoUsuario"
+                               class="form-control" value="@Model.telefonoUsuario" maxlength="10" />
+                    </div>
+                    <span class="field-msg" id="msg-telefono"></span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn-guardar" id="btnDatos">
+                    <i class="fas fa-save me-2"></i>Guardar Datos
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+{{-- Tarjeta 2: Cambiar contraseña --}}
+<div class="form-card">
+    <div class="pw-card-header">
+        <div class="pw-icon"><i class="fas fa-lock"></i></div>
+        <div>
+            <h4>Cambiar Contraseña</h4>
+            <p>Actualiza tu contraseña de acceso</p>
+        </div>
+    </div>
+    <div class="form-card-body">
+        @using (Html.BeginForm("CambiarContrasena", "LiderDashboard", FormMethod.Post,
+                new { id = "formPw", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Contraseña actual *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-key"></i></span>
+                        <input type="password" name="contrasenaActual" id="contrasenaActual"
+                               class="form-control" placeholder="Ingresa tu contraseña actual" autocomplete="off" />
+                        <button type="button" class="toggle-pw" onclick="togglePw('contrasenaActual','eye1')">
+                            <i class="fas fa-eye" id="eye1"></i>
+                        </button>
+                    </div>
+                    <span class="field-msg" id="msg-actual"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nueva contraseña *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="nuevaContrasena" id="nuevaContrasena"
+                               class="form-control" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                        <button type="button" class="toggle-pw" onclick="togglePw('nuevaContrasena','eye2')">
+                            <i class="fas fa-eye" id="eye2"></i>
+                        </button>
+                    </div>
+                    <span class="field-msg" id="msg-nueva"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Confirmar nueva contraseña *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="confirmarContrasena" id="confirmarContrasena"
+                               class="form-control" placeholder="Repite la nueva contraseña" autocomplete="new-password" />
+                        <button type="button" class="toggle-pw" onclick="togglePw('confirmarContrasena','eye3')">
+                            <i class="fas fa-eye" id="eye3"></i>
+                        </button>
+                    </div>
+                    <span class="field-msg" id="msg-confirm"></span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn-guardar" id="btnPw">
+                    <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePw(inputId, iconId) {
+            var inp = document.getElementById(inputId);
+            var ico = document.getElementById(iconId);
+            if (inp.type === 'password') { inp.type = 'text'; ico.className = 'fas fa-eye-slash'; }
+            else { inp.type = 'password'; ico.className = 'fas fa-eye'; }
+        }
+
+        function setValid(id, msgId, txt) { $('#' + id).removeClass('is-invalid').addClass('is-valid'); $('#' + msgId).removeClass('error').addClass('ok').text(txt || '✓ Correcto'); }
+        function setInvalid(id, msgId, txt) { $('#' + id).removeClass('is-valid').addClass('is-invalid'); $('#' + msgId).removeClass('ok').addClass('error').text(txt); }
+        function clearState(id, msgId) { $('#' + id).removeClass('is-valid is-invalid'); $('#' + msgId).removeClass('ok error').text(''); }
+
+        // ── Validaciones formulario datos personales ──
+        $('#nombreUsuario').on('input blur', function () {
+            var v = $(this).val().trim();
+            if (!v) clearState('nombreUsuario', 'msg-nombre');
+            else if (v.length < 2) setInvalid('nombreUsuario', 'msg-nombre', '✗ Mínimo 2 caracteres');
+            else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) setInvalid('nombreUsuario', 'msg-nombre', '✗ Solo letras');
+            else setValid('nombreUsuario', 'msg-nombre', '✓ Correcto');
+        });
+
+        $('#apellidoUsuario').on('input blur', function () {
+            var v = $(this).val().trim();
+            if (!v) clearState('apellidoUsuario', 'msg-apellido');
+            else if (v.length < 2) setInvalid('apellidoUsuario', 'msg-apellido', '✗ Mínimo 2 caracteres');
+            else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) setInvalid('apellidoUsuario', 'msg-apellido', '✗ Solo letras');
+            else setValid('apellidoUsuario', 'msg-apellido', '✓ Correcto');
+        });
+
+        $('#emailUsuario').on('input blur', function () {
+            var v = $(this).val().trim();
+            var re = new RegExp('^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$');
+            if (!v) clearState('emailUsuario', 'msg-email');
+            else if (!re.test(v)) setInvalid('emailUsuario', 'msg-email', '✗ Email inválido');
+            else setValid('emailUsuario', 'msg-email', '✓ Email válido');
+        });
+
+        $('#telefonoUsuario').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        }).on('input blur', function () {
+            var v = $(this).val().trim();
+            if (!v) clearState('telefonoUsuario', 'msg-telefono');
+            else if (v.length !== 10) setInvalid('telefonoUsuario', 'msg-telefono', '✗ Exactamente 10 dígitos');
+            else setValid('telefonoUsuario', 'msg-telefono', '✓ Correcto');
+        });
+
+        $('#formDatos').on('submit', function (e) {
+            ['#nombreUsuario', '#apellidoUsuario', '#emailUsuario', '#telefonoUsuario'].forEach(function (id) {
+                $(id).trigger('blur');
+            });
+            if ($('#formDatos .is-invalid').length > 0) {
+                e.preventDefault();
+                $('html,body').animate({ scrollTop: $('#formDatos .is-invalid').first().offset().top - 100 }, 300);
+            } else {
+                $('#btnDatos').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+            }
+        });
+
+        // ── Validaciones formulario contraseña ──
+        $('#contrasenaActual').on('input blur', function () {
+            var v = $(this).val();
+            if (!v) clearState('contrasenaActual', 'msg-actual');
+            else setValid('contrasenaActual', 'msg-actual', '✓ Ingresada');
+        });
+
+        $('#nuevaContrasena').on('input blur', function () {
+            var v = $(this).val();
+            if (!v) clearState('nuevaContrasena', 'msg-nueva');
+            else if (v.length < 6) setInvalid('nuevaContrasena', 'msg-nueva', '✗ Mínimo 6 caracteres');
+            else setValid('nuevaContrasena', 'msg-nueva', '✓ Contraseña válida');
+            if ($('#confirmarContrasena').val()) $('#confirmarContrasena').trigger('blur');
+        });
+
+        $('#confirmarContrasena').on('input blur', function () {
+            var v = $(this).val();
+            var nv = $('#nuevaContrasena').val();
+            if (!v && !nv) clearState('confirmarContrasena', 'msg-confirm');
+            else if (v !== nv) setInvalid('confirmarContrasena', 'msg-confirm', '✗ Las contraseñas no coinciden');
+            else setValid('confirmarContrasena', 'msg-confirm', '✓ Coinciden');
+        });
+
+        $('#formPw').on('submit', function (e) {
+            var actual = $('#contrasenaActual').val();
+            var nueva = $('#nuevaContrasena').val();
+            var confirmar = $('#confirmarContrasena').val();
+
+            if (!actual) setInvalid('contrasenaActual', 'msg-actual', '✗ Ingresa tu contraseña actual');
+            if (!nueva) setInvalid('nuevaContrasena', 'msg-nueva', '✗ Ingresa la nueva contraseña');
+            else if (nueva.length < 6) setInvalid('nuevaContrasena', 'msg-nueva', '✗ Mínimo 6 caracteres');
+            if (!confirmar) setInvalid('confirmarContrasena', 'msg-confirm', '✗ Confirma la nueva contraseña');
+            else if (nueva !== confirmar) setInvalid('confirmarContrasena', 'msg-confirm', '✗ Las contraseñas no coinciden');
+
+            if ($('#formPw .is-invalid').length > 0) {
+                e.preventDefault();
+                $('html,body').animate({ scrollTop: $('#formPw .is-invalid').first().offset().top - 100 }, 300);
+            } else {
+                $('#btnPw').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+            }
+        });
+    </script>
+}
