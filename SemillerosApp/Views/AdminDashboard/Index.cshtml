@@ -158,57 +158,63 @@
 
 <!-- ── TARJETAS DE ESTADÍSTICAS ─────────────────────────────── -->
 <div class="row g-3 mb-4">
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#eaf4fb;color:#2e86c1"><i class="fas fa-leaf"></i></div>
             <div>
                 <div class="stat-label">Total Semilleros</div>
                 <div class="stat-value">@Model.TotalSemilleros</div>
+                <div class="stat-sub">@Model.SemillerosActivos activos · @Model.SemillerosInactivos inactivos</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#d5f5e3;color:#1e8449"><i class="fas fa-check-circle"></i></div>
-            <div>
-                <div class="stat-label">Activos</div>
-                <div class="stat-value" style="color:#1e8449">@Model.SemillerosActivos</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fde8e8;color:#a93226"><i class="fas fa-pause-circle"></i></div>
-            <div>
-                <div class="stat-label">Inactivos</div>
-                <div class="stat-value" style="color:#a93226">@Model.SemillerosInactivos</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#fef9e7;color:#d4ac0d"><i class="fas fa-users"></i></div>
             <div>
                 <div class="stat-label">Investigadores</div>
                 <div class="stat-value" style="color:#d4ac0d">@Model.TotalInvestigadores</div>
+                <div class="stat-sub">Registrados en el sistema</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#f4f0fb;color:#7d3c98"><i class="fas fa-user-shield"></i></div>
             <div>
                 <div class="stat-label">Usuarios</div>
                 <div class="stat-value" style="color:#7d3c98">@Model.TotalUsuarios</div>
+                <div class="stat-sub">Cuentas activas</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-4 col-md-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#fef5ec;color:#ca6f1e"><i class="fas fa-project-diagram"></i></div>
             <div>
                 <div class="stat-label">Proyectos</div>
                 <div class="stat-value" style="color:#ca6f1e">@Model.TotalProyectos</div>
+                <div class="stat-sub">En todos los semilleros</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#d5f5e3;color:#1e8449"><i class="fas fa-check-circle"></i></div>
+            <div>
+                <div class="stat-label">Semilleros Activos</div>
+                <div class="stat-value" style="color:#1e8449">@Model.SemillerosActivos</div>
+                <div class="stat-sub">Funcionando actualmente</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fde8e8;color:#a93226"><i class="fas fa-pause-circle"></i></div>
+            <div>
+                <div class="stat-label">Semilleros Inactivos</div>
+                <div class="stat-value" style="color:#a93226">@Model.SemillerosInactivos</div>
+                <div class="stat-sub">Pausados o cerrados</div>
             </div>
         </div>
     </div>
@@ -238,80 +244,6 @@
     </div>
 </div>
 
-<!-- ── TABLA DE SEMILLEROS ──────────────────────────────────── -->
-<div class="card-panel" id="semilleros">
-    <div class="card-panel-header">
-        <div class="section-title mb-0"><i class="fas fa-leaf"></i> Gestión de Semilleros</div>
-        <a href="@Url.Action("CrearSemillero","AdminDashboard")"
-           class="btn-sm-action btn-primary-sm">
-            <i class="fas fa-plus me-1"></i>Nuevo Semillero
-        </a>
-    </div>
-    <div class="card-panel-body p-0">
-        <div class="table-responsive">
-            <table class="table table-semilleros mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-3">#</th>
-                        <th>Nombre</th>
-                        <th>Líder</th>
-                        <th>Línea de Investigación</th>
-                        <th>Fecha Creación</th>
-                        <th>Estado</th>
-                        <th class="pe-3">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var s in Model.Semilleros)
-                    {
-                        <tr>
-                            <td class="ps-3 text-muted">@s.idSemillero</td>
-                            <td><strong>@s.nombreSemillero</strong><br /><small class="text-muted">@s.descripcionSemillero</small></td>
-                            <td>@(s.Investigadores?.nombreInvestigador ?? "—")</td>
-                            <td>@s.lineaInvestigacion</td>
-                            <td>@s.fechacreaSemillero.ToString("dd/MM/yyyy")</td>
-                            <td>
-                                <span class="@(s.estadoSemillero == "Activo" ? "badge-activo" : "badge-inactivo")">
-                                    @s.estadoSemillero
-                                </span>
-                            </td>
-                            <td class="pe-3">
-                                @using (Html.BeginForm("ToggleEstadoSemillero", "AdminDashboard",
-                                        new { id = s.idSemillero }, FormMethod.Post,
-                                        new { style = "display:inline" }))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn-sm-action btn-toggle me-1"
-                                            title="@(s.estadoSemillero=="Activo"?"Desactivar":"Activar")">
-                                        <i class="fas fa-@(s.estadoSemillero=="Activo" ? "pause" : "play")"></i>
-                                    </button>
-                                }
-                                @using (Html.BeginForm("EliminarSemillero", "AdminDashboard",
-                                        new { id = s.idSemillero }, FormMethod.Post,
-                                        new
-                                        {
-                                            style = "display:inline",
-                                            onsubmit = $"return confirm('¿Eliminar el semillero {s.nombreSemillero}? Esta acción no se puede deshacer.')"
-                                        }))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn-sm-action btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                }
-                            </td>
-                        </tr>
-                    }
-                    @if (!Model.Semilleros.Any())
-                    {
-                        <tr><td colspan="7" class="text-center py-4 text-muted">No hay semilleros registrados</td></tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
@@ -325,8 +257,26 @@ new Chart(ctxE, {
             backgroundColor: ['#28b463','#e74c3c','#f39c12','#3498db'],
             borderWidth: 2, borderColor: '#fff' }]
     },
-    options: { responsive: true, maintainAspectRatio: false,
-               plugins: { legend: { position: 'bottom', labels: { font: { family:'Poppins', size:11 } } } } }
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: { family:'Poppins', size: 11 },
+                    boxWidth: 12,
+                    padding: 10,
+                    generateLabels: function(chart) {
+                        var original = Chart.overrides.doughnut.plugins.legend.labels.generateLabels(chart);
+                        original.forEach(function(label) {
+                            if (label.text.length > 18) label.text = label.text.substring(0, 18) + '…';
+                        });
+                        return original;
+                    }
+                }
+            }
+        }
+    }
 });
 
 // ── Gráfica de Barras: Líneas ──────────────────────────────
@@ -343,7 +293,18 @@ new Chart(ctxL, {
         plugins: { legend: { display: false } },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1, font:{family:'Poppins'} }, grid: { color:'#f0f4f8' } },
-            x: { ticks: { font:{family:'Poppins', size:11} }, grid: { display:false } }
+            x: {
+                ticks: {
+                    font: { family:'Poppins', size: 10 },
+                    maxRotation: 30,
+                    minRotation: 0,
+                    callback: function(value, index) {
+                        var label = this.getLabelForValue(index);
+                        return label.length > 15 ? label.substring(0, 15) + '…' : label;
+                    }
+                },
+                grid: { display: false }
+            }
         }
     }
 });

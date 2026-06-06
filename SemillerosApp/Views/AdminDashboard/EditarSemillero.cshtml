@@ -1,0 +1,323 @@
+﻿@model SemillerosApp.Models.Semillero
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Editar Semillero";
+    ViewBag.Subtitle = "Modificando datos de " + Model.nombreSemillero;
+}
+
+@section Styles {
+    <style>
+        .form-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            overflow: hidden;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hicon {
+            width: 46px;
+            height: 46px;
+            background: rgba(255,255,255,.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .hicon i {
+                font-size: 1.3rem;
+                color: #fff;
+            }
+
+        .form-card-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .form-card-header p {
+            color: rgba(255,255,255,.65);
+            font-size: .78rem;
+            margin: 0;
+        }
+
+        .form-card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: .9rem;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .form-control {
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s, box-shadow .25s;
+            width: 100%;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+            }
+
+            .form-control.is-valid {
+                border-color: #28b463 !important;
+            }
+
+            .form-control.is-invalid {
+                border-color: #e74c3c !important;
+            }
+
+        .form-select {
+            padding: 10px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s;
+            width: 100%;
+        }
+
+            .form-select:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+            }
+
+            .form-select.is-valid {
+                border-color: #28b463;
+            }
+
+            .form-select.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .field-msg {
+            font-size: .73rem;
+            margin-top: 4px;
+            min-height: 18px;
+            display: block;
+            padding-left: 2px;
+        }
+
+            .field-msg.error {
+                color: #e74c3c;
+            }
+
+            .field-msg.ok {
+                color: #28b463;
+            }
+
+        .section-divider {
+            font-size: .7rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #f0f4f8;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+        }
+
+        .btn-guardar {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 32px;
+            font-size: .92rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-guardar:hover {
+                opacity: .88;
+            }
+
+            .btn-guardar:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .btn-cancelar {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: .88rem;
+            font-weight: 500;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-cancelar:hover {
+                background: #dee2e6;
+                color: #333;
+            }
+    </style>
+}
+
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="hicon"><i class="fas fa-leaf"></i></div>
+        <div>
+            <h4>Editar Semillero</h4>
+            <p>Modificando datos de @Model.nombreSemillero</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        @using (Html.BeginForm("EditarSemillero", "AdminDashboard", FormMethod.Post,
+                new { id = "formEditar", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.idSemillero)
+            @Html.HiddenFor(m => m.estadoSemillero)
+            @Html.HiddenFor(m => m.fechacreaSemillero)
+
+            <div class="section-divider">Información del Semillero</div>
+            <div class="row g-3 mb-3">
+
+                <div class="col-md-12">
+                    <label class="form-label">Nombre del Semillero *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-leaf"></i></span>
+                        <input type="text" name="nombreSemillero" id="nombreSemillero"
+                               class="form-control" value="@Model.nombreSemillero" />
+                    </div>
+                    <span class="field-msg" id="msg-nombre"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Línea de Investigación *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-flask"></i></span>
+                        <input type="text" name="lineaInvestigacion" id="lineaInvestigacion"
+                               class="form-control" value="@Model.lineaInvestigacion" />
+                    </div>
+                    <span class="field-msg" id="msg-linea"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Descripción *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon" style="top:14px;transform:none"><i class="fas fa-align-left"></i></span>
+                        <textarea name="descripcionSemillero" id="descripcionSemillero"
+                                  class="form-control" rows="3"
+                                  style="padding-top:10px">@Model.descripcionSemillero</textarea>
+                    </div>
+                    <span class="field-msg" id="msg-descripcion"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Líder del Semillero *</label>
+                    @Html.DropDownList("Investigadores_idInvestigadores",
+                        ViewBag.Lideres as List<SelectListItem>,
+                        "-- Selecciona un líder --",
+                        new { @class = "form-select", id = "lider" })
+                    <span class="field-msg" id="msg-lider"></span>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end mt-2">
+                <a href="@Url.Action("Semilleros","AdminDashboard")" class="btn-cancelar">
+                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn-guardar" id="btnGuardar">
+                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+function setValid(id, msgId, txt)   { $('#'+id).removeClass('is-invalid').addClass('is-valid');   $('#'+msgId).removeClass('error').addClass('ok').text(txt||'✓ Correcto'); }
+function setInvalid(id, msgId, txt) { $('#'+id).removeClass('is-valid').addClass('is-invalid');   $('#'+msgId).removeClass('ok').addClass('error').text(txt); }
+function clearState(id, msgId)      { $('#'+id).removeClass('is-valid is-invalid'); $('#'+msgId).removeClass('ok error').text(''); }
+
+$('#nombreSemillero').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('nombreSemillero','msg-nombre');
+    else if (v.length<3) setInvalid('nombreSemillero','msg-nombre','✗ Mínimo 3 caracteres');
+    else                 setValid('nombreSemillero','msg-nombre','✓ Correcto');
+});
+
+$('#lineaInvestigacion').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('lineaInvestigacion','msg-linea');
+    else if (v.length<3) setInvalid('lineaInvestigacion','msg-linea','✗ Mínimo 3 caracteres');
+    else                 setValid('lineaInvestigacion','msg-linea','✓ Correcto');
+});
+
+$('#descripcionSemillero').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('descripcionSemillero','msg-descripcion');
+    else if (v.length<5) setInvalid('descripcionSemillero','msg-descripcion','✗ Mínimo 5 caracteres');
+    else                 setValid('descripcionSemillero','msg-descripcion','✓ Correcto');
+});
+
+$('#lider').on('change', function () {
+    $(this).val() ? setValid('lider','msg-lider','✓ Líder seleccionado')
+                  : setInvalid('lider','msg-lider','✗ Selecciona un líder');
+});
+
+$('#formEditar').on('submit', function (e) {
+    ['#nombreSemillero','#lineaInvestigacion','#descripcionSemillero'].forEach(function(id){
+        $(id).trigger('blur');
+    });
+    $('#lider').trigger('change');
+
+    if ($('.is-invalid').length > 0) {
+        e.preventDefault();
+        $('html,body').animate({ scrollTop: $('.is-invalid').first().offset().top - 100 }, 300);
+    } else {
+        $('#btnGuardar').prop('disabled',true)
+                        .html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+    }
+});
+    </script>
+}

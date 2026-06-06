@@ -71,4 +71,16 @@ namespace SemillerosApp.Models
         [System.ComponentModel.DataAnnotations.Display(Name = "Tipo de investigador")]
         public string tipoInvestigador { get; set; }
     }
+
+    public class DetalleSemilleroViewModel
+    {
+        public Semillero Semillero { get; set; }
+        public List<Investigadores> Integrantes { get; set; } = new List<Investigadores>();
+        public int TotalProyectos { get; set; }
+        public int ProyectosActivos { get; set; }
+        public int TotalFases { get; set; }
+        public int TotalActividades { get; set; }
+        public int ActividadesPendientes { get; set; }
+        public int PorcentajeActividad { get; set; }
+    }
 }

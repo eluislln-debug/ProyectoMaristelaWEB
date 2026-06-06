@@ -275,15 +275,15 @@
 
             <div class="nav-section-title">Gestión</div>
             <div class="nav-item">
-                <a href="@Url.Action("Index","AdminDashboard")#semilleros"
-                   class="@(currentAction=="CrearSemillero" ? "active" : "")">
+                <a href="@Url.Action("Semilleros","AdminDashboard")"
+                   class="@(currentAction=="Semilleros" || currentAction=="CrearSemillero" || currentAction=="EditarSemillero" ? "active" : "")">
                     <i class="fas fa-leaf"></i> Semilleros
                 </a>
             </div>
             <div class="nav-item">
-                <a href="@Url.Action("Investigadores","AdminDashboard")"
-                   class="@(currentAction=="Investigadores" || currentAction=="EditarInvestigador" ? "active" : "")">
-                    <i class="fas fa-users"></i> Investigadores
+                <a href="@Url.Action("Usuarios","AdminDashboard")"
+                   class="@(currentAction=="Usuarios" || currentAction=="AgregarUsuario" || currentAction=="EditarUsuario" ? "active" : "")">
+                    <i class="fas fa-users"></i> Usuarios
                 </a>
             </div>
 

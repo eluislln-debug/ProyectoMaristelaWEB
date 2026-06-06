@@ -6,7 +6,6 @@ using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
-using System.Drawing;
 
 namespace SemillerosApp.Models
 {
@@ -40,17 +39,33 @@ namespace SemillerosApp.Models
             modelBuilder.Entity<Patrocinadores>().ToTable("Patrocinadores");
             modelBuilder.Entity<Semillero_has_Eventos>().ToTable("Semillero_has_Eventos");
 
+            // Clave compuesta
             modelBuilder.Entity<Semillero_has_Eventos>()
                 .HasKey(s => new { s.Semillero_idSemillero, s.Eventos_idEventos });
 
-            modelBuilder.Entity<Investigadores>()
-            .HasMany(i => i.Semilleros)
-            .WithMany(s => s.Integrantes)
-            .Map(m => {
-                m.ToTable("Semillero_has_Investigadores");
-                m.MapLeftKey("Investigadores_idInvestigadores");
-                m.MapRightKey("Semillero_idSemillero");
-            });
+            // Mapeo explícito FK Semillero → SemilleroEventos
+            modelBuilder.Entity<Semillero_has_Eventos>()
+                .HasRequired(s => s.Semillero)
+                .WithMany(s => s.SemilleroEventos)
+                .HasForeignKey(s => s.Semillero_idSemillero)
+                .WillCascadeOnDelete(false);
+
+            // Mapeo explícito FK Eventos → SemilleroEventos
+            modelBuilder.Entity<Semillero_has_Eventos>()
+                .HasRequired(s => s.Eventos)
+                .WithMany(e => e.SemilleroEventos)
+                .HasForeignKey(s => s.Eventos_idEventos)
+                .WillCascadeOnDelete(false);
+
+            // Relación N:M Semillero ↔ Investigadores (integrantes)
+            modelBuilder.Entity<Semillero>()
+                .HasMany(s => s.Integrantes)
+                .WithMany(i => i.Semilleros)
+                .Map(m => {
+                    m.ToTable("Semillero_has_Investigadores");
+                    m.MapLeftKey("Semillero_idSemillero");
+                    m.MapRightKey("Investigadores_idInvestigadores");
+                });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -235,6 +250,7 @@ namespace SemillerosApp.Models
         [Display(Name = "Descripción")]
         public string descripcionSemillero { get; set; }
 
+        // Navegación
         public virtual Reunion Reunion { get; set; }
         public virtual Investigadores Investigadores { get; set; }
         public virtual ICollection<Proyecto> Proyectos { get; set; }
@@ -291,6 +307,10 @@ namespace SemillerosApp.Models
         [Display(Name = "Fecha")]
         public DateTime fechaFase { get; set; } = DateTime.Now;
 
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha Límite")]
+        public DateTime? fechaLimiteFase { get; set; }
+
         [Required(ErrorMessage = "La descripción es requerida")]
         [StringLength(50)]
         [Display(Name = "Descripción")]
@@ -323,11 +343,25 @@ namespace SemillerosApp.Models
         [Display(Name = "Descripción")]
         public string descripActividad { get; set; }
 
+        // Fecha + hora de inicio
         [DataType(DataType.Date)]
-        [Display(Name = "Fecha")]
+        [Display(Name = "Fecha de Inicio")]
         public DateTime fechaActividad { get; set; } = DateTime.Now;
 
-        [StringLength(20)]
+        [StringLength(10)]
+        [Display(Name = "Hora de Inicio")]
+        public string horaActividad { get; set; }
+
+        // Fecha + hora límite (deadline)
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha Límite")]
+        public DateTime? fechaLimiteActividad { get; set; }
+
+        [StringLength(10)]
+        [Display(Name = "Hora Límite")]
+        public string horaLimiteActividad { get; set; }
+
+        [StringLength(30)]
         [Display(Name = "Estado")]
         public string estadoActividad { get; set; } = "Pendiente";
 
@@ -337,6 +371,50 @@ namespace SemillerosApp.Models
         public string lugarActividad { get; set; }
 
         public virtual Fase Fase { get; set; }
+
+        // ── Propiedad calculada (no se mapea a BD) ────────────────
+        // Devuelve el estado sugerido según DateTime.Now
+        [NotMapped]
+        public string EstadoSugerido
+        {
+            get
+            {
+                // Si ya tiene un estado final, no sugerir cambio
+                var finales = new[] { "Completada", "Con Retraso", "Descartada" };
+                if (finales.Contains(estadoActividad)) return estadoActividad;
+
+                DateTime ahora = DateTime.Now;
+
+                // Construir datetime de inicio y límite combinando fecha + hora
+                DateTime inicio = fechaActividad;
+                if (!string.IsNullOrEmpty(horaActividad) && TimeSpan.TryParse(horaActividad, out var ti))
+                    inicio = fechaActividad.Date + ti;
+
+                DateTime? limite = null;
+                if (fechaLimiteActividad.HasValue)
+                {
+                    limite = fechaLimiteActividad.Value.Date;
+                    if (!string.IsNullOrEmpty(horaLimiteActividad) && TimeSpan.TryParse(horaLimiteActividad, out var tl))
+                        limite = fechaLimiteActividad.Value.Date + tl;
+                }
+
+                if (limite.HasValue && ahora > limite.Value)
+                    return "Vencida"; // venció sin completarse
+                if (ahora >= inicio && (limite == null || ahora <= limite.Value))
+                    return "En Proceso";
+                if (ahora < inicio)
+                    return "Pendiente";
+
+                return estadoActividad;
+            }
+        }
+
+        [NotMapped]
+        public bool EstaVencida =>
+            fechaLimiteActividad.HasValue &&
+            !new[] { "Completada", "Con Retraso", "Descartada" }.Contains(estadoActividad) &&
+            DateTime.Now > (fechaLimiteActividad.Value.Date +
+                (TimeSpan.TryParse(horaLimiteActividad, out var t) ? t : TimeSpan.Zero));
     }
 
     // ── EVENTOS ───────────────────────────────────────────────────

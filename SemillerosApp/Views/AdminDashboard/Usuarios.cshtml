@@ -1,0 +1,286 @@
+﻿@model IEnumerable<SemillerosApp.Models.Usuario>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Usuarios";
+    ViewBag.Subtitle = "Gestión de líderes de semillero";
+}
+
+@section Styles {
+    <style>
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .card-panel-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a5276;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+            .section-title i {
+                color: #2e86c1;
+            }
+
+        .search-bar {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-input {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 8px 14px 8px 36px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .85rem;
+            width: 300px;
+            transition: border-color .2s;
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: #2e86c1;
+            }
+
+        .search-wrap i {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        table th {
+            font-size: .72rem;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f4f8;
+            padding: 10px 12px;
+        }
+
+        table td {
+            font-size: .83rem;
+            vertical-align: middle;
+            padding: 10px 12px;
+        }
+
+        table tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge-activo {
+            background: #d5f5e3;
+            color: #1e8449;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-inactivo {
+            background: #fde8e8;
+            color: #a93226;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .avatar-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: .82rem;
+            flex-shrink: 0;
+        }
+
+        .btn-sm-action {
+            border: none;
+            border-radius: 7px;
+            padding: 5px 11px;
+            font-size: .75rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity .2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .btn-sm-action:hover {
+                opacity: .82;
+            }
+
+        .btn-edit {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .btn-toggle {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .btn-primary-sm {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: .82rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity .2s;
+        }
+
+            .btn-primary-sm:hover {
+                opacity: .88;
+                color: #fff;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #aaa;
+        }
+
+            .empty-state i {
+                font-size: 2.5rem;
+                margin-bottom: 12px;
+                display: block;
+            }
+    </style>
+}
+
+<div class="card-panel">
+    <div class="card-panel-header">
+        <div class="section-title">
+            <i class="fas fa-users"></i> Usuarios — Líderes de Semillero
+        </div>
+        <a href="@Url.Action("AgregarUsuario","AdminDashboard")" class="btn-primary-sm">
+            <i class="fas fa-plus"></i> Nuevo Usuario
+        </a>
+    </div>
+
+    <div class="search-bar">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="buscador" class="search-input"
+                   placeholder="Buscar por nombre o email...">
+        </div>
+        <span style="font-size:.8rem;color:#aaa">@Model.Count() usuario(s)</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Usuario</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th class="pe-3">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr class="fila-usuario">
+                        <td class="ps-3">
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <div class="avatar-circle">@u.nombreUsuario.Substring(0, 1).ToUpper()</div>
+                                <div>
+                                    <strong>@u.nombreUsuario @u.apellidoUsuario</strong>
+                                    <br />
+                                    <small class="text-muted">Líder de Semillero</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@u.emailUsuario</td>
+                        <td>@u.telefonoUsuario</td>
+                        <td>
+                            <span class="@(u.estadoUsuario == "Activo" ? "badge-activo" : "badge-inactivo")">
+                                @u.estadoUsuario
+                            </span>
+                        </td>
+                        <td class="pe-3">
+                            <a href="@Url.Action("EditarUsuario","AdminDashboard", new { id = u.idUsuario })"
+                               class="btn-sm-action btn-edit me-1" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            @using (Html.BeginForm("InhabilitarUsuario", "AdminDashboard",
+                                    new { id = u.idUsuario }, FormMethod.Post,
+                                    new
+                                    {
+                                        style = "display:inline",
+                                        onsubmit = $"return confirm('{(u.estadoUsuario == "Activo" ? "¿Inhabilitar" : "¿Habilitar")} a {u.nombreUsuario} {u.apellidoUsuario}?')"
+                                    }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-sm-action btn-toggle"
+                                        title="@(u.estadoUsuario == "Activo" ? "Inhabilitar" : "Habilitar")">
+                                    <i class="fas fa-@(u.estadoUsuario == "Activo" ? "user-slash" : "user-check")"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p style="font-weight:600;color:#555">No hay usuarios registrados</p>
+                <p style="font-size:.82rem">Agrega el primer líder con el botón de arriba</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+$('#buscador').on('input', function () {
+    var term = $(this).val().toLowerCase();
+    $('.fila-usuario').each(function () {
+        $(this).toggle($(this).text().toLowerCase().includes(term));
+    });
+});
+    </script>
+}

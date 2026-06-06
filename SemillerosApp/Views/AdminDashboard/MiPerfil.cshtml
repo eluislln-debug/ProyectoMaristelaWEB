@@ -1,0 +1,378 @@
+﻿@model SemillerosApp.Models.Usuario
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Mi Perfil";
+    ViewBag.Subtitle = "Administra tu información personal";
+}
+
+@section Styles {
+    <style>
+        .perfil-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .perfil-header {
+            background: linear-gradient(135deg, #1a5276, #2e86c1);
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .perfil-avatar {
+            width: 72px;
+            height: 72px;
+            background: rgba(255,255,255,.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            border: 3px solid rgba(255,255,255,.4);
+            flex-shrink: 0;
+        }
+
+        .perfil-header-info h4 {
+            color: #fff;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .perfil-header-info span {
+            background: rgba(255,255,255,.2);
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .perfil-body {
+            padding: 28px;
+        }
+
+        .section-label {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .section-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: #e2e8f0;
+            }
+
+        .form-label-custom {
+            font-size: .78rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 5px;
+        }
+
+        .form-control-custom {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: .88rem;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color .25s, box-shadow .25s;
+            width: 100%;
+        }
+
+            .form-control-custom:focus {
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+                outline: none;
+            }
+
+            .form-control-custom.is-valid {
+                border-color: #28b463;
+            }
+
+            .form-control-custom.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .field-error {
+            font-size: .75rem;
+            color: #e74c3c;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #1a5276, #2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            font-size: .88rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: opacity .2s, transform .2s;
+            cursor: pointer;
+        }
+
+            .btn-save:hover {
+                opacity: .9;
+                transform: translateY(-1px);
+            }
+
+        .btn-outline-custom {
+            background: #fff;
+            color: #1a5276;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-size: .88rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color .2s;
+            cursor: pointer;
+        }
+
+            .btn-outline-custom:hover {
+                border-color: #2e86c1;
+            }
+
+        .pass-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color .2s;
+        }
+
+            .pass-toggle:hover {
+                color: #2e86c1;
+            }
+
+        .input-pass {
+            position: relative;
+        }
+    </style>
+}
+
+<div class="row g-4">
+
+    <!-- ── COLUMNA IZQUIERDA: datos personales ── -->
+    <div class="col-lg-7">
+        <div class="perfil-card">
+            <div class="perfil-header">
+                <div class="perfil-avatar">
+                    @Model.nombreUsuario.Substring(0, 1).ToUpper()
+                </div>
+                <div class="perfil-header-info">
+                    <h4>@Model.nombreUsuario @Model.apellidoUsuario</h4>
+                    <span><i class="fas fa-shield-alt me-1"></i>Administrador</span>
+                </div>
+            </div>
+            <div class="perfil-body">
+                <div class="section-label"><i class="fas fa-user"></i> Datos Personales</div>
+
+                @using (Html.BeginForm("MiPerfil", "AdminDashboard", FormMethod.Post,
+                        new { id = "formPerfil", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.idUsuario)
+                    @Html.HiddenFor(m => m.estadoUsuario)
+                    @Html.HiddenFor(m => m.rolUsuario)
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Nombre</label>
+                            <input type="text" id="nombreUsuario" name="nombreUsuario"
+                                   value="@Model.nombreUsuario"
+                                   class="form-control-custom" placeholder="Tu nombre" />
+                            <span class="field-error" id="err-nombre"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Apellido</label>
+                            <input type="text" id="apellidoUsuario" name="apellidoUsuario"
+                                   value="@Model.apellidoUsuario"
+                                   class="form-control-custom" placeholder="Tu apellido" />
+                            <span class="field-error" id="err-apellido"></span>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label-custom">Correo Electrónico</label>
+                            <input type="email" id="emailUsuario" name="emailUsuario"
+                                   value="@Model.emailUsuario"
+                                   class="form-control-custom" placeholder="correo@ejemplo.com" />
+                            <span class="field-error" id="err-email"></span>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label-custom">Teléfono</label>
+                            <input type="text" id="telefonoUsuario" name="telefonoUsuario"
+                                   value="@Model.telefonoUsuario"
+                                   class="form-control-custom" placeholder="3001234567" />
+                            <span class="field-error" id="err-telefono"></span>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <!-- Contraseña oculta — no se edita aquí -->
+                            <input type="hidden" name="contrasenaUsuario" value="@Model.contrasenaUsuario" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn-save" id="btnGuardar">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ── COLUMNA DERECHA: cambiar contraseña ── -->
+    <div class="col-lg-5">
+        <div class="perfil-card">
+            <div class="perfil-body">
+                <div class="section-label"><i class="fas fa-lock"></i> Cambiar Contraseña</div>
+
+                @using (Html.BeginForm("CambiarContrasena", "AdminDashboard", FormMethod.Post,
+                        new { id = "formPass", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label-custom">Contraseña Actual</label>
+                        <div class="input-pass">
+                            <input type="password" id="passActual" name="contrasenaActual"
+                                   class="form-control-custom pe-5" placeholder="••••••••" />
+                            <span class="pass-toggle" onclick="togglePass('passActual','eyeA')">
+                                <i class="fas fa-eye" id="eyeA"></i>
+                            </span>
+                        </div>
+                        <span class="field-error" id="err-passActual"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-custom">Nueva Contraseña</label>
+                        <div class="input-pass">
+                            <input type="password" id="passNueva" name="nuevaContrasena"
+                                   class="form-control-custom pe-5" placeholder="••••••••" />
+                            <span class="pass-toggle" onclick="togglePass('passNueva','eyeN')">
+                                <i class="fas fa-eye" id="eyeN"></i>
+                            </span>
+                        </div>
+                        <span class="field-error" id="err-passNueva"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-custom">Confirmar Contraseña</label>
+                        <div class="input-pass">
+                            <input type="password" id="passConfirm" name="confirmarContrasena"
+                                   class="form-control-custom pe-5" placeholder="••••••••" />
+                            <span class="pass-toggle" onclick="togglePass('passConfirm','eyeC')">
+                                <i class="fas fa-eye" id="eyeC"></i>
+                            </span>
+                        </div>
+                        <span class="field-error" id="err-passConfirm"></span>
+                    </div>
+
+                    <button type="submit" class="btn-save w-100" id="btnPass">
+                        <i class="fas fa-key me-2"></i>Actualizar Contraseña
+                    </button>
+                }
+
+                <!-- Info del estado de cuenta -->
+                <div style="margin-top:20px;padding:14px;background:#f0f9f4;border-radius:10px;border:1px solid #d5f5e3">
+                    <div style="font-size:.78rem;font-weight:600;color:#1e8449;margin-bottom:6px">
+                        <i class="fas fa-info-circle me-1"></i> Estado de la cuenta
+                    </div>
+                    <div style="font-size:.8rem;color:#2c3e50">
+                        Estado: <strong>@Model.estadoUsuario</strong><br />
+                        Rol: <strong>@Model.rolUsuario</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    // Mostrar/ocultar contraseña
+    function togglePass(inputId, iconId) {
+        var inp  = document.getElementById(inputId);
+        var icon = document.getElementById(iconId);
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            inp.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // Validación en tiempo real — datos personales
+    $('#nombreUsuario').on('input blur', function () {
+        var ok = $(this).val().trim().length >= 2;
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-nombre').text(!ok && $(this).val() !== '' ? 'Mínimo 2 caracteres' : '');
+    });
+    $('#apellidoUsuario').on('input blur', function () {
+        var ok = $(this).val().trim().length >= 2;
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-apellido').text(!ok && $(this).val() !== '' ? 'Mínimo 2 caracteres' : '');
+    });
+    $('#emailUsuario').on('input blur', function () {
+        var ok = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test($(this).val());
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-email').text(!ok && $(this).val() !== '' ? 'Email inválido' : '');
+    });
+    $('#telefonoUsuario').on('input blur', function () {
+        var ok = /^\d{7,10}$/.test($(this).val());
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-telefono').text(!ok && $(this).val() !== '' ? 'Ingresa entre 7 y 10 dígitos' : '');
+    });
+
+    // Validación en tiempo real — contraseña
+    $('#passNueva').on('input blur', function () {
+        var ok = $(this).val().length >= 4;
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-passNueva').text(!ok && $(this).val() !== '' ? 'Mínimo 4 caracteres' : '');
+    });
+    $('#passConfirm').on('input blur', function () {
+        var ok = $(this).val() === $('#passNueva').val() && $(this).val() !== '';
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-passConfirm').text(!ok && $(this).val() !== '' ? 'Las contraseñas no coinciden' : '');
+    });
+
+    // Validar antes de enviar — datos personales
+    $('#formPerfil').on('submit', function (e) {
+        var ok = true;
+        if ($('#nombreUsuario').val().trim().length < 2)   { ok = false; $('#nombreUsuario').addClass('is-invalid');   $('#err-nombre').text('Mínimo 2 caracteres'); }
+        if ($('#apellidoUsuario').val().trim().length < 2)  { ok = false; $('#apellidoUsuario').addClass('is-invalid'); $('#err-apellido').text('Mínimo 2 caracteres'); }
+        if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test($('#emailUsuario').val())) { ok = false; $('#emailUsuario').addClass('is-invalid'); $('#err-email').text('Email inválido'); }
+        if (!/^\d{7,10}$/.test($('#telefonoUsuario').val())) { ok = false; $('#telefonoUsuario').addClass('is-invalid'); $('#err-telefono').text('Entre 7 y 10 dígitos'); }
+        if (!ok) e.preventDefault();
+    });
+
+    // Validar antes de enviar — contraseña
+    $('#formPass').on('submit', function (e) {
+        var ok = true;
+        if ($('#passActual').val() === '')           { ok = false; $('#passActual').addClass('is-invalid');   $('#err-passActual').text('Campo requerido'); }
+        if ($('#passNueva').val().length < 4)         { ok = false; $('#passNueva').addClass('is-invalid');   $('#err-passNueva').text('Mínimo 4 caracteres'); }
+        if ($('#passConfirm').val() !== $('#passNueva').val()) { ok = false; $('#passConfirm').addClass('is-invalid'); $('#err-passConfirm').text('No coinciden'); }
+        if (!ok) e.preventDefault();
+    });
+    </script>
+}

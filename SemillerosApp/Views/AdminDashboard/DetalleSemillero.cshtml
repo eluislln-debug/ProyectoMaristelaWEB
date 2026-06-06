@@ -1,0 +1,1466 @@
+﻿@model SemillerosApp.Models.DetalleSemilleroViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = Model.Semillero.nombreSemillero;
+    ViewBag.Subtitle = "Expediente completo del semillero";
+}
+
+@section Styles {
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1a5276 60%, #2e86c1 100%);
+            border-radius: 20px;
+            padding: 32px 36px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .hero::before {
+                content: '';
+                position: absolute;
+                right: -40px;
+                top: -40px;
+                width: 220px;
+                height: 220px;
+                border-radius: 50%;
+                background: rgba(255,255,255,.04);
+            }
+
+            .hero::after {
+                content: '';
+                position: absolute;
+                right: 60px;
+                bottom: -60px;
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                background: rgba(255,255,255,.03);
+            }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: .72rem;
+            color: rgba(255,255,255,.85);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 14px;
+        }
+
+        .hero h2 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.7rem;
+            margin: 0 0 6px;
+        }
+
+        .hero-sub {
+            color: rgba(255,255,255,.6);
+            font-size: .85rem;
+            margin-bottom: 22px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .hero-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: rgba(255,255,255,.75);
+            font-size: .82rem;
+        }
+
+            .hero-meta-item i {
+                font-size: .85rem;
+                color: rgba(255,255,255,.5);
+            }
+
+        .hero-status {
+            position: absolute;
+            top: 28px;
+            right: 36px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+            .hero-status.activo {
+                background: #d5f5e3;
+                color: #1e8449;
+            }
+
+            .hero-status.inactivo {
+                background: #fde8e8;
+                color: #a93226;
+            }
+
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .mini-stat {
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.06);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+            .mini-stat:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0,0,0,.1);
+            }
+
+        .mini-stat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .mini-stat-label {
+            font-size: .7rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            font-weight: 600;
+        }
+
+        .mini-stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .progress-wrap {
+            margin-bottom: 24px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: .8rem;
+            font-weight: 600;
+            color: #1a5276;
+        }
+
+        .progress-pct {
+            font-size: .8rem;
+            font-weight: 700;
+            color: #2e86c1;
+        }
+
+        .progress-bar-bg {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg,#2e86c1,#28b463);
+            transition: width 1.2s cubic-bezier(.25,.8,.25,1);
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 4px;
+            background: #f0f4f8;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            font-family: 'Poppins',sans-serif;
+            font-size: .8rem;
+            font-weight: 500;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+            .tab-btn.active {
+                background: #fff;
+                color: #1a5276;
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            }
+
+            .tab-btn:hover:not(.active) {
+                color: #1a5276;
+                background: rgba(255,255,255,.6);
+            }
+
+        .tab-pane {
+            display: none;
+        }
+
+            .tab-pane.active {
+                display: block;
+            }
+
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .proyecto-card {
+            border: 2px solid #f0f4f8;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .proyecto-card:hover {
+                border-color: #2e86c1;
+                box-shadow: 0 4px 16px rgba(46,134,193,.1);
+            }
+
+        .proyecto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .proyecto-titulo {
+            font-weight: 700;
+            font-size: .95rem;
+            color: #1a5276;
+        }
+
+        .proyecto-desc {
+            font-size: .8rem;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+        }
+
+        .proyecto-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+            .proyecto-meta span {
+                font-size: .75rem;
+                color: #7f8c8d;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+        .fase-chip {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .fase-pendiente {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .fase-en-proceso {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .fase-completada {
+            background: #d5f5e3;
+            color: #1e8449;
+        }
+
+        .integrante-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background .2s;
+        }
+
+            .integrante-row:last-child {
+                border-bottom: none;
+            }
+
+            .integrante-row:hover {
+                background: #f8fbff;
+            }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: .85rem;
+            flex-shrink: 0;
+        }
+
+            .avatar.lider {
+                background: linear-gradient(135deg,#117a65,#28b463);
+            }
+
+        .integrante-nombre {
+            font-size: .88rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .integrante-tipo {
+            font-size: .72rem;
+            color: #7f8c8d;
+        }
+
+        .badge-tipo {
+            margin-left: auto;
+            font-size: .68rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .badge-principal {
+            background: #d5f5e3;
+            color: #117a65;
+        }
+
+        .badge-semi {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .badge-aux {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .reunion-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f8f9fa;
+            align-items: flex-start;
+        }
+
+            .reunion-item:last-child {
+                border-bottom: none;
+            }
+
+        .reunion-date {
+            min-width: 52px;
+            text-align: center;
+            background: #eaf4fb;
+            border-radius: 10px;
+            padding: 6px 8px;
+        }
+
+            .reunion-date .day {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: #1a5276;
+                line-height: 1;
+            }
+
+            .reunion-date .mon {
+                font-size: .62rem;
+                color: #7f8c8d;
+                text-transform: uppercase;
+            }
+
+        .reunion-motivo {
+            font-size: .88rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .reunion-meta {
+            font-size: .75rem;
+            color: #7f8c8d;
+            display: flex;
+            gap: 12px;
+            margin-top: 3px;
+        }
+
+        .badge-activo {
+            background: #d5f5e3;
+            color: #1e8449;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-inactivo {
+            background: #fde8e8;
+            color: #a93226;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-proceso {
+            background: #eaf4fb;
+            color: #2e86c1;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-finalizado {
+            background: #d5f5e3;
+            color: #1e8449;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #7f8c8d;
+            font-size: .82rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 18px;
+            transition: color .2s;
+        }
+
+            .btn-back:hover {
+                color: #1a5276;
+            }
+
+        .btn-edit-hero {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.3);
+            color: #fff;
+            border-radius: 9px;
+            padding: 8px 18px;
+            font-size: .82rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background .2s;
+            z-index: 10;
+            position: absolute;
+            bottom: 28px;
+            right: 36px;
+        }
+
+            .btn-edit-hero:hover {
+                background: rgba(255,255,255,.25);
+                color: #fff;
+            }
+
+        .empty-tab {
+            text-align: center;
+            padding: 36px;
+            color: #bbb;
+        }
+
+            .empty-tab i {
+                font-size: 2rem;
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            .empty-tab p {
+                font-size: .85rem;
+            }
+
+        .modal-card {
+            border-radius: 16px;
+            border: none;
+            overflow: hidden;
+        }
+
+            .modal-card .modal-header {
+                background: linear-gradient(135deg,#1a5276,#2e86c1);
+                border: none;
+                padding: 18px 24px;
+            }
+
+                .modal-card .modal-header h5 {
+                    color: #fff;
+                    font-weight: 700;
+                    margin: 0;
+                }
+
+                .modal-card .modal-header .btn-close {
+                    filter: brightness(0) invert(1);
+                }
+
+            .modal-card .modal-body {
+                padding: 22px 24px;
+            }
+
+            .modal-card .modal-footer {
+                border-top: 1px solid #f0f4f8;
+                padding: 14px 24px;
+            }
+
+        .modal-input {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            width: 100%;
+            transition: border-color .2s;
+        }
+
+            .modal-input:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.1);
+            }
+
+            .modal-input.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .modal-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .field-err {
+            font-size: .73rem;
+            color: #e74c3c;
+            margin-top: 3px;
+            display: block;
+            min-height: 16px;
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 22px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-modal-cancel {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 18px;
+            font-size: .85rem;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+        }
+
+        .fase-block {
+            border: 2px solid #f0f4f8;
+            border-radius: 12px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .fase-header {
+            background: #f8fbff;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+            .fase-header:hover {
+                background: #eaf4fb;
+            }
+
+        .fase-title {
+            font-size: .85rem;
+            font-weight: 600;
+            color: #1a5276;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .fase-body {
+            padding: 14px 16px;
+            border-top: 1px solid #f0f4f8;
+            display: none;
+        }
+
+        .actividad-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: #f8f9fa;
+            transition: background .2s;
+        }
+
+            .actividad-item:hover {
+                background: #f0f4f8;
+            }
+
+        .actividad-nombre {
+            font-size: .83rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .actividad-meta {
+            font-size: .72rem;
+            color: #aaa;
+        }
+
+        .btn-xs {
+            border: none;
+            border-radius: 6px;
+            padding: 4px 9px;
+            font-size: .7rem;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-xs:hover {
+                opacity: .8;
+            }
+
+        .btn-xs-success {
+            background: #d5f5e3;
+            color: #117a65;
+        }
+
+        .btn-xs-warn {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .btn-xs-danger {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .btn-xs-info {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .select-estado {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .75rem;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+        .badge-vencida {
+            background: #fde8e8;
+            color: #a93226;
+            font-size: .65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .badge-sugerido {
+            background: #fef9e7;
+            color: #d68910;
+            font-size: .65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+    </style>
+}
+
+<a href="@Url.Action("Semilleros","AdminDashboard")" class="btn-back">
+    <i class="fas fa-arrow-left"></i> Volver a Semilleros
+</a>
+
+<!-- HERO -->
+<div class="hero">
+    <span class="hero-status @(Model.Semillero.estadoSemillero == "Activo" ? "activo" : "inactivo")">
+        <i class="fas fa-circle me-1" style="font-size:.5rem"></i>
+        @Model.Semillero.estadoSemillero
+    </span>
+    <div class="hero-badge"><i class="fas fa-seedling"></i> Semillero de Investigación</div>
+    <h2>@Model.Semillero.nombreSemillero</h2>
+    <p class="hero-sub">@Model.Semillero.descripcionSemillero</p>
+    <div class="hero-meta">
+        <div class="hero-meta-item"><i class="fas fa-flask"></i>@Model.Semillero.lineaInvestigacion</div>
+        <div class="hero-meta-item"><i class="fas fa-user-tie"></i>Líder: @(Model.Semillero.Investigadores?.nombreInvestigador ?? "Sin asignar")</div>
+        <div class="hero-meta-item">
+            <i class="fas fa-calendar-alt"></i>
+            Creado el @Model.Semillero.fechacreaSemillero.ToString("dd 'de' MMMM, yyyy", new System.Globalization.CultureInfo("es-ES"))
+        </div>
+    </div>
+    <a href="@Url.Action("EditarSemillero","AdminDashboard", new { id = Model.Semillero.idSemillero })" class="btn-edit-hero">
+        <i class="fas fa-edit"></i> Editar Semillero
+    </a>
+</div>
+
+<!-- MINI STATS -->
+<div class="mini-stats">
+    <div class="mini-stat">
+        <div class="mini-stat-icon" style="background:#eaf4fb;color:#2e86c1"><i class="fas fa-users"></i></div>
+        <div><div class="mini-stat-label">Integrantes</div><div class="mini-stat-value" style="color:#2e86c1">@Model.Integrantes.Count</div></div>
+    </div>
+    <div class="mini-stat">
+        <div class="mini-stat-icon" style="background:#fef5ec;color:#ca6f1e"><i class="fas fa-project-diagram"></i></div>
+        <div><div class="mini-stat-label">Proyectos</div><div class="mini-stat-value" style="color:#ca6f1e">@Model.TotalProyectos</div></div>
+    </div>
+    <div class="mini-stat">
+        <div class="mini-stat-icon" style="background:#f4f0fb;color:#7d3c98"><i class="fas fa-layer-group"></i></div>
+        <div><div class="mini-stat-label">Fases</div><div class="mini-stat-value" style="color:#7d3c98">@Model.TotalFases</div></div>
+    </div>
+    <div class="mini-stat">
+        <div class="mini-stat-icon" style="background:#d5f5e3;color:#1e8449"><i class="fas fa-tasks"></i></div>
+        <div><div class="mini-stat-label">Actividades</div><div class="mini-stat-value" style="color:#1e8449">@Model.TotalActividades</div></div>
+    </div>
+</div>
+
+<!-- BARRA DE PROGRESO -->
+<div class="card-panel" style="padding:20px 24px;margin-bottom:24px">
+    <div class="progress-wrap mb-0">
+        <div class="progress-header">
+            <span class="progress-label"><i class="fas fa-chart-line me-2" style="color:#2e86c1"></i>Progreso general del semillero</span>
+            <span class="progress-pct" id="pctLabel">@Model.PorcentajeActividad%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+            <span style="font-size:.72rem;color:#aaa">@(Model.TotalActividades - Model.ActividadesPendientes) actividades completadas</span>
+            <span style="font-size:.72rem;color:#e74c3c;font-weight:600">@Model.ActividadesPendientes pendientes</span>
+        </div>
+    </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('tab-proyectos',this)"><i class="fas fa-project-diagram"></i>Proyectos (@Model.TotalProyectos)</button>
+    <button class="tab-btn" onclick="switchTab('tab-integrantes',this)"><i class="fas fa-users"></i>Integrantes (@Model.Integrantes.Count)</button>
+    <button class="tab-btn" onclick="switchTab('tab-reuniones',this)"><i class="fas fa-calendar-check"></i>Reunión (@(Model.Semillero.Reunion != null ? 1 : 0))</button>
+    <button class="tab-btn" onclick="switchTab('tab-eventos',this)"><i class="fas fa-star"></i>Eventos (@(Model.Semillero.SemilleroEventos?.Count ?? 0))</button>
+</div>
+
+<!-- TAB PROYECTOS -->
+<div id="tab-proyectos" class="tab-pane active">
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button" data-bs-toggle="modal" data-bs-target="#modalCrearProyecto"
+                style="background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;border:none;
+                       border-radius:10px;padding:9px 20px;font-size:.84rem;font-weight:600;
+                       font-family:'Poppins',sans-serif;cursor:pointer;display:inline-flex;
+                       align-items:center;gap:7px;box-shadow:0 4px 14px rgba(26,82,118,.3);transition:opacity .2s"
+                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            <i class="fas fa-plus"></i> Nuevo Proyecto
+        </button>
+    </div>
+
+    @if (Model.Semillero.Proyectos != null && Model.Semillero.Proyectos.Any())
+    {
+        foreach (var p in Model.Semillero.Proyectos.OrderByDescending(x => x.fechainProyecto))
+        {
+            <div class="proyecto-card">
+                <div class="proyecto-header">
+                    <div>
+                        <div class="proyecto-titulo"><i class="fas fa-folder-open me-2" style="color:#2e86c1;font-size:.85rem"></i>@p.tituloProyecto</div>
+                        <div class="proyecto-desc">@p.descripcionProyecto</div>
+                    </div>
+                    <span class="@(p.estadoProyecto=="En Proceso" ? "badge-proceso" : p.estadoProyecto=="Finalizado" ? "badge-finalizado" : "badge-inactivo")">@p.estadoProyecto</span>
+                </div>
+                <div class="proyecto-meta">
+                    <span><i class="fas fa-calendar-plus"></i>@p.fechainProyecto.ToString("dd/MM/yyyy")</span>
+                    <span><i class="fas fa-clock"></i>@p.duracionProyecto</span>
+                    <span><i class="fas fa-layer-group"></i>@p.Fases.Count fase(s)</span>
+                    <span><i class="fas fa-tasks"></i>@p.Fases.SelectMany(f => f.Actividades).Count() actividad(es)</span>
+                </div>
+
+                <!-- FASES -->
+                <div style="border-top:1px solid #f0f4f8;padding-top:12px;margin-top:8px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <span style="font-size:.7rem;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Fases del proyecto</span>
+                        <button type="button" class="btn-xs btn-xs-info" data-bs-toggle="modal" data-bs-target="#modalCrearFase"
+                                onclick="setProyectoFase(@p.idProyecto, '@p.tituloProyecto')">
+                            <i class="fas fa-plus me-1"></i>Nueva Fase
+                        </button>
+                    </div>
+
+                    @foreach (var f in p.Fases.OrderBy(x => x.fechaFase))
+                    {
+                        string faseColor = f.estadoFase == "Completada" ? "#1e8449" : f.estadoFase == "En Proceso" ? "#2e86c1" : "#d4ac0d";
+                        bool faseVencida = f.estadoFase != "Completada" && f.fechaLimiteFase.HasValue && DateTime.Now > f.fechaLimiteFase.Value;
+
+                        <div class="fase-block" style="@(faseVencida ? "border-color:#f5c6cb" : "")">
+                            <div class="fase-header" onclick="toggleFase('fase-@f.idFase')">
+                                <div class="fase-title">
+                                    <i class="fas fa-circle" style="font-size:.45rem;color:@faseColor"></i>
+                                    @f.descripcionFase
+                                    <span class="fase-chip @(f.estadoFase=="Completada"?"fase-completada":f.estadoFase=="En Proceso"?"fase-en-proceso":"fase-pendiente")">
+                                        @f.estadoFase
+                                    </span>
+                                    @* Mostrar fecha inicio y límite de la fase *@
+                                    <span style="font-size:.68rem;color:#95a5a6;font-weight:400">
+                                        <i class="fas fa-play-circle me-1" style="color:#2e86c1"></i>@f.fechaFase.ToString("dd/MM/yyyy")
+                                    </span>
+                                    @if (f.fechaLimiteFase.HasValue)
+                                    {
+                                        <span style="font-size:.68rem;color:@(faseVencida ? "#e74c3c" : "#95a5a6");font-weight:@(faseVencida ? "700" : "400")">
+                                            <i class="fas fa-flag-checkered me-1" style="color:@(faseVencida ? "#e74c3c" : "#f39c12")"></i>
+                                            @f.fechaLimiteFase.Value.ToString("dd/MM/yyyy")
+                                            @if (faseVencida)
+                                            {<text><span style="color:#e74c3c"> · VENCIDA</span></text>}
+                                        </span>
+                                    }
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    @using (Html.BeginForm("EliminarFase", "AdminDashboard",
+                                            new { idFase = f.idFase, idSemillero = Model.Semillero.idSemillero },
+                                            FormMethod.Post, new { style = "display:inline", onsubmit = "return confirm('¿Eliminar esta fase y sus actividades?')", onclick = "event.stopPropagation()" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-xs btn-xs-danger" onclick="event.stopPropagation()"><i class="fas fa-trash"></i></button>
+                                    }
+                                    <i class="fas fa-chevron-down" style="color:#aaa;font-size:.75rem"></i>
+                                </div>
+                            </div>
+
+                            <!-- ACTIVIDADES -->
+                            <div class="fase-body" id="fase-@f.idFase">
+                                @foreach (var a in f.Actividades.OrderBy(x => x.fechaActividad))
+                                {
+                                    string iconoAct = (a.estadoActividad == "Completada" || a.estadoActividad == "Con Retraso") ? "check-circle"
+                                                    : a.estadoActividad == "Descartada" ? "times-circle"
+                                                    : a.estadoActividad == "En Proceso" ? "spinner"
+                                                    : "circle";
+                                    string colorAct = a.estadoActividad == "Completada" ? "#28b463"
+                                                    : a.estadoActividad == "Con Retraso" ? "#f39c12"
+                                                    : a.estadoActividad == "Descartada" ? "#e74c3c"
+                                                    : a.estadoActividad == "En Proceso" ? "#2e86c1"
+                                                    : a.EstaVencida ? "#e74c3c"
+                                                    : "#dee2e6";
+                                    string[] finales = { "Completada", "Con Retraso", "Descartada" };
+                                    bool mostrarSugerencia = !finales.Contains(a.estadoActividad)
+                                                          && a.EstadoSugerido != a.estadoActividad
+                                                          && a.EstadoSugerido != "Pendiente";
+
+                                    <div class="actividad-item">
+                                        <i class="fas fa-@iconoAct" style="color:@colorAct;font-size:.9rem;margin-top:3px;flex-shrink:0"></i>
+                                        <div style="flex:1">
+                                            <div class="actividad-nombre">
+                                                @a.nombreActividad
+                                                @if (a.EstaVencida)
+                                                {
+                                                    <span class="badge-vencida ms-1"><i class="fas fa-exclamation-circle me-1"></i>VENCIDA</span>
+                                                }
+                                                else if (mostrarSugerencia)
+                                                {
+                                                    <span class="badge-sugerido ms-1" title="Estado sugerido según fechas">
+                                                        <i class="fas fa-lightbulb me-1"></i>Sugerido: @a.EstadoSugerido
+                                                    </span>
+                                                }
+                                            </div>
+                                            <div class="actividad-meta">@a.descripActividad · <i class="fas fa-map-marker-alt me-1"></i>@a.lugarActividad</div>
+                                            <div style="display:flex;gap:14px;margin-top:4px;flex-wrap:wrap">
+                                                <span style="font-size:.7rem;color:#7f8c8d">
+                                                    <i class="fas fa-play-circle me-1" style="color:#2e86c1"></i>
+                                                    @a.fechaActividad.ToString("dd/MM/yyyy")
+                                                    @if (!string.IsNullOrEmpty(a.horaActividad))
+                                                    {<text>· @a.horaActividad</text>}
+                                                </span>
+                                                @if (a.fechaLimiteActividad.HasValue)
+                                                {
+                                                    <span style="font-size:.7rem;color:@(a.EstaVencida ? "#e74c3c" : "#7f8c8d");font-weight:@(a.EstaVencida ? "700" : "400")">
+                                                        <i class="fas fa-flag-checkered me-1" style="color:@(a.EstaVencida ? "#e74c3c" : "#f39c12")"></i>
+                                                        Límite: @a.fechaLimiteActividad.Value.ToString("dd/MM/yyyy")
+                                                        @if (!string.IsNullOrEmpty(a.horaLimiteActividad))
+                                                        {<text>· @a.horaLimiteActividad</text>}
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        @using (Html.BeginForm("CambiarEstadoActividad", "AdminDashboard",
+                                            new { idActividad = a.idActividad, idSemillero = Model.Semillero.idSemillero },
+                                            FormMethod.Post, new { style = "display:inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <select name="nuevoEstado" class="select-estado" onchange="this.form.submit()" title="Estado"
+                                                    style="border-color:@(a.estadoActividad=="Completada" ? "#28b463"
+                                                                        : a.estadoActividad=="Con Retraso" ? "#f39c12"
+                                                                        : a.estadoActividad=="Descartada"  ? "#e74c3c"
+                                                                        : a.estadoActividad=="En Proceso"  ? "#2e86c1"
+                                                                        : a.EstaVencida                    ? "#e74c3c"
+                                                                        : "#dee2e6");
+                                                           color:@(a.estadoActividad=="Completada" ? "#1e8449"
+                                                                  : a.estadoActividad=="Con Retraso" ? "#d68910"
+                                                                  : a.estadoActividad=="Descartada"  ? "#a93226"
+                                                                  : a.estadoActividad=="En Proceso"  ? "#1a5276"
+                                                                  : a.EstaVencida                    ? "#a93226"
+                                                                  : "#555");font-weight:600">
+                                                <option value="Pendiente" @(a.estadoActividad == "Pendiente" ? "selected" : "")>⏳ Pendiente</option>
+                                                <option value="En Proceso" @(a.estadoActividad == "En Proceso" ? "selected" : "")>🔄 En Proceso</option>
+                                                <option value="Completada" @(a.estadoActividad == "Completada" ? "selected" : "")>✅ Completada</option>
+                                                <option value="Con Retraso" @(a.estadoActividad == "Con Retraso" ? "selected" : "")>⚠️ Con Retraso</option>
+                                                <option value="Descartada" @(a.estadoActividad == "Descartada" ? "selected" : "")>❌ Descartada</option>
+                                            </select>
+                                        }
+
+                                        @using (Html.BeginForm("EliminarActividad", "AdminDashboard",
+                                                new { idActividad = a.idActividad, idSemillero = Model.Semillero.idSemillero },
+                                                FormMethod.Post, new { style = "display:inline", onsubmit = "return confirm('¿Eliminar actividad?')" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-xs btn-xs-danger"><i class="fas fa-trash"></i></button>
+                                        }
+                                    </div>
+                                }
+
+                                <div style="margin-top:8px">
+                                    <button type="button" class="btn-xs btn-xs-success" data-bs-toggle="modal" data-bs-target="#modalCrearActividad"
+                                            onclick="setFaseActividad(@f.idFase, '@f.descripcionFase')">
+                                        <i class="fas fa-plus me-1"></i>Nueva Actividad
+                                    </button>
+                                </div>
+                                @if (!f.Actividades.Any())
+                                {
+                                    <p style="font-size:.78rem;color:#aaa;text-align:center;padding:10px 0">Sin actividades. Agrega la primera.</p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (!p.Fases.Any())
+                    {
+                        <p style="font-size:.78rem;color:#aaa;text-align:center;padding:8px 0">Sin fases. Agrega la primera.</p>
+                    }
+                </div>
+
+                <!-- ACCIONES PROYECTO -->
+                <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                    @using (Html.BeginForm("SuspenderProyecto", "AdminDashboard",
+                        new { idProyecto = p.idProyecto, idSemillero = Model.Semillero.idSemillero },
+                        FormMethod.Post, new { style = "display:inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-xs @(p.estadoProyecto=="Suspendido"?"btn-xs-success":"btn-xs-warn")">
+                            <i class="fas fa-@(p.estadoProyecto=="Suspendido"?"play":"pause") me-1"></i>
+                            @(p.estadoProyecto=="Suspendido" ? "Reanudar" : "Suspender")
+                        </button>
+                    }
+                    @using (Html.BeginForm("EliminarProyecto", "AdminDashboard",
+                            new { idProyecto = p.idProyecto, idSemillero = Model.Semillero.idSemillero },
+                            FormMethod.Post, new { style = "display:inline", onsubmit = $"return confirm('¿Eliminar {p.tituloProyecto}?')" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-xs btn-xs-danger"><i class="fas fa-trash me-1"></i>Eliminar Proyecto</button>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-tab card-panel">
+            <i class="fas fa-folder-open"></i>
+            <p style="font-weight:600;color:#555">Sin proyectos aún</p>
+            <p>Crea el primer proyecto con el botón de arriba.</p>
+        </div>
+    }
+</div>
+
+<!-- TAB INTEGRANTES -->
+<div id="tab-integrantes" class="tab-pane">
+    <div class="card-panel">
+        @foreach (var i in Model.Integrantes)
+        {
+            string avatarClass = i.tipoInvestigador == "Principal" ? "avatar lider" : "avatar";
+            string badgeClass = i.tipoInvestigador == "Principal" ? "badge-tipo badge-principal"
+                               : i.tipoInvestigador == "Auxiliar" ? "badge-tipo badge-aux"
+                               : "badge-tipo badge-semi";
+            <div class="integrante-row">
+                <div class="@avatarClass">@i.nombreInvestigador.Substring(0, 1).ToUpper()</div>
+                <div>
+                    <div class="integrante-nombre">
+                        @i.nombreInvestigador
+                        @if (i.tipoInvestigador == "Principal")
+                        {<i class="fas fa-crown ms-1" style="color:#d4ac0d;font-size:.7rem"></i>}
+                    </div>
+                    <div class="integrante-tipo">@i.emailInvestigador · @i.telefonoInvestigador</div>
+                </div>
+                <span class="@badgeClass">@i.tipoInvestigador</span>
+            </div>
+        }
+        @if (!Model.Integrantes.Any())
+        {
+            <div class="empty-tab"><i class="fas fa-users"></i><p>Sin integrantes registrados</p></div>
+        }
+    </div>
+</div>
+
+<!-- TAB REUNIONES -->
+<div id="tab-reuniones" class="tab-pane">
+    <div class="card-panel">
+        @if (Model.Semillero.Reunion != null)
+        {
+            <div class="reunion-item">
+                <div class="reunion-date">
+                    <div class="day">@Model.Semillero.Reunion.fechaReunion.Day.ToString("00")</div>
+                    <div class="mon">@Model.Semillero.Reunion.fechaReunion.ToString("MMM", new System.Globalization.CultureInfo("es-ES"))</div>
+                </div>
+                <div>
+                    <div class="reunion-motivo">@Model.Semillero.Reunion.motivoReunion</div>
+                    <div class="reunion-meta">
+                        <span><i class="fas fa-map-marker-alt me-1"></i>@Model.Semillero.Reunion.lugarReunion</span>
+                        <span><i class="fas fa-circle me-1" style="font-size:.45rem;color:@(Model.Semillero.Reunion.estadoReunion=="Programada"?"#2e86c1":"#28b463")"></i>@Model.Semillero.Reunion.estadoReunion</span>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-tab"><i class="fas fa-calendar"></i><p style="font-weight:600;color:#555">Sin reunión vinculada</p></div>
+        }
+    </div>
+</div>
+
+<!-- TAB EVENTOS -->
+<div id="tab-eventos" class="tab-pane">
+    <div class="card-panel">
+        @if (Model.Semillero.SemilleroEventos != null && Model.Semillero.SemilleroEventos.Any())
+        {
+            foreach (var she in Model.Semillero.SemilleroEventos)
+            {
+                var ev = she.Eventos;
+                if (ev == null)
+                {
+                    continue;
+                }
+                <div class="reunion-item">
+                    <div class="reunion-date" style="background:#fef5ec">
+                        <div class="day" style="color:#ca6f1e">@ev.fechaEvento.Day.ToString("00")</div>
+                        <div class="mon">@ev.fechaEvento.ToString("MMM", new System.Globalization.CultureInfo("es-ES"))</div>
+                    </div>
+                    <div>
+                        <div class="reunion-motivo">@ev.nombreEvento</div>
+                        <div class="reunion-meta">
+                            <span><i class="fas fa-tag me-1"></i>@ev.tipoEvento</span>
+                            <span><i class="fas fa-map-marker-alt me-1"></i>@ev.lugarEvento</span>
+                            <span><i class="fas fa-clock me-1"></i>@ev.horaEvento</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-tab"><i class="fas fa-star"></i><p style="font-weight:600;color:#555">Sin eventos vinculados</p></div>
+        }
+    </div>
+</div>
+
+<!-- MODAL CREAR PROYECTO -->
+<div class="modal fade" id="modalCrearProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-card">
+            <div class="modal-header"><h5><i class="fas fa-folder-plus me-2"></i>Nuevo Proyecto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            @using (Html.BeginForm("CrearProyecto", "AdminDashboard", FormMethod.Post, new { id = "formProyecto", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idSemillero" value="@Model.Semillero.idSemillero" />
+                <div class="modal-body">
+                    <div class="mb-3"><label class="modal-label">Título *</label><input type="text" name="tituloProyecto" id="mp-titulo" class="modal-input" placeholder="Ej: Investigación en IA" maxlength="20" /><span class="field-err" id="err-mp-titulo"></span></div>
+                    <div class="mb-3"><label class="modal-label">Descripción *</label><textarea name="descripcionProyecto" id="mp-desc" class="modal-input" rows="3" placeholder="Describe el proyecto..." maxlength="50"></textarea><span class="field-err" id="err-mp-desc"></span></div>
+                    <div class="mb-1"><label class="modal-label">Duración *</label><input type="text" name="duracionProyecto" id="mp-dur" class="modal-input" placeholder="Ej: 6 meses" maxlength="20" /><span class="field-err" id="err-mp-dur"></span></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save" id="btnCrearProyecto"><i class="fas fa-plus me-1"></i>Crear Proyecto</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREAR FASE -->
+<div class="modal fade" id="modalCrearFase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-card">
+            <div class="modal-header"><h5><i class="fas fa-layer-group me-2"></i>Nueva Fase</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            @using (Html.BeginForm("CrearFase", "AdminDashboard", FormMethod.Post, new { id = "formFase", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idSemillero" value="@Model.Semillero.idSemillero" />
+                <input type="hidden" name="idProyecto" id="fase-idProyecto" value="" />
+                <div class="modal-body">
+                    <p style="font-size:.8rem;color:#7f8c8d;margin-bottom:14px">Proyecto: <strong id="fase-proyectoNombre"></strong></p>
+                    <div class="mb-3">
+                        <label class="modal-label">Descripción de la Fase *</label>
+                        <input type="text" name="descripcionFase" id="mf-desc" class="modal-input" placeholder="Ej: Fase de análisis" maxlength="50" />
+                        <span class="field-err" id="err-mf-desc"></span>
+                    </div>
+                    <div class="mb-1">
+                        <label class="modal-label">Fecha Límite <span style="color:#f39c12;font-size:.65rem">(opcional)</span></label>
+                        <input type="date" name="fechaLimiteFase" id="mf-fechaLimite" class="modal-input" />
+                        <span class="field-err" id="err-mf-fechaLimite"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save"><i class="fas fa-plus me-1"></i>Agregar Fase</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREAR ACTIVIDAD -->
+<div class="modal fade" id="modalCrearActividad" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-card">
+            <div class="modal-header"><h5><i class="fas fa-tasks me-2"></i>Nueva Actividad</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            @using (Html.BeginForm("CrearActividad", "AdminDashboard", FormMethod.Post, new { id = "formActividad", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idSemillero" value="@Model.Semillero.idSemillero" />
+                <input type="hidden" name="idFase" id="act-idFase" value="" />
+                <div class="modal-body">
+                    <p style="font-size:.8rem;color:#7f8c8d;margin-bottom:14px">Fase: <strong id="act-faseNombre"></strong></p>
+                    <div class="mb-3">
+                        <label class="modal-label">Nombre *</label>
+                        <input type="text" name="nombreActividad" id="ma-nombre" class="modal-input" placeholder="Ej: Reunión de planificación" maxlength="40" />
+                        <span class="field-err" id="err-ma-nombre"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Descripción *</label>
+                        <input type="text" name="descripActividad" id="ma-desc" class="modal-input" placeholder="Breve descripción" maxlength="50" />
+                        <span class="field-err" id="err-ma-desc"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Lugar *</label>
+                        <input type="text" name="lugarActividad" id="ma-lugar" class="modal-input" placeholder="Ej: Sala de reuniones" maxlength="40" />
+                        <span class="field-err" id="err-ma-lugar"></span>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="modal-label">Fecha de Inicio *</label>
+                            <input type="date" name="fechaActividad" id="ma-fecha" class="modal-input" />
+                            <span class="field-err" id="err-ma-fecha"></span>
+                        </div>
+                        <div class="col-5">
+                            <label class="modal-label">Hora de Inicio</label>
+                            <input type="time" name="horaActividad" class="modal-input" />
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-1">
+                        <div class="col-7">
+                            <label class="modal-label">Fecha Límite <span style="color:#f39c12;font-size:.65rem">(deadline)</span></label>
+                            <input type="date" name="fechaLimiteActividad" id="ma-flimite" class="modal-input" />
+                            <span class="field-err" id="err-ma-flimite"></span>
+                        </div>
+                        <div class="col-5">
+                            <label class="modal-label">Hora Límite</label>
+                            <input type="time" name="horaLimiteActividad" class="modal-input" />
+                        </div>
+                    </div>
+                    <small style="font-size:.7rem;color:#aaa"><i class="fas fa-lightbulb me-1" style="color:#f39c12"></i>El sistema sugerirá el estado según estas fechas.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save"><i class="fas fa-plus me-1"></i>Crear Actividad</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+// ── UTILIDADES ────────────────────────────────────────────
+function toggleFase(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function validarCampo(id, errId, min, msg) {
+    var v = document.getElementById(id).value.trim();
+    if (v.length < min) {
+        document.getElementById(id).classList.add('is-invalid');
+        document.getElementById(errId).innerText = msg;
+        return false;
+    }
+    document.getElementById(id).classList.remove('is-invalid');
+    document.getElementById(errId).innerText = '';
+    return true;
+}
+
+function setError(inputId, errId, msg) {
+    var el = document.getElementById(inputId);
+    if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = msg;
+}
+
+function clearError(inputId, errId) {
+    var el = document.getElementById(inputId);
+    if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = '';
+}
+
+// ── MODAL PROYECTO ────────────────────────────────────────
+function setProyectoFase(idProyecto, nombre) {
+    document.getElementById('fase-idProyecto').value = idProyecto;
+    document.getElementById('fase-proyectoNombre').innerText = nombre;
+    document.getElementById('mf-desc').value = '';
+    document.getElementById('err-mf-desc').innerText = '';
+    document.getElementById('mf-desc').classList.remove('is-invalid');
+    document.querySelector('[name="fechaLimiteFase"]').value = '';
+    clearError('mf-fechaLimite', 'err-mf-fechaLimite');
+}
+
+document.getElementById('mp-titulo').addEventListener('input', function () { validarCampo('mp-titulo', 'err-mp-titulo', 3, 'Mínimo 3 caracteres'); });
+document.getElementById('mp-desc').addEventListener('input',  function () { validarCampo('mp-desc',   'err-mp-desc',   5, 'Mínimo 5 caracteres'); });
+document.getElementById('mp-dur').addEventListener('input',   function () { validarCampo('mp-dur',    'err-mp-dur',    2, 'Mínimo 2 caracteres'); });
+
+document.getElementById('formProyecto').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('mp-titulo', 'err-mp-titulo', 3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('mp-desc',   'err-mp-desc',   5, 'Mínimo 5 caracteres')) ok = false;
+    if (!validarCampo('mp-dur',    'err-mp-dur',    2, 'Mínimo 2 caracteres')) ok = false;
+    if (!ok) { e.preventDefault(); return; }
+    document.getElementById('btnCrearProyecto').disabled = true;
+});
+
+// ── MODAL FASE ────────────────────────────────────────────
+function setFaseActividad(idFase, nombre) {
+    document.getElementById('act-idFase').value = idFase;
+    document.getElementById('act-faseNombre').innerText = nombre;
+    ['ma-nombre', 'ma-desc', 'ma-lugar', 'ma-fecha'].forEach(function (id) {
+        document.getElementById(id).value = '';
+        document.getElementById(id).classList.remove('is-invalid');
+        document.getElementById(id).style.borderColor = '';
+    });
+    ['err-ma-nombre', 'err-ma-desc', 'err-ma-lugar', 'err-ma-fecha'].forEach(function (id) {
+        document.getElementById(id).innerText = '';
+    });
+    document.querySelector('[name="horaActividad"]').value = '';
+    document.querySelector('[name="fechaLimiteActividad"]').value = '';
+    document.querySelector('[name="horaLimiteActividad"]').value = '';
+    clearError('ma-flimite', 'err-ma-flimite');
+    clearError('ma-horaInicio', 'err-ma-hora');
+    clearError('ma-horaLimite', 'err-ma-horaLimite');
+}
+
+// Descripción fase
+document.getElementById('mf-desc').addEventListener('input', function () {
+    validarCampo('mf-desc', 'err-mf-desc', 3, 'Mínimo 3 caracteres');
+});
+
+// Fecha límite fase: debe ser hoy o posterior
+document.querySelector('[name="fechaLimiteFase"]').addEventListener('change', function () {
+    var hoy = new Date().toISOString().split('T')[0];
+    if (this.value && this.value < hoy) {
+        setError('mf-fechaLimite', 'err-mf-fechaLimite', 'La fecha límite no puede ser en el pasado');
+    } else {
+        clearError('mf-fechaLimite', 'err-mf-fechaLimite');
+    }
+});
+
+document.getElementById('formFase').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('mf-desc', 'err-mf-desc', 3, 'Mínimo 3 caracteres')) ok = false;
+
+    var fechaLimite = document.querySelector('[name="fechaLimiteFase"]').value;
+    var hoy = new Date().toISOString().split('T')[0];
+    if (fechaLimite && fechaLimite < hoy) {
+        setError('mf-fechaLimite', 'err-mf-fechaLimite', 'La fecha límite no puede ser en el pasado');
+        ok = false;
+    }
+
+    if (!ok) e.preventDefault();
+});
+
+// ── MODAL ACTIVIDAD ───────────────────────────────────────
+
+// Texto
+['ma-nombre', 'ma-desc', 'ma-lugar'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () {
+        validarCampo(id, 'err-' + id, 3, 'Mínimo 3 caracteres');
+    });
+});
+
+// Validación cruzada fecha + hora
+        function validarFechasActividad() {
+            var fechaInicio = document.getElementById('ma-fecha').value;
+            var horaInicio = document.querySelector('[name="horaActividad"]').value;
+            var fechaLimite = document.getElementById('ma-flimite').value;
+            var horaLimite = document.querySelector('[name="horaLimiteActividad"]').value;
+
+            var ahora = new Date();
+            var hoy = ahora.toISOString().split('T')[0];
+            var horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + ahora.getMinutes().toString().padStart(2, '0');
+            var ok = true;
+
+            // ── Fecha inicio ──────────────────────────────────────
+            if (!fechaInicio) {
+                setError('ma-fecha', 'err-ma-fecha', 'La fecha de inicio es requerida');
+                ok = false;
+            } else if (fechaInicio < hoy) {
+                setError('ma-fecha', 'err-ma-fecha', 'La fecha de inicio no puede ser en el pasado');
+                ok = false;
+            } else {
+                clearError('ma-fecha', 'err-ma-fecha');
+            }
+
+            // ── Hora inicio: si es hoy, debe ser posterior a ahora ─
+            if (fechaInicio === hoy && horaInicio) {
+                if (horaInicio <= horaActual) {
+                    setError('ma-fecha', 'err-ma-fecha', 'La hora de inicio debe ser posterior a la hora actual (' + horaActual + ')');
+                    ok = false;
+                }
+            }
+
+            // ── Fecha y hora límite (mínimo 1 hora después del inicio) ──
+            if (fechaInicio && fechaLimite) {
+                var dtInicio = new Date(fechaInicio + 'T' + (horaInicio || '00:00'));
+                var dtLimite = new Date(fechaLimite + 'T' + (horaLimite || '23:59'));
+
+                // Calcular diferencia en minutos
+                var diffMinutos = (dtLimite - dtInicio) / (1000 * 60);
+
+                if (dtLimite <= dtInicio) {
+                    setError('ma-flimite', 'err-ma-flimite', 'La fecha/hora límite debe ser posterior a la de inicio');
+                    ok = false;
+                } else if (diffMinutos < 60) {
+                    setError('ma-flimite', 'err-ma-flimite', 'La fecha/hora límite debe ser al menos 1 hora después del inicio');
+                    ok = false;
+                } else {
+                    clearError('ma-flimite', 'err-ma-flimite');
+                }
+            } else {
+                clearError('ma-flimite', 'err-ma-flimite');
+            }
+
+            return ok;
+        }
+
+// Disparar validación cruzada en tiempo real
+        // Fecha inicio: no puede ser en el pasado
+        document.getElementById('ma-fecha').addEventListener('change', function () {
+            var hoy = new Date().toISOString().split('T')[0];
+            if (this.value && this.value < hoy) {
+                setError('ma-fecha', 'err-ma-fecha', 'La fecha de inicio no puede ser en el pasado');
+            } else {
+                clearError('ma-fecha', 'err-ma-fecha');
+            }
+            // Revalidar fecha límite si ya tiene valor
+            if (document.getElementById('ma-flimite').value) validarFechasActividad();
+        });
+document.querySelector('[name="horaActividad"]').addEventListener('change', function () {
+    if (document.getElementById('ma-fecha').value) validarFechasActividad();
+});
+document.querySelector('[name="horaLimiteActividad"]').addEventListener('change', function () {
+    if (document.getElementById('ma-flimite').value) validarFechasActividad();
+});
+
+document.getElementById('formActividad').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('ma-nombre', 'err-ma-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('ma-desc',   'err-ma-desc',   3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('ma-lugar',  'err-ma-lugar',  3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarFechasActividad()) ok = false;
+    if (!ok) e.preventDefault();
+});
+
+// ── BARRA DE PROGRESO ─────────────────────────────────────
+window.addEventListener('load', function () {
+    setTimeout(function () {
+        document.getElementById('progressBar').style.width = '@Model.PorcentajeActividad' + '%';
+    }, 300);
+});
+
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+}
+    </script>
+}

@@ -1,0 +1,228 @@
+﻿@model SemillerosApp.Models.Semillero
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Crear Semillero";
+    ViewBag.Subtitle = "Registra un nuevo semillero de investigación";
+}
+
+@section Styles {
+    <style>
+        .form-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            max-width: 700px;
+        }
+
+        .form-card-header {
+            padding: 20px 26px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hicon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg,#28b463,#1abc9c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-card-header h5 {
+            margin: 0;
+            font-size: .95rem;
+            font-weight: 600;
+            color: #1a5276;
+        }
+
+        .form-card-header small {
+            color: #94a3b8;
+            font-size: .75rem;
+        }
+
+        .form-card-body {
+            padding: 26px;
+        }
+
+        .form-label-c {
+            font-size: .78rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 5px;
+        }
+
+        .form-control-c {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: .88rem;
+            font-family: 'Poppins',sans-serif;
+            width: 100%;
+            transition: border-color .25s, box-shadow .25s;
+        }
+
+            .form-control-c:focus {
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+                outline: none;
+            }
+
+            .form-control-c.is-valid {
+                border-color: #28b463;
+            }
+
+            .form-control-c.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .field-error {
+            font-size: .75rem;
+            color: #e74c3c;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            font-size: .88rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s, transform .2s;
+        }
+
+            .btn-save:hover {
+                opacity: .9;
+                transform: translateY(-1px);
+            }
+
+        .btn-cancel {
+            background: #fff;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-size: .88rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: border-color .2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-cancel:hover {
+                border-color: #2e86c1;
+                color: #1a5276;
+            }
+    </style>
+}
+
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="hicon"><i class="fas fa-seedling"></i></div>
+        <div>
+            <h5>Nuevo Semillero</h5>
+            <small>El estado se asignará como Activo automáticamente</small>
+        </div>
+    </div>
+    <div class="form-card-body">
+
+        @using (Html.BeginForm("CrearSemillero", "AdminDashboard", FormMethod.Post,
+                new { id = "formCrear", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3">
+                <div class="col-md-7">
+                    <label class="form-label-c">Nombre del Semillero</label>
+                    <input type="text" id="nombreSem" name="nombreSemillero"
+                           value="@Model.nombreSemillero"
+                           class="form-control-c" placeholder="Ej: Semillero INNOVA" />
+                    <span class="field-error" id="err-nombre"></span>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label-c">Líder del Semillero</label>
+                    @Html.DropDownList("Investigadores_idInvestigadores",
+                        (IEnumerable<SelectListItem>)ViewBag.Lideres,
+                        "-- Selecciona un líder --",
+                        new { @class = "form-control-c", id = "liderSem" })
+                    <span class="field-error" id="err-lider"></span>
+                </div>
+                <div class="col-12">
+                    <label class="form-label-c">Línea de Investigación</label>
+                    <input type="text" id="lineaSem" name="lineaInvestigacion"
+                           value="@Model.lineaInvestigacion"
+                           class="form-control-c" placeholder="Ej: Tecnología e Innovación" />
+                    <span class="field-error" id="err-linea"></span>
+                </div>
+                <div class="col-12">
+                    <label class="form-label-c">Descripción</label>
+                    <textarea id="descSem" name="descripcionSemillero"
+                              class="form-control-c" rows="3"
+                              placeholder="Describe brevemente el propósito del semillero...">@Model.descripcionSemillero</textarea>
+                    <span class="field-error" id="err-desc"></span>
+                </div>
+            </div>
+
+            <!-- Campos automáticos ocultos -->
+            <input type="hidden" name="estadoSemillero" value="Activo" />
+            <input type="hidden" name="fechacreaSemillero" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-plus me-2"></i>Crear Semillero
+                </button>
+                <a href="@Url.Action("Index","AdminDashboard")" class="btn-cancel">
+                    <i class="fas fa-arrow-left me-1"></i>Cancelar
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+    $('#nombreSem').on('input blur', function () {
+        var ok = $(this).val().trim().length >= 3;
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-nombre').text(!ok && $(this).val() !== '' ? 'Mínimo 3 caracteres' : '');
+    });
+    $('#lineaSem').on('input blur', function () {
+        var ok = $(this).val().trim().length >= 3;
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-linea').text(!ok && $(this).val() !== '' ? 'Mínimo 3 caracteres' : '');
+    });
+    $('#descSem').on('input blur', function () {
+        var ok = $(this).val().trim().length >= 5;
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok && $(this).val() !== '');
+        $('#err-desc').text(!ok && $(this).val() !== '' ? 'Mínimo 5 caracteres' : '');
+    });
+    $('#liderSem').on('change', function () {
+        var ok = $(this).val() !== '';
+        $(this).toggleClass('is-valid', ok).toggleClass('is-invalid', !ok);
+        $('#err-lider').text(!ok ? 'Selecciona un líder' : '');
+    });
+
+    $('#formCrear').on('submit', function (e) {
+        var ok = true;
+        if ($('#nombreSem').val().trim().length < 3)  { ok = false; $('#nombreSem').addClass('is-invalid'); $('#err-nombre').text('Mínimo 3 caracteres'); }
+        if ($('#liderSem').val() === '')               { ok = false; $('#liderSem').addClass('is-invalid');  $('#err-lider').text('Selecciona un líder'); }
+        if ($('#lineaSem').val().trim().length < 3)   { ok = false; $('#lineaSem').addClass('is-invalid');  $('#err-linea').text('Mínimo 3 caracteres'); }
+        if ($('#descSem').val().trim().length < 5)    { ok = false; $('#descSem').addClass('is-invalid');   $('#err-desc').text('Mínimo 5 caracteres'); }
+        if (!ok) e.preventDefault();
+    });
+    </script>
+}

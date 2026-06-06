@@ -1,0 +1,361 @@
+﻿@model SemillerosApp.Models.Usuario
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Agregar Usuario";
+    ViewBag.Subtitle = "Registrar nuevo líder de semillero";
+}
+
+@section Styles {
+    <style>
+        .form-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            overflow: hidden;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hicon {
+            width: 46px;
+            height: 46px;
+            background: rgba(255,255,255,.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .hicon i {
+                font-size: 1.3rem;
+                color: #fff;
+            }
+
+        .form-card-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .form-card-header p {
+            color: rgba(255,255,255,.65);
+            font-size: .78rem;
+            margin: 0;
+        }
+
+        .form-card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: .9rem;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .form-control {
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s, box-shadow .25s;
+            width: 100%;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+            }
+
+            .form-control.is-valid {
+                border-color: #28b463 !important;
+            }
+
+            .form-control.is-invalid {
+                border-color: #e74c3c !important;
+            }
+
+        .field-msg {
+            font-size: .73rem;
+            margin-top: 4px;
+            min-height: 18px;
+            display: block;
+            padding-left: 2px;
+        }
+
+            .field-msg.error {
+                color: #e74c3c;
+            }
+
+            .field-msg.ok {
+                color: #28b463;
+            }
+
+        .section-divider {
+            font-size: .7rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #f0f4f8;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 0;
+        }
+
+            .toggle-pw:hover {
+                color: #2e86c1;
+            }
+
+        .btn-guardar {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 32px;
+            font-size: .92rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-guardar:hover {
+                opacity: .88;
+            }
+
+            .btn-guardar:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .btn-cancelar {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: .88rem;
+            font-weight: 500;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-cancelar:hover {
+                background: #dee2e6;
+                color: #333;
+            }
+    </style>
+}
+
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="hicon"><i class="fas fa-user-plus"></i></div>
+        <div>
+            <h4>Nuevo Usuario Líder</h4>
+            <p>Se creará el usuario y su perfil de investigador automáticamente</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        @using (Html.BeginForm("AgregarUsuario", "AdminDashboard", FormMethod.Post,
+                new { id = "formAgregar", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="section-divider">Datos Personales</div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" name="nombreUsuario" id="nombreUsuario" class="form-control" />
+                    </div>
+                    <span class="field-msg" id="msg-nombre"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Apellido *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" name="apellidoUsuario" id="apellidoUsuario" class="form-control" />
+                    </div>
+                    <span class="field-msg" id="msg-apellido"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                        <input type="email" name="emailUsuario" id="emailUsuario" class="form-control" />
+                    </div>
+                    <span class="field-msg" id="msg-email"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Teléfono *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-phone"></i></span>
+                        <input type="text" name="telefonoUsuario" id="telefonoUsuario"
+                               class="form-control" maxlength="10" />
+                    </div>
+                    <span class="field-msg" id="msg-telefono"></span>
+                </div>
+            </div>
+
+            <div class="section-divider">Acceso al Sistema</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Contraseña *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="contrasenaUsuario" id="contrasenaUsuario"
+                               class="form-control" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                        <button type="button" class="toggle-pw" onclick="togglePw('contrasenaUsuario','eye1')">
+                            <i class="fas fa-eye" id="eye1"></i>
+                        </button>
+                    </div>
+                    <span class="field-msg" id="msg-contrasena"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Confirmar Contraseña *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="confirmarContrasena"
+                               class="form-control" placeholder="Repite la contraseña" autocomplete="new-password" />
+                        <button type="button" class="toggle-pw" onclick="togglePw('confirmarContrasena','eye2')">
+                            <i class="fas fa-eye" id="eye2"></i>
+                        </button>
+                    </div>
+                    <span class="field-msg" id="msg-confirmar"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end">
+                <a href="@Url.Action("Usuarios","AdminDashboard")" class="btn-cancelar">
+                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn-guardar" id="btnGuardar">
+                    <i class="fas fa-save me-2"></i>Crear Usuario
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+function togglePw(inputId, iconId) {
+    var inp = document.getElementById(inputId);
+    var ico = document.getElementById(iconId);
+    if (inp.type === 'password') { inp.type = 'text'; ico.className = 'fas fa-eye-slash'; }
+    else                         { inp.type = 'password'; ico.className = 'fas fa-eye'; }
+}
+
+function setValid(id, msgId, txt)   { $('#'+id).removeClass('is-invalid').addClass('is-valid');   $('#'+msgId).removeClass('error').addClass('ok').text(txt||'✓ Correcto'); }
+function setInvalid(id, msgId, txt) { $('#'+id).removeClass('is-valid').addClass('is-invalid');   $('#'+msgId).removeClass('ok').addClass('error').text(txt); }
+function clearState(id, msgId)      { $('#'+id).removeClass('is-valid is-invalid'); $('#'+msgId).removeClass('ok error').text(''); }
+
+$('#nombreUsuario').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('nombreUsuario','msg-nombre');
+    else if (v.length<2) setInvalid('nombreUsuario','msg-nombre','✗ Mínimo 2 caracteres');
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) setInvalid('nombreUsuario','msg-nombre','✗ Solo letras');
+    else                 setValid('nombreUsuario','msg-nombre','✓ Correcto');
+});
+
+$('#apellidoUsuario').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('apellidoUsuario','msg-apellido');
+    else if (v.length<2) setInvalid('apellidoUsuario','msg-apellido','✗ Mínimo 2 caracteres');
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) setInvalid('apellidoUsuario','msg-apellido','✗ Solo letras');
+    else                 setValid('apellidoUsuario','msg-apellido','✓ Correcto');
+});
+
+$('#emailUsuario').on('input blur', function () {
+    var v = $(this).val().trim();
+    var re = new RegExp('^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$');
+    if (!v)               clearState('emailUsuario','msg-email');
+    else if (!re.test(v)) setInvalid('emailUsuario','msg-email','✗ Email inválido');
+    else                  setValid('emailUsuario','msg-email','✓ Email válido');
+});
+
+$('#telefonoUsuario').on('input', function () {
+    this.value = this.value.replace(/[^0-9]/g,'');
+}).on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)                 clearState('telefonoUsuario','msg-telefono');
+    else if (v.length!==10) setInvalid('telefonoUsuario','msg-telefono','✗ Exactamente 10 dígitos');
+    else                    setValid('telefonoUsuario','msg-telefono','✓ Correcto');
+});
+
+$('#contrasenaUsuario').on('input blur', function () {
+    var v = $(this).val();
+    if (!v)           clearState('contrasenaUsuario','msg-contrasena');
+    else if (v.length<6) setInvalid('contrasenaUsuario','msg-contrasena','✗ Mínimo 6 caracteres');
+    else              setValid('contrasenaUsuario','msg-contrasena','✓ Contraseña válida');
+    if ($('#confirmarContrasena').val()) $('#confirmarContrasena').trigger('blur');
+});
+
+$('#confirmarContrasena').on('input blur', function () {
+    var v  = $(this).val();
+    var nv = $('#contrasenaUsuario').val();
+    if (!v && !nv) clearState('confirmarContrasena','msg-confirmar');
+    else if (v !== nv) setInvalid('confirmarContrasena','msg-confirmar','✗ Las contraseñas no coinciden');
+    else               setValid('confirmarContrasena','msg-confirmar','✓ Coinciden');
+});
+
+$('#formAgregar').on('submit', function (e) {
+    ['#nombreUsuario','#apellidoUsuario','#emailUsuario',
+     '#telefonoUsuario','#contrasenaUsuario','#confirmarContrasena'].forEach(function(id){
+        $(id).trigger('blur');
+    });
+    if ($('.is-invalid').length > 0) {
+        e.preventDefault();
+        $('html,body').animate({ scrollTop: $('.is-invalid').first().offset().top - 100 }, 300);
+    } else {
+        $('#btnGuardar').prop('disabled',true)
+                        .html('<i class="fas fa-spinner fa-spin me-2"></i>Creando...');
+    }
+});
+    </script>
+}
