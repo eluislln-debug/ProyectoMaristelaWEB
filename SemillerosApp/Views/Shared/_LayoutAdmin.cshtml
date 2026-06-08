@@ -286,6 +286,12 @@
                     <i class="fas fa-users"></i> Usuarios
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="@Url.Action("Eventos","AdminDashboard")"
+                   class="@(currentAction=="Eventos" || currentAction=="DetalleEvento" ? "active" : "")">
+                    <i class="fas fa-calendar-alt"></i> Eventos
+                </a>
+            </div>
 
             <div class="nav-section-title">Cuenta</div>
             <div class="nav-item">

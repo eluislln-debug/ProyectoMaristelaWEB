@@ -152,6 +152,284 @@
         .table-integrantes tr:hover td {
             background: #f0faf6;
         }
+
+        .tab-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            font-family: 'Poppins',sans-serif;
+            font-size: .8rem;
+            font-weight: 500;
+            color: #7f8c8d;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+            .tab-btn.active {
+                background: #fff;
+                color: #117a65;
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            }
+
+            .tab-btn:hover:not(.active) {
+                color: #117a65;
+                background: rgba(255,255,255,.6);
+            }
+
+        .tab-pane {
+            display: block;
+        }
+
+        .proyecto-card {
+            border: 2px solid #f0f4f8;
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            transition: border-color .2s,box-shadow .2s;
+            background: #fff;
+        }
+
+            .proyecto-card:hover {
+                border-color: #117a65;
+                box-shadow: 0 4px 16px rgba(17,122,101,.1);
+            }
+
+        .proyecto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .proyecto-titulo {
+            font-weight: 700;
+            font-size: .95rem;
+            color: #0b2d24;
+        }
+
+        .proyecto-desc {
+            font-size: .8rem;
+            color: #7f8c8d;
+        }
+
+        .proyecto-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+            .proyecto-meta span {
+                font-size: .75rem;
+                color: #7f8c8d;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+        .fase-block {
+            border: 2px solid #f0f4f8;
+            border-radius: 12px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .fase-header {
+            background: #f8fbff;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+            .fase-header:hover {
+                background: #e8f8f2;
+            }
+
+        .fase-title {
+            font-size: .85rem;
+            font-weight: 600;
+            color: #117a65;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fase-body {
+            padding: 14px 16px;
+            border-top: 1px solid #f0f4f8;
+            display: none;
+        }
+
+        .fase-chip {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .68rem;
+            font-weight: 600;
+        }
+
+        .fase-completada {
+            background: #d5f5e3;
+            color: #1e8449;
+        }
+
+        .fase-en-proceso {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .fase-pendiente {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .actividad-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: #f8f9fa;
+        }
+
+        .actividad-nombre {
+            font-size: .83rem;
+            font-weight: 600;
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .actividad-meta {
+            font-size: .72rem;
+            color: #aaa;
+        }
+
+        .badge-proceso {
+            background: #eaf4fb;
+            color: #2e86c1;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-finalizado {
+            background: #d5f5e3;
+            color: #1e8449;
+            font-size: .7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .btn-xs {
+            border: none;
+            border-radius: 6px;
+            padding: 4px 9px;
+            font-size: .7rem;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-xs:hover {
+                opacity: .8;
+            }
+
+        .btn-xs-success {
+            background: #d5f5e3;
+            color: #117a65;
+        }
+
+        .btn-xs-danger {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .btn-xs-info {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .select-estado {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .75rem;
+            cursor: pointer;
+        }
+
+        .modal-input {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            width: 100%;
+            transition: border-color .2s;
+        }
+
+            .modal-input:focus {
+                outline: none;
+                border-color: #117a65;
+                box-shadow: 0 0 0 3px rgba(17,122,101,.1);
+            }
+
+            .modal-input.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .modal-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #117a65;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .field-err {
+            font-size: .73rem;
+            color: #e74c3c;
+            margin-top: 3px;
+            display: block;
+            min-height: 16px;
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg,#0b2d24,#117a65);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 22px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-modal-cancel {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 18px;
+            font-size: .85rem;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+        }
     </style>
 }
 
@@ -251,61 +529,382 @@ else
         </div>
     </div>
 
-    <!-- ── TABLA INTEGRANTES (preview) ───────────────────────── -->
-    <div class="card-panel">
-        <div class="card-panel-header">
-            <div class="section-title"><i class="fas fa-users"></i> Integrantes del Semillero</div>
-            <a href="@Url.Action("AgregarIntegrante","LiderDashboard")"
-               class="btn-sm-action btn-primary-sm">
-                <i class="fas fa-plus me-1"></i>Agregar Integrante
-            </a>
+    <!-- ── TABS NAV ───────────────────────────────────────────── -->
+    <div style="display:flex;gap:4px;background:#f0f4f8;border-radius:12px;padding:4px;margin-bottom:20px">
+        <button class="tab-btn active" onclick="switchTab('tab-proyectos',this)">
+            <i class="fas fa-project-diagram"></i> Proyectos (@Model.TotalProyectos)
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-integrantes',this)">
+            <i class="fas fa-users"></i> Integrantes (@Model.TotalIntegrantes)
+        </button>
+    </div>
+
+    <!-- ── TAB PROYECTOS ──────────────────────────────────────── -->
+    <div id="tab-proyectos" class="tab-pane active">
+
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn-sm-action btn-primary-sm"
+                    style="border:none;cursor:pointer"
+                    data-bs-toggle="modal" data-bs-target="#modalCrearProyecto">
+                <i class="fas fa-plus me-1"></i> Nuevo Proyecto
+            </button>
         </div>
-        <div class="p-0">
-            <div class="table-responsive">
-                <table class="table table-integrantes mb-0">
-                    <thead>
-                        <tr>
-                            <th class="ps-3">Nombre</th>
-                            <th>Tipo</th>
-                            <th>Email</th>
-                            <th>Género</th>
-                            <th class="pe-3">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var i in Model.Integrantes.Take(5))
-                        {
-                            <tr>
-                                <td class="ps-3"><strong>@i.nombreInvestigador</strong></td>
-                                <td>@i.tipoInvestigador</td>
-                                <td>@i.emailInvestigador</td>
-                                <td>@i.generoInvestigador</td>
-                                <td class="pe-3">
-                                    <a href="@Url.Action("EditarIntegrante","LiderDashboard", new { id = i.idInvestigadores })"
-                                       class="btn-sm-action" style="background:#eaf4fb;color:#2e86c1">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                        @if (!Model.Integrantes.Any())
-                        {
-                            <tr><td colspan="5" class="text-center py-4 text-muted">No hay integrantes registrados</td></tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            @if (Model.Integrantes.Count > 5)
+
+        @if (Model.Semillero.Proyectos != null && Model.Semillero.Proyectos.Any())
+        {
+            foreach (var p in Model.Semillero.Proyectos.OrderByDescending(x => x.fechainProyecto))
             {
-                <div style="padding:12px 22px;border-top:1px solid #f0f4f8">
-                    <a href="@Url.Action("Integrantes","LiderDashboard")" style="font-size:.82rem;color:#117a65;font-weight:600">
-                        Ver todos los integrantes (@Model.TotalIntegrantes) →
-                    </a>
+                <div class="proyecto-card">
+                    <div class="proyecto-header">
+                        <div>
+                            <div class="proyecto-titulo">
+                                <i class="fas fa-folder-open me-2" style="color:#117a65;font-size:.85rem"></i>
+                                @p.tituloProyecto
+                            </div>
+                            <div class="proyecto-desc">@p.descripcionProyecto</div>
+                        </div>
+                        <span class="@(p.estadoProyecto=="En Proceso" ? "badge-proceso"
+                                 : p.estadoProyecto=="Finalizado"  ? "badge-finalizado"
+                                 : "badge-inactivo")">
+                            @p.estadoProyecto
+                        </span>
+                    </div>
+                    <div class="proyecto-meta">
+                        <span><i class="fas fa-calendar-plus"></i> @p.fechainProyecto.ToString("dd/MM/yyyy")</span>
+                        <span><i class="fas fa-clock"></i> @p.duracionProyecto</span>
+                        <span><i class="fas fa-layer-group"></i> @p.Fases.Count fase(s)</span>
+                        <span><i class="fas fa-tasks"></i> @p.Fases.SelectMany(f => f.Actividades).Count() actividad(es)</span>
+                    </div>
+
+                    <!-- FASES -->
+                    <div style="border-top:1px solid #f0f4f8;padding-top:12px;margin-top:8px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                            <span style="font-size:.7rem;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px">
+                                Fases del proyecto
+                            </span>
+                            <button type="button" class="btn-xs btn-xs-info"
+                                    data-bs-toggle="modal" data-bs-target="#modalCrearFase"
+                                    onclick="setProyectoFase(@p.idProyecto, '@p.tituloProyecto')">
+                                <i class="fas fa-plus me-1"></i>Nueva Fase
+                            </button>
+                        </div>
+
+                        @foreach (var f in p.Fases.OrderBy(x => x.fechaFase))
+                        {
+                            string faseColor = f.estadoFase == "Completada" ? "#1e8449"
+                                             : f.estadoFase == "En Proceso" ? "#117a65" : "#d4ac0d";
+                            <div class="fase-block">
+                                <div class="fase-header" onclick="toggleFase('fase-@f.idFase')">
+                                    <div class="fase-title">
+                                        <i class="fas fa-circle" style="font-size:.45rem;color:@faseColor"></i>
+                                        @f.descripcionFase
+                                        <span class="fase-chip @(f.estadoFase=="Completada"?"fase-completada":f.estadoFase=="En Proceso"?"fase-en-proceso":"fase-pendiente")">
+                                            @f.estadoFase
+                                        </span>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:6px">
+                                        @using (Html.BeginForm("EliminarFase", "LiderDashboard",
+                                                new { idFase = f.idFase }, FormMethod.Post,
+                                                new
+                                                {
+                                                    style = "display:inline",
+                                                    onsubmit = "return confirm('¿Eliminar esta fase?')",
+                                                    onclick = "event.stopPropagation()"
+                                                }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-xs btn-xs-danger"
+                                                    onclick="event.stopPropagation()">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
+                                        <i class="fas fa-chevron-down" style="color:#aaa;font-size:.75rem"></i>
+                                    </div>
+                                </div>
+
+                                <div class="fase-body" id="fase-@f.idFase">
+                                    @foreach (var a in f.Actividades.OrderBy(x => x.fechaActividad))
+                                    {
+                                        <div class="actividad-item">
+                                            <i class="fas fa-@(a.estadoActividad=="Completada"?"check-circle":"circle")"
+                                               style="color:@(a.estadoActividad=="Completada"?"#28b463":"#dee2e6");font-size:.9rem"></i>
+                                            <div style="flex:1">
+                                                <div class="actividad-nombre">@a.nombreActividad</div>
+                                                <div class="actividad-meta">
+                                                    @a.descripActividad · <i class="fas fa-map-marker-alt me-1"></i>@a.lugarActividad
+                                                </div>
+                                            </div>
+                                            @using (Html.BeginForm("CambiarEstadoActividad", "LiderDashboard",
+                                                    new { idActividad = a.idActividad }, FormMethod.Post,
+                                                    new { style = "display:inline" }))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                <select name="nuevoEstado" class="select-estado"
+                                                        onchange="this.form.submit()">
+                                                    <option value="Pendiente" @(a.estadoActividad == "Pendiente" ? "selected" : "")>⏳ Pendiente</option>
+                                                    <option value="En Proceso" @(a.estadoActividad == "En Proceso" ? "selected" : "")>🔄 En Proceso</option>
+                                                    <option value="Completada" @(a.estadoActividad == "Completada" ? "selected" : "")>✅ Completada</option>
+                                                </select>
+                                            }
+                                            @using (Html.BeginForm("EliminarActividad", "LiderDashboard",
+                                                    new { idActividad = a.idActividad }, FormMethod.Post,
+                                                    new
+                                                    {
+                                                        style = "display:inline",
+                                                        onsubmit = "return confirm('¿Eliminar actividad?')"
+                                                    }))
+                                            {
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn-xs btn-xs-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                    <div style="margin-top:8px">
+                                        <button type="button" class="btn-xs btn-xs-success"
+                                                data-bs-toggle="modal" data-bs-target="#modalCrearActividad"
+                                                onclick="setFaseActividad(@f.idFase, '@f.descripcionFase')">
+                                            <i class="fas fa-plus me-1"></i>Nueva Actividad
+                                        </button>
+                                    </div>
+                                    @if (!f.Actividades.Any())
+                                    {
+                                        <p style="font-size:.78rem;color:#aaa;text-align:center;padding:10px 0">
+                                            Sin actividades. Agrega la primera.
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (!p.Fases.Any())
+                        {
+                            <p style="font-size:.78rem;color:#aaa;text-align:center;padding:8px 0">
+                                Sin fases. Agrega la primera.
+                            </p>
+                        }
+                    </div>
+
+                    <div style="margin-top:14px;display:flex;justify-content:flex-end">
+                        @using (Html.BeginForm("EliminarProyecto", "LiderDashboard",
+                                new { idProyecto = p.idProyecto }, FormMethod.Post,
+                                new
+                                {
+                                    style = "display:inline",
+                                    onsubmit = $"return confirm('¿Eliminar el proyecto {p.tituloProyecto}?')"
+                                }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-xs btn-xs-danger">
+                                <i class="fas fa-trash me-1"></i>Eliminar Proyecto
+                            </button>
+                        }
+                    </div>
                 </div>
             }
+        }
+        else
+        {
+            <div class="card-panel" style="text-align:center;padding:36px;color:#bbb">
+                <i class="fas fa-folder-open" style="font-size:2rem;display:block;margin-bottom:10px"></i>
+                <p style="font-weight:600;color:#555">Sin proyectos aún</p>
+                <p style="font-size:.85rem">Crea el primer proyecto con el botón de arriba.</p>
+            </div>
+        }
+    </div>
+
+    <!-- ── TAB INTEGRANTES ────────────────────────────────────── -->
+    <div id="tab-integrantes" class="tab-pane" style="display:none">
+        <div class="card-panel">
+            <div class="card-panel-header">
+                <div class="section-title"><i class="fas fa-users"></i> Integrantes del Semillero</div>
+                <a href="@Url.Action("AgregarIntegrante","LiderDashboard")"
+                   class="btn-sm-action btn-primary-sm">
+                    <i class="fas fa-plus me-1"></i>Agregar Integrante
+                </a>
+            </div>
+            <div class="p-0">
+                <div class="table-responsive">
+                    <table class="table table-integrantes mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Nombre</th>
+                                <th>Tipo</th>
+                                <th>Email</th>
+                                <th>Género</th>
+                                <th class="pe-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var i in Model.Integrantes.Take(5))
+                            {
+                                <tr>
+                                    <td class="ps-3"><strong>@i.nombreInvestigador</strong></td>
+                                    <td>@i.tipoInvestigador</td>
+                                    <td>@i.emailInvestigador</td>
+                                    <td>@i.generoInvestigador</td>
+                                    <td class="pe-3">
+                                        <a href="@Url.Action("EditarIntegrante","LiderDashboard", new { id = i.idInvestigadores })"
+                                           class="btn-sm-action" style="background:#eaf4fb;color:#2e86c1">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Integrantes.Any())
+                            {
+                                <tr><td colspan="5" class="text-center py-4 text-muted">No hay integrantes registrados</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (Model.Integrantes.Count > 5)
+                {
+                    <div style="padding:12px 22px;border-top:1px solid #f0f4f8">
+                        <a href="@Url.Action("Integrantes","LiderDashboard")" style="font-size:.82rem;color:#117a65;font-weight:600">
+                            Ver todos los integrantes (@Model.TotalIntegrantes) →
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR PROYECTO -->
+    <div class="modal fade" id="modalCrearProyecto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden">
+                <div class="modal-header" style="background:linear-gradient(135deg,#0b2d24,#117a65);border:none;padding:18px 24px">
+                    <h5 style="color:#fff;font-weight:700;margin:0"><i class="fas fa-folder-plus me-2"></i>Nuevo Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1)"></button>
+                </div>
+                @using (Html.BeginForm("CrearProyecto", "LiderDashboard", FormMethod.Post, new { id = "formProyecto", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idSemillero" value="@Model.Semillero.idSemillero" />
+                    <div class="modal-body" style="padding:22px 24px">
+                        <div class="mb-3">
+                            <label class="modal-label">Título *</label>
+                            <input type="text" name="tituloProyecto" id="mp-titulo" class="modal-input" placeholder="Ej: Investigación en IA" maxlength="100" />
+                            <span class="field-err" id="err-mp-titulo"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="modal-label">Descripción *</label>
+                            <textarea name="descripcionProyecto" id="mp-desc" class="modal-input" rows="3" placeholder="Describe el proyecto..." maxlength="300"></textarea>
+                            <span class="field-err" id="err-mp-desc"></span>
+                        </div>
+                        <div class="mb-1">
+                            <label class="modal-label">Duración *</label>
+                            <input type="text" name="duracionProyecto" id="mp-dur" class="modal-input" placeholder="Ej: 6 meses" maxlength="20" />
+                            <span class="field-err" id="err-mp-dur"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
+                        <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-modal-save" id="btnCrearProyecto"><i class="fas fa-plus me-1"></i>Crear Proyecto</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR FASE -->
+    <div class="modal fade" id="modalCrearFase" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden">
+                <div class="modal-header" style="background:linear-gradient(135deg,#0b2d24,#117a65);border:none;padding:18px 24px">
+                    <h5 style="color:#fff;font-weight:700;margin:0"><i class="fas fa-layer-group me-2"></i>Nueva Fase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1)"></button>
+                </div>
+                @using (Html.BeginForm("CrearFase", "LiderDashboard", FormMethod.Post, new { id = "formFase", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idProyecto" id="fase-idProyecto" value="" />
+                    <div class="modal-body" style="padding:22px 24px">
+                        <p style="font-size:.8rem;color:#7f8c8d;margin-bottom:14px">Proyecto: <strong id="fase-proyectoNombre"></strong></p>
+                        <div class="mb-3">
+                            <label class="modal-label">Descripción de la Fase *</label>
+                            <input type="text" name="descripcionFase" id="mf-desc" class="modal-input" placeholder="Ej: Fase de análisis" maxlength="300" />
+                            <span class="field-err" id="err-mf-desc"></span>
+                        </div>
+                        <div class="mb-1">
+                            <label class="modal-label">Fecha Límite <span style="color:#f39c12;font-size:.65rem">(opcional)</span></label>
+                            <input type="date" name="fechaLimiteFase" id="mf-fechaLimite" class="modal-input" />
+                            <span class="field-err" id="err-mf-fechaLimite"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
+                        <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-modal-save"><i class="fas fa-plus me-1"></i>Agregar Fase</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR ACTIVIDAD -->
+    <div class="modal fade" id="modalCrearActividad" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden">
+                <div class="modal-header" style="background:linear-gradient(135deg,#0b2d24,#117a65);border:none;padding:18px 24px">
+                    <h5 style="color:#fff;font-weight:700;margin:0"><i class="fas fa-tasks me-2"></i>Nueva Actividad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1)"></button>
+                </div>
+                @using (Html.BeginForm("CrearActividad", "LiderDashboard", FormMethod.Post, new { id = "formActividad", novalidate = "novalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idFase" id="act-idFase" value="" />
+                    <div class="modal-body" style="padding:22px 24px">
+                        <p style="font-size:.8rem;color:#7f8c8d;margin-bottom:14px">Fase: <strong id="act-faseNombre"></strong></p>
+                        <div class="mb-3">
+                            <label class="modal-label">Nombre *</label>
+                            <input type="text" name="nombreActividad" id="ma-nombre" class="modal-input" placeholder="Ej: Reunión de planificación" maxlength="100" />
+                            <span class="field-err" id="err-ma-nombre"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="modal-label">Descripción *</label>
+                            <input type="text" name="descripActividad" id="ma-desc" class="modal-input" placeholder="Breve descripción" maxlength="300" />
+                            <span class="field-err" id="err-ma-desc"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="modal-label">Lugar *</label>
+                            <input type="text" name="lugarActividad" id="ma-lugar" class="modal-input" placeholder="Ej: Sala de reuniones" maxlength="40" />
+                            <span class="field-err" id="err-ma-lugar"></span>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-7">
+                                <label class="modal-label">Fecha de Inicio *</label>
+                                <input type="date" name="fechaActividad" id="ma-fecha" class="modal-input" />
+                                <span class="field-err" id="err-ma-fecha"></span>
+                            </div>
+                            <div class="col-5">
+                                <label class="modal-label">Hora de Inicio</label>
+                                <input type="time" name="horaActividad" class="modal-input" />
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-1">
+                            <div class="col-7">
+                                <label class="modal-label">Fecha Límite <span style="color:#f39c12;font-size:.65rem">(deadline)</span></label>
+                                <input type="date" name="fechaLimiteActividad" id="ma-flimite" class="modal-input" />
+                                <span class="field-err" id="err-ma-flimite"></span>
+                            </div>
+                            <div class="col-5">
+                                <label class="modal-label">Hora Límite</label>
+                                <input type="time" name="horaLimiteActividad" class="modal-input" />
+                            </div>
+                        </div>
+                        <small style="font-size:.7rem;color:#aaa"><i class="fas fa-lightbulb me-1" style="color:#f39c12"></i>El sistema sugerirá el estado según estas fechas.</small>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
+                        <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-modal-save"><i class="fas fa-plus me-1"></i>Crear Actividad</button>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 }
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -336,5 +935,186 @@ else
     });
     </text>
 }
+
+// ── UTILIDADES ────────────────────────────────────────────
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-pane').forEach(function (p) {
+        p.classList.remove('active');
+        p.style.display = 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.getElementById(tabId).classList.add('active');
+    document.getElementById(tabId).style.display = 'block';
+    btn.classList.add('active');
+}
+function toggleFase(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+function setError(inputId, errId, msg) {
+    var el = document.getElementById(inputId);
+    if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = msg;
+}
+function clearError(inputId, errId) {
+    var el = document.getElementById(inputId);
+    if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = '';
+}
+function validarCampo(id, errId, min, msg) {
+    var v = document.getElementById(id).value.trim();
+    if (v.length < min) {
+        document.getElementById(id).classList.add('is-invalid');
+        document.getElementById(errId).innerText = msg;
+        return false;
+    }
+    document.getElementById(id).classList.remove('is-invalid');
+    document.getElementById(errId).innerText = '';
+    return true;
+}
+
+// ── MODAL PROYECTO ────────────────────────────────────────
+document.getElementById('mp-titulo').addEventListener('input', function () { validarCampo('mp-titulo', 'err-mp-titulo', 3, 'Mínimo 3 caracteres'); });
+document.getElementById('mp-desc').addEventListener('input',  function () { validarCampo('mp-desc',   'err-mp-desc',   5, 'Mínimo 5 caracteres'); });
+document.getElementById('mp-dur').addEventListener('input',   function () { validarCampo('mp-dur',    'err-mp-dur',    2, 'Mínimo 2 caracteres'); });
+document.getElementById('formProyecto').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('mp-titulo', 'err-mp-titulo', 3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('mp-desc',   'err-mp-desc',   5, 'Mínimo 5 caracteres')) ok = false;
+    if (!validarCampo('mp-dur',    'err-mp-dur',    2, 'Mínimo 2 caracteres')) ok = false;
+    if (!ok) { e.preventDefault(); return; }
+    document.getElementById('btnCrearProyecto').disabled = true;
+});
+
+// ── MODAL FASE ────────────────────────────────────────────
+function setProyectoFase(idProyecto, nombre) {
+    document.getElementById('fase-idProyecto').value = idProyecto;
+    document.getElementById('fase-proyectoNombre').innerText = nombre;
+    document.getElementById('mf-desc').value = '';
+    document.getElementById('mf-desc').classList.remove('is-invalid');
+    document.getElementById('err-mf-desc').innerText = '';
+    document.getElementById('mf-fechaLimite').value = '';
+    clearError('mf-fechaLimite', 'err-mf-fechaLimite');
+}
+document.getElementById('mf-desc').addEventListener('input', function () {
+    validarCampo('mf-desc', 'err-mf-desc', 3, 'Mínimo 3 caracteres');
+});
+document.getElementById('mf-fechaLimite').addEventListener('change', function () {
+    var hoy = new Date().toISOString().split('T')[0];
+    if (this.value && this.value < hoy) {
+        setError('mf-fechaLimite', 'err-mf-fechaLimite', 'La fecha límite no puede ser en el pasado');
+    } else {
+        clearError('mf-fechaLimite', 'err-mf-fechaLimite');
+    }
+});
+document.getElementById('formFase').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('mf-desc', 'err-mf-desc', 3, 'Mínimo 3 caracteres')) ok = false;
+    var fechaLimite = document.getElementById('mf-fechaLimite').value;
+    var hoy = new Date().toISOString().split('T')[0];
+    if (fechaLimite && fechaLimite < hoy) {
+        setError('mf-fechaLimite', 'err-mf-fechaLimite', 'La fecha límite no puede ser en el pasado');
+        ok = false;
+    }
+    if (!ok) e.preventDefault();
+});
+
+// ── MODAL ACTIVIDAD ───────────────────────────────────────
+function setFaseActividad(idFase, nombre) {
+    document.getElementById('act-idFase').value = idFase;
+    document.getElementById('act-faseNombre').innerText = nombre;
+    ['ma-nombre', 'ma-desc', 'ma-lugar', 'ma-fecha'].forEach(function (id) {
+        document.getElementById(id).value = '';
+        document.getElementById(id).classList.remove('is-invalid');
+        document.getElementById(id).style.borderColor = '';
+    });
+    ['err-ma-nombre', 'err-ma-desc', 'err-ma-lugar', 'err-ma-fecha'].forEach(function (id) {
+        document.getElementById(id).innerText = '';
+    });
+    document.querySelector('[name="horaActividad"]').value = '';
+    document.getElementById('ma-flimite').value = '';
+    document.querySelector('[name="horaLimiteActividad"]').value = '';
+    clearError('ma-flimite', 'err-ma-flimite');
+}
+function validarFechasActividad() {
+    var fechaInicio = document.getElementById('ma-fecha').value;
+    var horaInicio  = document.querySelector('[name="horaActividad"]').value;
+    var fechaLimite = document.getElementById('ma-flimite').value;
+    var horaLimite  = document.querySelector('[name="horaLimiteActividad"]').value;
+    var ahora       = new Date();
+    var hoy         = ahora.toISOString().split('T')[0];
+    var horaActual  = ahora.getHours().toString().padStart(2,'0') + ':' + ahora.getMinutes().toString().padStart(2,'0');
+    var ok = true;
+
+    // Fecha inicio requerida y no puede ser en el pasado
+    if (!fechaInicio) {
+        setError('ma-fecha', 'err-ma-fecha', 'La fecha de inicio es requerida');
+        ok = false;
+    } else if (fechaInicio < hoy) {
+        setError('ma-fecha', 'err-ma-fecha', 'La fecha de inicio no puede ser en el pasado');
+        ok = false;
+    } else {
+        clearError('ma-fecha', 'err-ma-fecha');
+    }
+
+    // Si es hoy, la hora debe ser posterior a la actual
+    if (fechaInicio === hoy && horaInicio && horaInicio <= horaActual) {
+        setError('ma-fecha', 'err-ma-fecha', 'La hora de inicio debe ser posterior a la hora actual (' + horaActual + ')');
+        ok = false;
+    }
+
+    // Fecha límite: mínimo 1 hora después del inicio
+    if (fechaInicio && fechaLimite) {
+        var dtInicio = new Date(fechaInicio + 'T' + (horaInicio || '00:00'));
+        var dtLimite = new Date(fechaLimite + 'T' + (horaLimite || '23:59'));
+        var diffMinutos = (dtLimite - dtInicio) / (1000 * 60);
+        if (dtLimite <= dtInicio) {
+            setError('ma-flimite', 'err-ma-flimite', 'La fecha/hora límite debe ser posterior a la de inicio');
+            ok = false;
+        } else if (diffMinutos < 60) {
+            setError('ma-flimite', 'err-ma-flimite', 'La fecha/hora límite debe ser al menos 1 hora después del inicio');
+            ok = false;
+        } else {
+            clearError('ma-flimite', 'err-ma-flimite');
+        }
+    } else {
+        clearError('ma-flimite', 'err-ma-flimite');
+    }
+    return ok;
+}
+['ma-nombre', 'ma-desc', 'ma-lugar'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () {
+        validarCampo(id, 'err-' + id, 3, 'Mínimo 3 caracteres');
+    });
+});
+document.getElementById('ma-fecha').addEventListener('change', function () {
+    if (document.getElementById('ma-flimite').value) validarFechasActividad();
+    else {
+        var ahora = new Date();
+        var hoy = ahora.toISOString().split('T')[0];
+        if (this.value && this.value < hoy) {
+            setError('ma-fecha', 'err-ma-fecha', 'La fecha de inicio no puede ser en el pasado');
+        } else {
+            clearError('ma-fecha', 'err-ma-fecha');
+        }
+    }
+});
+document.getElementById('ma-flimite').addEventListener('change', validarFechasActividad);
+document.querySelector('[name="horaActividad"]').addEventListener('change', function () {
+    if (document.getElementById('ma-fecha').value) validarFechasActividad();
+});
+document.querySelector('[name="horaLimiteActividad"]').addEventListener('change', function () {
+    if (document.getElementById('ma-flimite').value) validarFechasActividad();
+});
+document.getElementById('formActividad').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('ma-nombre', 'err-ma-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('ma-desc',   'err-ma-desc',   3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('ma-lugar',  'err-ma-lugar',  3, 'Mínimo 3 caracteres')) ok = false;
+    if (!validarFechasActividad()) ok = false;
+    if (!ok) e.preventDefault();
+});
     </script>
 }

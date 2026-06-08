@@ -281,12 +281,12 @@ namespace SemillerosApp.Models
         public string estadoProyecto { get; set; } = "En Proceso";
 
         [Required(ErrorMessage = "El título es requerido")]
-        [StringLength(20)]
+        [StringLength(100)]
         [Display(Name = "Título")]
         public string tituloProyecto { get; set; }
 
         [Required(ErrorMessage = "La descripción es requerida")]
-        [StringLength(50)]
+        [StringLength(300)]
         [Display(Name = "Descripción")]
         public string descripcionProyecto { get; set; }
 
@@ -312,7 +312,7 @@ namespace SemillerosApp.Models
         public DateTime? fechaLimiteFase { get; set; }
 
         [Required(ErrorMessage = "La descripción es requerida")]
-        [StringLength(50)]
+        [StringLength(300)] 
         [Display(Name = "Descripción")]
         public string descripcionFase { get; set; }
 
@@ -334,12 +334,12 @@ namespace SemillerosApp.Models
         public int Fase_idFase { get; set; }
 
         [Required(ErrorMessage = "El nombre es requerido")]
-        [StringLength(40)]
+        [StringLength(100)]
         [Display(Name = "Nombre")]
         public string nombreActividad { get; set; }
 
         [Required(ErrorMessage = "La descripción es requerida")]
-        [StringLength(50)]
+        [StringLength(300)]
         [Display(Name = "Descripción")]
         public string descripActividad { get; set; }
 

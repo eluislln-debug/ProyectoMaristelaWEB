@@ -1,10 +1,11 @@
-﻿using System;
+﻿using SemillerosApp.Filters;
+using SemillerosApp.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using SemillerosApp.Models;
-using SemillerosApp.Filters;
 
 namespace SemillerosApp.Controllers
 {
@@ -464,48 +465,6 @@ namespace SemillerosApp.Controllers
             base.Dispose(disposing);
         }
 
-        // ────────────────────────────────────────────────────────
-        //  PROYECTOS
-        // ────────────────────────────────────────────────────────
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult CrearProyecto(int idSemillero, string tituloProyecto,
-            string descripcionProyecto, string duracionProyecto)
-        {
-            var proyecto = new Proyecto
-            {
-                Semillero_idSemillero = idSemillero,
-                tituloProyecto = tituloProyecto,
-                descripcionProyecto = descripcionProyecto,
-                duracionProyecto = duracionProyecto,
-                fechainProyecto = DateTime.Now,
-                estadoProyecto = "En Proceso"
-            };
-            db.Proyectos.Add(proyecto);
-            db.SaveChanges();
-
-            TempData["Mensaje"] = $"Proyecto '{tituloProyecto}' creado correctamente.";
-            TempData["TipoMensaje"] = "success";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EliminarProyecto(int idProyecto, int idSemillero)
-        {
-            var proyecto = db.Proyectos.Find(idProyecto);
-            if (proyecto == null) return HttpNotFound();
-
-            string titulo = proyecto.tituloProyecto;
-            db.Proyectos.Remove(proyecto);
-            db.SaveChanges();
-
-            TempData["Mensaje"] = $"Proyecto '{titulo}' eliminado.";
-            TempData["TipoMensaje"] = "warning";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SuspenderProyecto(int idProyecto, int idSemillero)
@@ -522,125 +481,216 @@ namespace SemillerosApp.Controllers
         }
 
         // ────────────────────────────────────────────────────────
-        //  FASES
+        //  GESTIÓN DE EVENTOS
         // ────────────────────────────────────────────────────────
+
+        public ActionResult Eventos()
+        {
+            var eventos = db.Eventos
+                .Include("Patrocinadores")
+                .Include("SemilleroEventos")
+                .Include("SemilleroEventos.Semillero")
+                .AsNoTracking()
+                .OrderByDescending(e => e.fechaEvento)
+                .ToList();
+
+            return View(eventos);
+        }
+
+        public ActionResult DetalleEvento(int id)
+        {
+            var evento = db.Eventos
+                .Include("Patrocinadores")
+                .Include("SemilleroEventos.Semillero")
+                .FirstOrDefault(e => e.idEventos == id);
+
+            if (evento == null) return HttpNotFound();
+
+            ViewBag.Semilleros = db.Semilleros
+                .Where(s => s.estadoSemillero == "Activo")
+                .OrderBy(s => s.nombreSemillero)
+                .ToList();
+
+            return View(evento);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CrearFase(int idProyecto, int idSemillero,
-        string descripcionFase, string fechaLimiteFase)
+        public ActionResult CrearEvento(string nombreEvento, string tipoEvento,
+            string fechaEvento, string lugarEvento, string horaEvento)
         {
-            var fase = new Fase
+            if (!DateTime.TryParse(fechaEvento, out var fecha))
             {
-                Proyecto_idProyecto = idProyecto,
-                descripcionFase = descripcionFase,
-                fechaFase = DateTime.Now,
-                fechaLimiteFase = DateTime.TryParse(fechaLimiteFase, out var fl) ? fl : (DateTime?)null,
-                estadoFase = "Pendiente"
-            };
-            db.Fases.Add(fase);
+                TempData["Mensaje"] = "Fecha inválida.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Eventos");
+            }
 
-            db.Configuration.ValidateOnSaveEnabled = false;
-            db.SaveChanges();
-            db.Configuration.ValidateOnSaveEnabled = true;
-
-            TempData["Mensaje"] = "Fase agregada correctamente.";
-            TempData["TipoMensaje"] = "success";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EliminarFase(int idFase, int idSemillero)
-        {
-            var fase = db.Fases.Find(idFase);
-            if (fase == null) { return HttpNotFound(); }
-
-            // Eliminar actividades relacionadas primero
-            var actividades = db.Actividades.Where(a => a.Fase_idFase == idFase).ToList();
-            db.Actividades.RemoveRange(actividades);
-
-            db.Fases.Remove(fase);
-            db.SaveChanges();
-
-            TempData["Mensaje"] = "Fase eliminada.";
-            TempData["TipoMensaje"] = "warning";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
-        }
-
-        // ────────────────────────────────────────────────────────
-        //  ACTIVIDADES
-        // ────────────────────────────────────────────────────────
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult CrearActividad(int idFase, int idSemillero, string nombreActividad,
-            string descripActividad, string lugarActividad,
-            string fechaActividad, string horaActividad,
-            string fechaLimiteActividad, string horaLimiteActividad)
-        {
-            var actividad = new Actividad
+            var evento = new Eventos
             {
-                Fase_idFase = idFase,
-                nombreActividad = nombreActividad,
-                descripActividad = descripActividad,
-                lugarActividad = lugarActividad,
-                horaActividad = horaActividad,
-                horaLimiteActividad = horaLimiteActividad,
-                fechaActividad = DateTime.TryParse(fechaActividad, out var fi) ? fi : DateTime.Now,
-                fechaLimiteActividad = DateTime.TryParse(fechaLimiteActividad, out var fl) ? fl : (DateTime?)null,
-                estadoActividad = "Pendiente"
+                nombreEvento = nombreEvento,
+                tipoEvento = tipoEvento,
+                fechaEvento = fecha,
+                lugarEvento = lugarEvento,
+                horaEvento = horaEvento
             };
-            db.Actividades.Add(actividad);
+            db.Eventos.Add(evento);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Evento '{nombreEvento}' creado correctamente.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Eventos");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditarEvento(int idEvento, string nombreEvento, string tipoEvento,
+            string fechaEvento, string lugarEvento, string horaEvento)
+        {
+            var evento = db.Eventos.Find(idEvento);
+            if (evento == null) return HttpNotFound();
+
+            if (!DateTime.TryParse(fechaEvento, out var fecha))
+            {
+                TempData["Mensaje"] = "Fecha inválida.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("DetalleEvento", new { id = idEvento });
+            }
+
+            evento.nombreEvento = nombreEvento;
+            evento.tipoEvento = tipoEvento;
+            evento.fechaEvento = fecha;
+            evento.lugarEvento = lugarEvento;
+            evento.horaEvento = horaEvento;
 
             db.Configuration.ValidateOnSaveEnabled = false;
             db.SaveChanges();
             db.Configuration.ValidateOnSaveEnabled = true;
 
-            TempData["Mensaje"] = $"Actividad '{nombreActividad}' creada.";
+            TempData["Mensaje"] = $"Evento '{nombreEvento}' actualizado.";
             TempData["TipoMensaje"] = "success";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
+            return RedirectToAction("DetalleEvento", new { id = idEvento });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CambiarEstadoActividad(int idActividad, int idSemillero, string nuevoEstado)
+        public ActionResult EliminarEvento(int idEvento)
         {
-            var actividad = db.Actividades.Find(idActividad);
-            if (actividad == null) return HttpNotFound();
+            var evento = db.Eventos
+                .Include("Patrocinadores")
+                .Include("SemilleroEventos")
+                .FirstOrDefault(e => e.idEventos == idEvento);
 
-            actividad.estadoActividad = nuevoEstado;
+            if (evento == null) return HttpNotFound();
 
-            // ── Deshabilitar validación para no fallar en campos Required ──
-            db.Configuration.ValidateOnSaveEnabled = false;
-            db.SaveChanges();
-            db.Configuration.ValidateOnSaveEnabled = true;
+            string nombre = evento.nombreEvento;
 
-            RecalcularEstadoFaseYProyecto(actividad.Fase_idFase);
-
-            TempData["Mensaje"] = $"Actividad actualizada a '{nuevoEstado}'.";
-            TempData["TipoMensaje"] = "success";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EliminarActividad(int idActividad, int idSemillero)
-        {
-            var actividad = db.Actividades.Find(idActividad);
-            if (actividad == null) return HttpNotFound();
-
-            string nombre = actividad.nombreActividad;
-            int idFase = actividad.Fase_idFase; // guardar ANTES de eliminar
-
-            db.Actividades.Remove(actividad);
+            // Eliminar patrocinadores y vínculos primero
+            db.Patrocinadores.RemoveRange(evento.Patrocinadores);
+            db.SemilleroEventos.RemoveRange(evento.SemilleroEventos);
             db.SaveChanges();
 
-            RecalcularEstadoFaseYProyecto(idFase); // recalcular después de eliminar
+            db.Eventos.Remove(evento);
+            db.SaveChanges();
 
-            TempData["Mensaje"] = $"Actividad '{nombre}' eliminada.";
+            TempData["Mensaje"] = $"Evento '{nombre}' eliminado.";
             TempData["TipoMensaje"] = "warning";
-            return RedirectToAction("DetalleSemillero", new { id = idSemillero });
+            return RedirectToAction("Eventos");
+        }
+
+        // ── PATROCINADORES ────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AgregarPatrocinador(int idEvento, string nombrePatrocinador,
+            string tipoPatrocinador, string correoPatrocinador,
+            decimal telefonoPatrocinador, string direccionPatrocinador)
+        {
+            var evento = db.Eventos.Find(idEvento);
+            if (evento == null) return HttpNotFound();
+
+            var patrocinador = new Patrocinadores
+            {
+                Eventos_idEventos = idEvento,
+                nombrePatrocinador = nombrePatrocinador,
+                tipoPatrocinador = tipoPatrocinador,
+                correoPatrocinador = correoPatrocinador,
+                telefonoPatrocinador = telefonoPatrocinador,
+                direccionPatrocinador = direccionPatrocinador
+            };
+            db.Patrocinadores.Add(patrocinador);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Patrocinador '{nombrePatrocinador}' agregado.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("DetalleEvento", new { id = idEvento });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarPatrocinador(int idPatrocinador, int idEvento)
+        {
+            var p = db.Patrocinadores.Find(idPatrocinador);
+            if (p == null) return HttpNotFound();
+
+            string nombre = p.nombrePatrocinador;
+            db.Patrocinadores.Remove(p);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Patrocinador '{nombre}' eliminado.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("DetalleEvento", new { id = idEvento });
+        }
+
+        // ── VINCULAR SEMILLEROS ───────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult VincularSemillero(int idEvento, int idSemillero)
+        {
+            // Verificar que no esté ya vinculado
+            bool yaExiste = db.SemilleroEventos.Any(se =>
+                se.Eventos_idEventos == idEvento &&
+                se.Semillero_idSemillero == idSemillero);
+
+            if (!yaExiste)
+            {
+                db.SemilleroEventos.Add(new Semillero_has_Eventos
+                {
+                    Eventos_idEventos = idEvento,
+                    Semillero_idSemillero = idSemillero
+                });
+                db.SaveChanges();
+
+                TempData["Mensaje"] = "Semillero vinculado al evento.";
+                TempData["TipoMensaje"] = "success";
+            }
+            else
+            {
+                TempData["Mensaje"] = "Ese semillero ya está vinculado a este evento.";
+                TempData["TipoMensaje"] = "warning";
+            }
+
+            return RedirectToAction("DetalleEvento", new { id = idEvento });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DesvincularSemillero(int idEvento, int idSemillero)
+        {
+            var vinculo = db.SemilleroEventos.FirstOrDefault(se =>
+                se.Eventos_idEventos == idEvento &&
+                se.Semillero_idSemillero == idSemillero);
+
+            if (vinculo != null)
+            {
+                db.SemilleroEventos.Remove(vinculo);
+                db.SaveChanges();
+                TempData["Mensaje"] = "Semillero desvinculado del evento.";
+                TempData["TipoMensaje"] = "warning";
+            }
+
+            return RedirectToAction("DetalleEvento", new { id = idEvento });
         }
     }
 }

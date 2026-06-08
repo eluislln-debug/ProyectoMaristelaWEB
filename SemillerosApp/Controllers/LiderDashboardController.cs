@@ -352,5 +352,223 @@ namespace SemillerosApp.Controllers
             if (disposing) db.Dispose();
             base.Dispose(disposing);
         }
+
+        // ────────────────────────────────────────────────────────
+        //  PROYECTOS
+        // ────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CrearProyecto(int idSemillero, string tituloProyecto,
+            string descripcionProyecto, string duracionProyecto)
+        {
+            // Verificar que el semillero pertenece al líder logueado
+            var lider = GetInvestigadorLider();
+            var semillero = db.Semilleros
+                .FirstOrDefault(s => s.idSemillero == idSemillero
+                                  && s.Investigadores_idInvestigadores == lider.idInvestigadores);
+
+            if (semillero == null) return HttpNotFound();
+
+            var proyecto = new Proyecto
+            {
+                Semillero_idSemillero = idSemillero,
+                tituloProyecto = tituloProyecto,
+                descripcionProyecto = descripcionProyecto,
+                duracionProyecto = duracionProyecto,
+                fechainProyecto = DateTime.Now,
+                estadoProyecto = "En Proceso"
+            };
+            db.Proyectos.Add(proyecto);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Proyecto '{tituloProyecto}' creado correctamente.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarProyecto(int idProyecto)
+        {
+            var lider = GetInvestigadorLider();
+            var semillero = GetSemilleroDelLider();
+            var proyecto = db.Proyectos
+                .FirstOrDefault(p => p.idProyecto == idProyecto
+                                  && p.Semillero_idSemillero == semillero.idSemillero);
+
+            if (proyecto == null) return HttpNotFound();
+
+            string titulo = proyecto.tituloProyecto;
+            db.Proyectos.Remove(proyecto);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Proyecto '{titulo}' eliminado.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Index");
+        }
+
+        // ────────────────────────────────────────────────────────
+        //  FASES
+        // ────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CrearFase(int idProyecto, string descripcionFase)
+        {
+            var semillero = GetSemilleroDelLider();
+            var proyecto = db.Proyectos
+                .FirstOrDefault(p => p.idProyecto == idProyecto
+                                  && p.Semillero_idSemillero == semillero.idSemillero);
+
+            if (proyecto == null) return HttpNotFound();
+
+            var fase = new Fase
+            {
+                Proyecto_idProyecto = idProyecto,
+                descripcionFase = descripcionFase,
+                fechaFase = DateTime.Now,
+                estadoFase = "Pendiente"
+            };
+            db.Fases.Add(fase);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = "Fase agregada correctamente.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarFase(int idFase)
+        {
+            var semillero = GetSemilleroDelLider();
+            var fase = db.Fases
+                .Include("Proyecto")
+                .FirstOrDefault(f => f.idFase == idFase
+                                  && f.Proyecto.Semillero_idSemillero == semillero.idSemillero);
+
+            if (fase == null) return HttpNotFound();
+
+            db.Fases.Remove(fase);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = "Fase eliminada.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Index");
+        }
+
+        // ────────────────────────────────────────────────────────
+        //  ACTIVIDADES
+        // ────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CrearActividad(int idFase, string nombreActividad,
+            string descripActividad, string lugarActividad)
+        {
+            var semillero = GetSemilleroDelLider();
+            var fase = db.Fases
+                .Include("Proyecto")
+                .FirstOrDefault(f => f.idFase == idFase
+                                  && f.Proyecto.Semillero_idSemillero == semillero.idSemillero);
+
+            if (fase == null) return HttpNotFound();
+
+            var actividad = new Actividad
+            {
+                Fase_idFase = idFase,
+                nombreActividad = nombreActividad,
+                descripActividad = descripActividad,
+                lugarActividad = lugarActividad,
+                fechaActividad = DateTime.Now,
+                estadoActividad = "Pendiente"
+            };
+            db.Actividades.Add(actividad);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Actividad '{nombreActividad}' creada.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CambiarEstadoActividad(int idActividad, string nuevoEstado)
+        {
+            var semillero = GetSemilleroDelLider();
+            var actividad = db.Actividades
+                .Include("Fase")
+                .Include("Fase.Proyecto")
+                .FirstOrDefault(a => a.idActividad == idActividad
+                                  && a.Fase.Proyecto.Semillero_idSemillero == semillero.idSemillero);
+
+            if (actividad == null) return HttpNotFound();
+
+            actividad.estadoActividad = nuevoEstado;
+            db.SaveChanges();
+
+            // ── Recalcular Fase automáticamente ───────────────────
+            var fase = db.Fases
+                .Include("Actividades")
+                .FirstOrDefault(f => f.idFase == actividad.Fase_idFase);
+
+            if (fase != null)
+            {
+                var acts = fase.Actividades.ToList();
+                if (acts.Any() && acts.All(a => a.estadoActividad == "Completada"))
+                    fase.estadoFase = "Completada";
+                else if (acts.Any(a => a.estadoActividad == "Completada" || a.estadoActividad == "En Proceso"))
+                    fase.estadoFase = "En Proceso";
+                else
+                    fase.estadoFase = "Pendiente";
+
+                db.SaveChanges();
+
+                // ── Recalcular Proyecto automáticamente ───────────
+                var proyecto = db.Proyectos
+                    .Include("Fases")
+                    .FirstOrDefault(p => p.idProyecto == fase.Proyecto_idProyecto);
+
+                if (proyecto != null)
+                {
+                    var fases = proyecto.Fases.ToList();
+                    if (fases.Any() && fases.All(f => f.estadoFase == "Completada"))
+                        proyecto.estadoProyecto = "Finalizado";
+                    else if (fases.Any(f => f.estadoFase == "En Proceso" || f.estadoFase == "Completada"))
+                        proyecto.estadoProyecto = "En Proceso";
+                    else
+                        proyecto.estadoProyecto = "Pendiente";
+
+                    db.SaveChanges();
+                }
+            }
+
+            TempData["Mensaje"] = $"Actividad actualizada a '{nuevoEstado}'.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarActividad(int idActividad)
+        {
+            var semillero = GetSemilleroDelLider();
+            var actividad = db.Actividades
+                .Include("Fase")
+                .Include("Fase.Proyecto")
+                .FirstOrDefault(a => a.idActividad == idActividad
+                                  && a.Fase.Proyecto.Semillero_idSemillero == semillero.idSemillero);
+
+            if (actividad == null) return HttpNotFound();
+
+            string nombre = actividad.nombreActividad;
+            db.Actividades.Remove(actividad);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Actividad '{nombre}' eliminada.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Index");
+        }
     }
 }

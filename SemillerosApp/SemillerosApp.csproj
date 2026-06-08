@@ -123,6 +123,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AdminViewModels.cs" />
     <Compile Include="Models\SemillerosContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -220,6 +221,8 @@
     <Content Include="Views\AdminDashboard\AgregarUsuario.cshtml" />
     <Content Include="Views\AdminDashboard\EditarUsuario.cshtml" />
     <Content Include="Views\AdminDashboard\DetalleSemillero.cshtml" />
+    <Content Include="Views\AdminDashboard\Eventos.cshtml" />
+    <Content Include="Views\AdminDashboard\DetalleEvento.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

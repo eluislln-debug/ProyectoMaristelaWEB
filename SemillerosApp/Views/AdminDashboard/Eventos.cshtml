@@ -1,0 +1,530 @@
+﻿@model IEnumerable<SemillerosApp.Models.Eventos>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Eventos";
+    ViewBag.Subtitle = "Gestión de eventos institucionales";
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-nuevo {
+            background: linear-gradient(135deg, #1a5276, #2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 22px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(26,82,118,.3);
+            transition: opacity .2s;
+        }
+
+            .btn-nuevo:hover {
+                opacity: .87;
+            }
+
+        .eventos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .evento-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+            .evento-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 28px rgba(0,0,0,.12);
+            }
+
+        .evento-card-header {
+            background: linear-gradient(135deg, #1a5276, #2e86c1);
+            padding: 18px 20px;
+            position: relative;
+        }
+
+        .evento-tipo {
+            display: inline-block;
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.25);
+            color: #fff;
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 8px;
+        }
+
+        .evento-nombre {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .evento-card-body {
+            padding: 16px 20px;
+        }
+
+        .evento-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .8rem;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+            .evento-meta-item i {
+                width: 16px;
+                color: #2e86c1;
+                font-size: .78rem;
+            }
+
+        .evento-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #f0f4f8;
+        }
+
+        .evento-stat {
+            flex: 1;
+            text-align: center;
+            background: #f8fbff;
+            border-radius: 10px;
+            padding: 8px;
+        }
+
+        .evento-stat-val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a5276;
+            line-height: 1;
+        }
+
+        .evento-stat-lbl {
+            font-size: .65rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            margin-top: 2px;
+        }
+
+        .evento-card-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #f0f4f8;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-card {
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: .78rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .btn-card:hover {
+                opacity: .82;
+            }
+
+        .btn-card-info {
+            background: #eaf4fb;
+            color: #1a5276;
+        }
+
+        .btn-card-danger {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            color: #bbb;
+            grid-column: 1 / -1;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                display: block;
+                margin-bottom: 14px;
+            }
+
+            .empty-state p {
+                font-size: .9rem;
+                color: #7f8c8d;
+                font-weight: 500;
+            }
+
+        /* MODAL */
+        .modal-card {
+            border-radius: 16px;
+            border: none;
+            overflow: hidden;
+        }
+
+            .modal-card .modal-header {
+                background: linear-gradient(135deg, #1a5276, #2e86c1);
+                border: none;
+                padding: 18px 24px;
+            }
+
+                .modal-card .modal-header h5 {
+                    color: #fff;
+                    font-weight: 700;
+                    margin: 0;
+                }
+
+                .modal-card .modal-header .btn-close {
+                    filter: brightness(0) invert(1);
+                }
+
+            .modal-card .modal-body {
+                padding: 22px 24px;
+            }
+
+            .modal-card .modal-footer {
+                border-top: 1px solid #f0f4f8;
+                padding: 14px 24px;
+            }
+
+        .modal-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .modal-input {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-family: 'Poppins', sans-serif;
+            font-size: .88rem;
+            width: 100%;
+            transition: border-color .2s;
+        }
+
+            .modal-input:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.1);
+            }
+
+            .modal-input.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .field-err {
+            font-size: .73rem;
+            color: #e74c3c;
+            margin-top: 3px;
+            display: block;
+            min-height: 16px;
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg, #1a5276, #2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 22px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-modal-cancel {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 18px;
+            font-size: .85rem;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+    </style>
+}
+
+<div class="page-header">
+    <div></div>
+    <button type="button" class="btn-nuevo" data-bs-toggle="modal" data-bs-target="#modalCrearEvento">
+        <i class="fas fa-plus"></i> Nuevo Evento
+    </button>
+</div>
+
+<div class="eventos-grid">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var e in Model)
+        {
+            bool esPasado = e.fechaEvento < DateTime.Today;
+            <div class="evento-card">
+                <div class="evento-card-header" style="@(esPasado ? "background:linear-gradient(135deg,#555,#7f8c8d)" : "")">
+                    <div class="evento-tipo">@e.tipoEvento</div>
+                    <p class="evento-nombre">@e.nombreEvento</p>
+                    @if (esPasado)
+                    {
+                        <span style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,.25);
+                                     color:#fff;font-size:.62rem;font-weight:700;padding:3px 8px;
+                                     border-radius:20px">FINALIZADO</span>
+                    }
+                </div>
+                <div class="evento-card-body">
+                    <div class="evento-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        @e.fechaEvento.ToString("dd 'de' MMMM, yyyy", new System.Globalization.CultureInfo("es-ES"))
+                    </div>
+                    <div class="evento-meta-item">
+                        <i class="fas fa-clock"></i> @e.horaEvento
+                    </div>
+                    <div class="evento-meta-item">
+                        <i class="fas fa-map-marker-alt"></i> @e.lugarEvento
+                    </div>
+                    <div class="evento-stats">
+                        <div class="evento-stat">
+                            <div class="evento-stat-val">@(e.Patrocinadores?.Count ?? 0)</div>
+                            <div class="evento-stat-lbl">Patrocinadores</div>
+                        </div>
+                        <div class="evento-stat">
+                            <div class="evento-stat-val">@(e.SemilleroEventos?.Count ?? 0)</div>
+                            <div class="evento-stat-lbl">Semilleros</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="evento-card-footer">
+                    <a href="@Url.Action("DetalleEvento","AdminDashboard", new { id = e.idEventos })"
+                       class="btn-card btn-card-info">
+                        <i class="fas fa-eye"></i> Ver Detalle
+                    </a>
+                    @using (Html.BeginForm("EliminarEvento", "AdminDashboard",
+                            new { idEvento = e.idEventos }, FormMethod.Post,
+                            new { style = "display:inline", onsubmit = $"return confirm('¿Eliminar el evento {e.nombreEvento}? Se eliminarán también sus patrocinadores y vínculos.')" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-card btn-card-danger">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <p style="font-weight:700;font-size:1rem;color:#555">No hay eventos registrados</p>
+            <p>Crea el primer evento con el botón de arriba.</p>
+        </div>
+    }
+</div>
+
+<!-- MODAL CREAR EVENTO -->
+<div class="modal fade" id="modalCrearEvento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-card">
+            <div class="modal-header">
+                <h5><i class="fas fa-calendar-plus me-2"></i>Nuevo Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("CrearEvento", "AdminDashboard", FormMethod.Post,
+                    new { id = "formCrearEvento", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="modal-label">Nombre del Evento *</label>
+                        <input type="text" name="nombreEvento" id="ev-nombre" class="modal-input"
+                               placeholder="Ej: Feria de Ciencia Nacional" maxlength="20" />
+                        <span class="field-err" id="err-ev-nombre"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Tipo *</label>
+                        <select name="tipoEvento" id="ev-tipo" class="modal-input">
+                            <option value="">-- Selecciona un tipo --</option>
+                            <option value="Académico">Académico</option>
+                            <option value="Científico">Científico</option>
+                            <option value="Cultural">Cultural</option>
+                            <option value="Deportivo">Deportivo</option>
+                            <option value="Institucional">Institucional</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                        <span class="field-err" id="err-ev-tipo"></span>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="modal-label">Fecha *</label>
+                            <input type="date" name="fechaEvento" id="ev-fecha" class="modal-input" />
+                            <span class="field-err" id="err-ev-fecha"></span>
+                        </div>
+                        <div class="col-5">
+                            <label class="modal-label">Hora *</label>
+                            <input type="time" name="horaEvento" id="ev-hora" class="modal-input" />
+                            <span class="field-err" id="err-ev-hora"></span>
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <label class="modal-label">Lugar *</label>
+                        <input type="text" name="lugarEvento" id="ev-lugar" class="modal-input"
+                               placeholder="Ej: Auditorio Central" maxlength="40" />
+                        <span class="field-err" id="err-ev-lugar"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save" id="btnCrearEvento">
+                        <i class="fas fa-plus me-1"></i>Crear Evento
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>// ── UTILIDADES ────────────────────────────────────────────
+function setError(id, errId, msg) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = msg;
+}
+function clearError(id, errId) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = '';
+}
+function validarCampo(id, errId, min, msg) {
+    var v = document.getElementById(id).value.trim();
+    if (v.length < min) { setError(id, errId, msg); return false; }
+    clearError(id, errId);
+    return true;
+}
+
+// ── VALIDACIONES EN TIEMPO REAL ───────────────────────────
+document.getElementById('ev-nombre').addEventListener('input', function () {
+    validarCampo('ev-nombre', 'err-ev-nombre', 3, 'Mínimo 3 caracteres');
+});
+document.getElementById('ev-tipo').addEventListener('change', function () {
+    if (!this.value) { setError('ev-tipo', 'err-ev-tipo', 'Selecciona un tipo'); }
+    else { clearError('ev-tipo', 'err-ev-tipo'); }
+});
+document.getElementById('ev-lugar').addEventListener('input', function () {
+    validarCampo('ev-lugar', 'err-ev-lugar', 3, 'Mínimo 3 caracteres');
+});
+document.getElementById('ev-fecha').addEventListener('change', function () {
+    var hoy = new Date().toISOString().split('T')[0];
+    if (!this.value) {
+        setError('ev-fecha', 'err-ev-fecha', 'La fecha es requerida');
+    } else if (this.value < hoy) {
+        setError('ev-fecha', 'err-ev-fecha', 'La fecha no puede ser en el pasado');
+    } else {
+        clearError('ev-fecha', 'err-ev-fecha');
+        // Revalidar hora si ya tiene valor
+        if (document.getElementById('ev-hora').value) validarHoraEvento();
+    }
+});
+document.getElementById('ev-hora').addEventListener('change', validarHoraEvento);
+
+function validarHoraEvento() {
+    var fecha = document.getElementById('ev-fecha').value;
+    var hora  = document.getElementById('ev-hora').value;
+    var ahora = new Date();
+    var hoy   = ahora.toISOString().split('T')[0];
+    var horaActual = ahora.getHours().toString().padStart(2,'0') + ':' + ahora.getMinutes().toString().padStart(2,'0');
+
+    if (!hora) {
+        setError('ev-hora', 'err-ev-hora', 'La hora es requerida');
+        return false;
+    }
+    if (fecha === hoy && hora <= horaActual) {
+        setError('ev-hora', 'err-ev-hora', 'La hora debe ser posterior a la actual (' + horaActual + ')');
+        return false;
+    }
+    clearError('ev-hora', 'err-ev-hora');
+    return true;
+}
+
+// ── SUBMIT ────────────────────────────────────────────────
+document.getElementById('formCrearEvento').addEventListener('submit', function (e) {
+    var ok = true;
+    var hoy = new Date().toISOString().split('T')[0];
+
+    if (!validarCampo('ev-nombre', 'err-ev-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
+
+    if (!document.getElementById('ev-tipo').value) {
+        setError('ev-tipo', 'err-ev-tipo', 'Selecciona un tipo');
+        ok = false;
+    }
+
+    var fecha = document.getElementById('ev-fecha').value;
+    if (!fecha) {
+        setError('ev-fecha', 'err-ev-fecha', 'La fecha es requerida');
+        ok = false;
+    } else if (fecha < hoy) {
+        setError('ev-fecha', 'err-ev-fecha', 'La fecha no puede ser en el pasado');
+        ok = false;
+    }
+
+    if (!validarHoraEvento()) ok = false;
+    if (!validarCampo('ev-lugar', 'err-ev-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
+
+    if (!ok) { e.preventDefault(); return; }
+    document.getElementById('btnCrearEvento').disabled = true;
+});
+
+// Limpiar modal al cerrar
+document.getElementById('modalCrearEvento').addEventListener('hidden.bs.modal', function () {
+    ['ev-nombre', 'ev-tipo', 'ev-fecha', 'ev-hora', 'ev-lugar'].forEach(function (id) {
+        var el = document.getElementById(id);
+        el.value = '';
+        el.classList.remove('is-invalid');
+        el.style.borderColor = '';
+    });
+    ['err-ev-nombre','err-ev-tipo','err-ev-fecha','err-ev-hora','err-ev-lugar'].forEach(function (id) {
+        document.getElementById(id).innerText = '';
+    });
+    document.getElementById('btnCrearEvento').disabled = false;
+});</script>
+}

@@ -1,0 +1,618 @@
+﻿@model SemillerosApp.Models.Eventos
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = Model.nombreEvento;
+    ViewBag.Subtitle = "Detalle del evento · " + Model.tipoEvento;
+    var semillerosDisponibles = ViewBag.Semilleros as List<SemillerosApp.Models.Semillero>;
+    var idsVinculados = Model.SemilleroEventos?.Select(se => se.Semillero_idSemillero).ToList() ?? new List<int>();
+    bool esPasado = Model.fechaEvento < DateTime.Today;
+}
+
+@section Styles {
+    <style>
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #7f8c8d;
+        font-size: .82rem;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: color .2s;
+    }
+    .btn-back:hover { color: #1a5276; }
+
+    .hero-evento {
+        background: @(esPasado ? "linear-gradient(135deg,#555,#7f8c8d)" : "linear-gradient(135deg,#0d1b2a,#1a5276,#2e86c1)");
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-evento::before {
+        content: '';
+        position: absolute;
+        right: -40px; top: -40px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.04);
+    }
+    .hero-tipo {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.2);
+        color: rgba(255,255,255,.85);
+        font-size: .7rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-bottom: 12px;
+    }
+    .hero-evento h2 { color: #fff; font-weight: 700; font-size: 1.6rem; margin: 0 0 18px; }
+    .hero-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+    .hero-meta-item {
+        display: flex; align-items: center; gap: 7px;
+        color: rgba(255,255,255,.75); font-size: .82rem;
+    }
+    .hero-meta-item i { color: rgba(255,255,255,.5); font-size: .82rem; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+    .card-panel {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.07);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .card-panel-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid #f0f4f8;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .section-title {
+        font-size: .95rem;
+        font-weight: 700;
+        color: #1a5276;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg,#1a5276,#2e86c1);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 7px 16px;
+        font-size: .78rem;
+        font-weight: 600;
+        font-family: 'Poppins',sans-serif;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity .2s;
+    }
+    .btn-add:hover { opacity: .87; }
+
+    /* Patrocinadores */
+    .patrocinador-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 22px;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background .2s;
+    }
+    .patrocinador-row:last-child { border-bottom: none; }
+    .patrocinador-row:hover { background: #f8fbff; }
+
+    .pat-avatar {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg,#1a5276,#2e86c1);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 700; font-size: .9rem;
+        flex-shrink: 0;
+    }
+    .pat-nombre { font-size: .88rem; font-weight: 600; color: #2c3e50; }
+    .pat-meta { font-size: .73rem; color: #7f8c8d; }
+    .pat-tipo {
+        margin-left: auto;
+        font-size: .68rem; font-weight: 700;
+        padding: 3px 10px; border-radius: 20px;
+        background: #eaf4fb; color: #1a5276;
+        flex-shrink: 0;
+    }
+    .btn-xs-danger {
+        background: #fde8e8; color: #a93226;
+        border: none; border-radius: 6px;
+        padding: 5px 10px; font-size: .72rem;
+        font-family: 'Poppins',sans-serif;
+        cursor: pointer; transition: opacity .2s;
+        flex-shrink: 0;
+    }
+    .btn-xs-danger:hover { opacity: .8; }
+
+    /* Semilleros vinculados */
+    .semillero-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 22px;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background .2s;
+    }
+    .semillero-row:last-child { border-bottom: none; }
+    .semillero-row:hover { background: #f8fbff; }
+    .sem-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: #28b463;
+        flex-shrink: 0;
+    }
+    .sem-nombre { font-size: .88rem; font-weight: 600; color: #2c3e50; flex: 1; }
+    .sem-linea { font-size: .73rem; color: #7f8c8d; }
+
+    .empty-row {
+        text-align: center; padding: 30px;
+        color: #bbb; font-size: .85rem;
+    }
+    .empty-row i { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+
+    /* Editar evento */
+    .edit-panel {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.07);
+        padding: 22px 24px;
+        margin-bottom: 20px;
+    }
+
+    /* MODAL */
+    .modal-card { border-radius: 16px; border: none; overflow: hidden; }
+    .modal-card .modal-header {
+        background: linear-gradient(135deg,#1a5276,#2e86c1);
+        border: none; padding: 18px 24px;
+    }
+    .modal-card .modal-header h5 { color: #fff; font-weight: 700; margin: 0; }
+    .modal-card .modal-header .btn-close { filter: brightness(0) invert(1); }
+    .modal-card .modal-body { padding: 22px 24px; }
+    .modal-card .modal-footer { border-top: 1px solid #f0f4f8; padding: 14px 24px; }
+
+    .modal-label {
+        font-size: .72rem; font-weight: 600; color: #1a5276;
+        text-transform: uppercase; letter-spacing: .4px;
+        margin-bottom: 5px; display: block;
+    }
+    .modal-input {
+        border: 2px solid #dee2e6; border-radius: 10px;
+        padding: 9px 14px; font-family: 'Poppins',sans-serif;
+        font-size: .88rem; width: 100%; transition: border-color .2s;
+    }
+    .modal-input:focus {
+        outline: none; border-color: #2e86c1;
+        box-shadow: 0 0 0 3px rgba(46,134,193,.1);
+    }
+    .modal-input.is-invalid { border-color: #e74c3c; }
+    .field-err {
+        font-size: .73rem; color: #e74c3c;
+        margin-top: 3px; display: block; min-height: 16px;
+    }
+    .btn-modal-save {
+        background: linear-gradient(135deg,#1a5276,#2e86c1);
+        color: #fff; border: none; border-radius: 9px;
+        padding: 9px 22px; font-size: .85rem; font-weight: 600;
+        font-family: 'Poppins',sans-serif; cursor: pointer;
+    }
+    .btn-modal-cancel {
+        background: #f0f4f8; color: #555; border: none;
+        border-radius: 9px; padding: 9px 18px; font-size: .85rem;
+        font-family: 'Poppins',sans-serif; cursor: pointer;
+    }
+    </style>
+}
+
+<a href="@Url.Action("Eventos","AdminDashboard")" class="btn-back">
+    <i class="fas fa-arrow-left"></i> Volver a Eventos
+</a>
+
+<!-- HERO -->
+<div class="hero-evento">
+    <div class="hero-tipo"><i class="fas fa-calendar-alt"></i> @Model.tipoEvento</div>
+    <h2>@Model.nombreEvento</h2>
+    <div class="hero-meta">
+        <div class="hero-meta-item">
+            <i class="fas fa-calendar-alt"></i>
+            @Model.fechaEvento.ToString("dd 'de' MMMM, yyyy", new System.Globalization.CultureInfo("es-ES"))
+        </div>
+        <div class="hero-meta-item"><i class="fas fa-clock"></i> @Model.horaEvento</div>
+        <div class="hero-meta-item"><i class="fas fa-map-marker-alt"></i> @Model.lugarEvento</div>
+        @if (esPasado)
+        {
+            <div class="hero-meta-item">
+                <i class="fas fa-flag-checkered"></i>
+                <span style="color:#ffd;">Evento finalizado</span>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- PATROCINADORES -->
+    <div class="card-panel mb-0">
+        <div class="card-panel-header">
+            <p class="section-title"><i class="fas fa-handshake"></i> Patrocinadores (@(Model.Patrocinadores?.Count ?? 0))</p>
+            <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#modalAgregarPatrocinador">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
+        </div>
+        @if (Model.Patrocinadores != null && Model.Patrocinadores.Any())
+        {
+            foreach (var p in Model.Patrocinadores)
+            {
+                <div class="patrocinador-row">
+                    <div class="pat-avatar">@p.nombrePatrocinador.Substring(0, 1).ToUpper()</div>
+                    <div style="flex:1">
+                        <div class="pat-nombre">@p.nombrePatrocinador</div>
+                        <div class="pat-meta">
+                            <i class="fas fa-envelope me-1"></i>@p.correoPatrocinador
+                            · <i class="fas fa-phone me-1"></i>@p.telefonoPatrocinador
+                        </div>
+                        <div class="pat-meta"><i class="fas fa-map-marker-alt me-1"></i>@p.direccionPatrocinador</div>
+                    </div>
+                    <span class="pat-tipo">@p.tipoPatrocinador</span>
+                    @using (Html.BeginForm("EliminarPatrocinador", "AdminDashboard",
+                            new { idPatrocinador = p.idPatrocinadores, idEvento = Model.idEventos },
+                            FormMethod.Post, new
+                            {
+                                style = "display:inline",
+                                onsubmit = $"return confirm('¿Eliminar a {p.nombrePatrocinador}?')"
+                            }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-xs-danger"><i class="fas fa-trash"></i></button>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-row"><i class="fas fa-handshake-slash"></i>Sin patrocinadores aún</div>
+        }
+    </div>
+
+    <!-- SEMILLEROS VINCULADOS -->
+    <div class="card-panel mb-0">
+        <div class="card-panel-header">
+            <p class="section-title"><i class="fas fa-seedling"></i> Semilleros (@(Model.SemilleroEventos?.Count ?? 0))</p>
+            <button type="button" class="btn-add" data-bs-toggle="modal" data-bs-target="#modalVincularSemillero">
+                <i class="fas fa-link"></i> Vincular
+            </button>
+        </div>
+        @if (Model.SemilleroEventos != null && Model.SemilleroEventos.Any())
+        {
+            foreach (var se in Model.SemilleroEventos)
+            {
+                string nomSem = se.Semillero != null ? se.Semillero.nombreSemillero : "Sin nombre";
+                string lineaSem = se.Semillero != null ? se.Semillero.lineaInvestigacion : "";
+                <div class="semillero-row">
+                    <div class="sem-dot"></div>
+                    <div style="flex:1">
+                        <div class="sem-nombre">@nomSem</div>
+                        <div class="sem-linea">@lineaSem</div>
+                    </div>
+                    @using (Html.BeginForm("DesvincularSemillero", "AdminDashboard",
+                            new { idEvento = Model.idEventos, idSemillero = se.Semillero_idSemillero },
+                            FormMethod.Post, new { style = "display:inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-xs-danger"
+                                onclick="return confirm('¿Desvincular este semillero del evento?')">
+                            <i class="fas fa-unlink"></i> Desvincular
+                        </button>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-row"><i class="fas fa-seedling"></i>Sin semilleros vinculados</div>
+        }
+    </div>
+</div>
+
+<!-- EDITAR EVENTO -->
+<div class="card-panel">
+    <div class="card-panel-header">
+        <p class="section-title"><i class="fas fa-edit"></i> Editar Evento</p>
+    </div>
+    @using (Html.BeginForm("EditarEvento", "AdminDashboard", FormMethod.Post,
+            new { id = "formEditarEvento", novalidate = "novalidate" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="idEvento" value="@Model.idEventos" />
+        <div style="padding:22px 24px">
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="modal-label">Nombre del Evento *</label>
+                    <input type="text" name="nombreEvento" id="edit-nombre" class="modal-input"
+                           value="@Model.nombreEvento" maxlength="20" />
+                    <span class="field-err" id="err-edit-nombre"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="modal-label">Tipo *</label>
+                    <select name="tipoEvento" id="edit-tipo" class="modal-input">
+                        @foreach (var t in new[] { "Académico", "Científico", "Cultural", "Deportivo", "Institucional", "Otro" })
+                        {
+                            <option value="@t" @(Model.tipoEvento == t ? "selected" : "")>@t</option>
+                        }
+                    </select>
+                    <span class="field-err" id="err-edit-tipo"></span>
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="modal-label">Fecha *</label>
+                    <input type="date" name="fechaEvento" id="edit-fecha" class="modal-input"
+                           value="@Model.fechaEvento.ToString("yyyy-MM-dd")" />
+                    <span class="field-err" id="err-edit-fecha"></span>
+                </div>
+                <div class="col-md-3">
+                    <label class="modal-label">Hora *</label>
+                    <input type="time" name="horaEvento" id="edit-hora" class="modal-input"
+                           value="@Model.horaEvento" />
+                    <span class="field-err" id="err-edit-hora"></span>
+                </div>
+                <div class="col-md-5">
+                    <label class="modal-label">Lugar *</label>
+                    <input type="text" name="lugarEvento" id="edit-lugar" class="modal-input"
+                           value="@Model.lugarEvento" maxlength="40" />
+                    <span class="field-err" id="err-edit-lugar"></span>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+                <button type="submit" class="btn-modal-save" id="btnGuardarEvento">
+                    <i class="fas fa-save me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- MODAL AGREGAR PATROCINADOR -->
+<div class="modal fade" id="modalAgregarPatrocinador" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-card">
+            <div class="modal-header">
+                <h5><i class="fas fa-handshake me-2"></i>Agregar Patrocinador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("AgregarPatrocinador", "AdminDashboard", FormMethod.Post,
+                    new { id = "formPatrocinador", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idEvento" value="@Model.idEventos" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="modal-label">Nombre *</label>
+                        <input type="text" name="nombrePatrocinador" id="pat-nombre" class="modal-input"
+                               placeholder="Ej: Bancolombia" maxlength="40" />
+                        <span class="field-err" id="err-pat-nombre"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Tipo *</label>
+                        <select name="tipoPatrocinador" id="pat-tipo" class="modal-input">
+                            <option value="">-- Selecciona --</option>
+                            <option value="Público">Público</option>
+                            <option value="Privado">Privado</option>
+                            <option value="ONG">ONG</option>
+                            <option value="Universitario">Universitario</option>
+                            <option value="Internacional">Internacional</option>
+                        </select>
+                        <span class="field-err" id="err-pat-tipo"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Correo *</label>
+                        <input type="email" name="correoPatrocinador" id="pat-correo" class="modal-input"
+                               placeholder="correo@empresa.com" maxlength="30" />
+                        <span class="field-err" id="err-pat-correo"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Teléfono *</label>
+                        <input type="number" name="telefonoPatrocinador" id="pat-tel" class="modal-input"
+                               placeholder="3001234567" />
+                        <span class="field-err" id="err-pat-tel"></span>
+                    </div>
+                    <div class="mb-1">
+                        <label class="modal-label">Dirección *</label>
+                        <input type="text" name="direccionPatrocinador" id="pat-dir" class="modal-input"
+                               placeholder="Ej: Calle 45 #23-10" maxlength="50" />
+                        <span class="field-err" id="err-pat-dir"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save" id="btnAgregarPat">
+                        <i class="fas fa-plus me-1"></i>Agregar
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODAL VINCULAR SEMILLERO -->
+<div class="modal fade" id="modalVincularSemillero" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-card">
+            <div class="modal-header">
+                <h5><i class="fas fa-link me-2"></i>Vincular Semillero</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            @using (Html.BeginForm("VincularSemillero", "AdminDashboard", FormMethod.Post,
+                    new { id = "formVincular", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idEvento" value="@Model.idEventos" />
+                <div class="modal-body">
+                    <label class="modal-label">Selecciona un Semillero *</label>
+                    <select name="idSemillero" id="vinc-semillero" class="modal-input">
+                        <option value="">-- Selecciona --</option>
+                        @if (semillerosDisponibles != null)
+                        {
+                            foreach (var s in semillerosDisponibles)
+                            {
+                                bool yaVinculado = idsVinculados.Contains(s.idSemillero);
+                                <option value="@s.idSemillero" @(yaVinculado ? "disabled" : "")>
+                                    @s.nombreSemillero @(yaVinculado ? "(ya vinculado)" : "")
+                                </option>
+                            }
+                        }
+                    </select>
+                    <span class="field-err" id="err-vinc-semillero"></span>
+                    <small style="font-size:.72rem;color:#aaa;margin-top:6px;display:block">
+                        <i class="fas fa-info-circle me-1" style="color:#2e86c1"></i>
+                        Solo se muestran semilleros activos.
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save" id="btnVincular">
+                        <i class="fas fa-link me-1"></i>Vincular
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+// ── UTILIDADES ────────────────────────────────────────────
+function setError(id, errId, msg) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = msg;
+}
+function clearError(id, errId) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+    var err = document.getElementById(errId);
+    if (err) err.innerText = '';
+}
+function validarCampo(id, errId, min, msg) {
+    var v = document.getElementById(id).value.trim();
+    if (v.length < min) { setError(id, errId, msg); return false; }
+    clearError(id, errId);
+    return true;
+}
+function validarEmail(id, errId) {
+    var v = document.getElementById(id).value.trim();
+    var re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+    if (!v) { setError(id, errId, 'El correo es requerido'); return false; }
+    if (!re.test(v)) { setError(id, errId, 'Correo inválido'); return false; }
+    clearError(id, errId);
+    return true;
+}
+
+// ── EDITAR EVENTO ─────────────────────────────────────────
+document.getElementById('edit-nombre').addEventListener('input', function () {
+    validarCampo('edit-nombre','err-edit-nombre',3,'Mínimo 3 caracteres');
+});
+document.getElementById('edit-lugar').addEventListener('input', function () {
+    validarCampo('edit-lugar','err-edit-lugar',3,'Mínimo 3 caracteres');
+});
+document.getElementById('edit-fecha').addEventListener('change', function () {
+    if (!this.value) { setError('edit-fecha','err-edit-fecha','La fecha es requerida'); }
+    else { clearError('edit-fecha','err-edit-fecha'); }
+});
+document.getElementById('edit-hora').addEventListener('change', function () {
+    if (!this.value) { setError('edit-hora','err-edit-hora','La hora es requerida'); }
+    else { clearError('edit-hora','err-edit-hora'); }
+});
+document.getElementById('formEditarEvento').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('edit-nombre','err-edit-nombre',3,'Mínimo 3 caracteres')) ok = false;
+    if (!document.getElementById('edit-fecha').value) {
+        setError('edit-fecha','err-edit-fecha','La fecha es requerida'); ok = false;
+    }
+    if (!document.getElementById('edit-hora').value) {
+        setError('edit-hora','err-edit-hora','La hora es requerida'); ok = false;
+    }
+    if (!validarCampo('edit-lugar','err-edit-lugar',3,'Mínimo 3 caracteres')) ok = false;
+    if (!ok) { e.preventDefault(); return; }
+    document.getElementById('btnGuardarEvento').disabled = true;
+});
+
+// ── PATROCINADOR ──────────────────────────────────────────
+document.getElementById('pat-nombre').addEventListener('input', function () {
+    validarCampo('pat-nombre','err-pat-nombre',3,'Mínimo 3 caracteres');
+});
+document.getElementById('pat-tipo').addEventListener('change', function () {
+    if (!this.value) { setError('pat-tipo','err-pat-tipo','Selecciona un tipo'); }
+    else { clearError('pat-tipo','err-pat-tipo'); }
+});
+document.getElementById('pat-correo').addEventListener('input', function () {
+    validarEmail('pat-correo','err-pat-correo');
+});
+document.getElementById('pat-tel').addEventListener('input', function () {
+    var v = this.value.trim();
+    if (v.length < 7) { setError('pat-tel','err-pat-tel','Teléfono inválido'); }
+    else { clearError('pat-tel','err-pat-tel'); }
+});
+document.getElementById('pat-dir').addEventListener('input', function () {
+    validarCampo('pat-dir','err-pat-dir',5,'Mínimo 5 caracteres');
+});
+document.getElementById('formPatrocinador').addEventListener('submit', function (e) {
+    var ok = true;
+    if (!validarCampo('pat-nombre','err-pat-nombre',3,'Mínimo 3 caracteres')) ok = false;
+    if (!document.getElementById('pat-tipo').value) {
+        setError('pat-tipo','err-pat-tipo','Selecciona un tipo'); ok = false;
+    }
+    if (!validarEmail('pat-correo','err-pat-correo')) ok = false;
+    if (document.getElementById('pat-tel').value.trim().length < 7) {
+        setError('pat-tel','err-pat-tel','Teléfono inválido'); ok = false;
+    }
+    if (!validarCampo('pat-dir','err-pat-dir',5,'Mínimo 5 caracteres')) ok = false;
+    if (!ok) { e.preventDefault(); return; }
+    document.getElementById('btnAgregarPat').disabled = true;
+});
+
+// Limpiar modal patrocinador al cerrar
+document.getElementById('modalAgregarPatrocinador').addEventListener('hidden.bs.modal', function () {
+    ['pat-nombre','pat-tipo','pat-correo','pat-tel','pat-dir'].forEach(function(id){
+        var el = document.getElementById(id);
+        el.value = '';
+        el.classList.remove('is-invalid');
+        el.style.borderColor = '';
+        document.getElementById('err-'+id).innerText = '';
+    });
+    document.getElementById('btnAgregarPat').disabled = false;
+});
+
+// ── VINCULAR SEMILLERO ────────────────────────────────────
+document.getElementById('vinc-semillero').addEventListener('change', function () {
+    if (!this.value) { setError('vinc-semillero','err-vinc-semillero','Selecciona un semillero'); }
+    else { clearError('vinc-semillero','err-vinc-semillero'); }
+});
+document.getElementById('formVincular').addEventListener('submit', function (e) {
+    if (!document.getElementById('vinc-semillero').value) {
+        setError('vinc-semillero','err-vinc-semillero','Selecciona un semillero');
+        e.preventDefault(); return;
+    }
+    document.getElementById('btnVincular').disabled = true;
+});
+    </script>
+}
