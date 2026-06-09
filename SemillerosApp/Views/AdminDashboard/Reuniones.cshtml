@@ -338,10 +338,10 @@
                         new { id = r.idReunion }, FormMethod.Post,
                         new { style = "display:inline", onsubmit = "return confirm('¿Eliminar esta reunión? No se puede deshacer.')" }))
                         {
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn-sm-action btn-delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-sm-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         }
                     </div>
                 </div>

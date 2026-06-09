@@ -326,7 +326,7 @@ namespace SemillerosApp.Models
         public DateTime? fechaLimiteFase { get; set; }
 
         [Required(ErrorMessage = "La descripción es requerida")]
-        [StringLength(300)] 
+        [StringLength(300)]
         [Display(Name = "Descripción")]
         public string descripcionFase { get; set; }
 

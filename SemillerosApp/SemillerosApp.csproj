@@ -224,9 +224,9 @@
     <Content Include="Views\AdminDashboard\DetalleSemillero.cshtml" />
     <Content Include="Views\AdminDashboard\Eventos.cshtml" />
     <Content Include="Views\AdminDashboard\DetalleEvento.cshtml" />
-    <Content Include="Views\AdminDashboard\Reuniones.cshtml" />
     <Content Include="Views\AdminDashboard\CrearReunion.cshtml" />
     <Content Include="Views\AdminDashboard\EditarReunion.cshtml" />
+    <Content Include="Views\AdminDashboard\Reuniones.cshtml" />
     <Content Include="Views\Asistente\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
