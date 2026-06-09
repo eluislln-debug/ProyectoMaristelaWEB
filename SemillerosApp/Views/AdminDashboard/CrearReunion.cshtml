@@ -1,0 +1,551 @@
+﻿@model SemillerosApp.Models.Reunion
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Nueva Reunión";
+    ViewBag.Subtitle = "Programar una nueva reunión";
+}
+
+@section Styles {
+    <style>
+        .form-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            overflow: hidden;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hicon {
+            width: 46px;
+            height: 46px;
+            background: rgba(255,255,255,.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .hicon i {
+                font-size: 1.3rem;
+                color: #fff;
+            }
+
+        .form-card-header h4 {
+            color: #fff;
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .form-card-header p {
+            color: rgba(255,255,255,.65);
+            font-size: .78rem;
+            margin: 0;
+        }
+
+        .form-card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #1a5276;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: .9rem;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .form-control {
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s, box-shadow .25s;
+            width: 100%;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+            }
+
+            .form-control.is-valid {
+                border-color: #28b463 !important;
+            }
+
+            .form-control.is-invalid {
+                border-color: #e74c3c !important;
+            }
+
+        .form-select {
+            padding: 10px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            transition: border-color .25s;
+            width: 100%;
+        }
+
+            .form-select:focus {
+                outline: none;
+                border-color: #2e86c1;
+                box-shadow: 0 0 0 3px rgba(46,134,193,.12);
+            }
+
+            .form-select.is-valid {
+                border-color: #28b463;
+            }
+
+            .form-select.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .field-msg {
+            font-size: .73rem;
+            margin-top: 4px;
+            min-height: 18px;
+            display: block;
+            padding-left: 2px;
+        }
+
+            .field-msg.error {
+                color: #e74c3c;
+            }
+
+            .field-msg.ok {
+                color: #28b463;
+            }
+
+        .section-divider {
+            font-size: .7rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #f0f4f8;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+        }
+
+        .estado-preview {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: .85rem;
+            font-weight: 600;
+            border: 2px solid #dee2e6;
+            transition: all .3s;
+        }
+
+        .duracion-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: #f0f4f8;
+            color: #555;
+            font-size: .8rem;
+            font-weight: 500;
+            border: 1px solid #dee2e6;
+            transition: all .3s;
+        }
+
+        .btn-guardar {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 32px;
+            font-size: .92rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-guardar:hover {
+                opacity: .88;
+            }
+
+            .btn-guardar:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .btn-cancelar {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: .88rem;
+            font-weight: 500;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+            .btn-cancelar:hover {
+                background: #dee2e6;
+                color: #333;
+            }
+    </style>
+}
+
+<div class="form-card">
+    <div class="form-card-header">
+        <div class="hicon"><i class="fas fa-calendar-plus"></i></div>
+        <div>
+            <h4>Nueva Reunión</h4>
+            <p>El estado se calculará automáticamente según fecha y hora</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        @using (Html.BeginForm("CrearReunion", "AdminDashboard", FormMethod.Post,
+                new { id = "formCrear", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="section-divider">Información de la Reunión</div>
+            <div class="row g-3 mb-3">
+
+                <!-- Motivo -->
+                <div class="col-md-12">
+                    <label class="form-label">Motivo / Título *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-comment-alt"></i></span>
+                        <input type="text" name="motivoReunion" id="motivoReunion" class="form-control"
+                               placeholder="Ej: Revisión de avances del proyecto" />
+                    </div>
+                    <span class="field-msg" id="msg-motivo"></span>
+                </div>
+
+                <!-- Fecha -->
+                <div class="col-md-4">
+                    <label class="form-label">Fecha *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-calendar"></i></span>
+                        <input type="date" name="fechaReunion" id="fechaReunion" class="form-control" />
+                    </div>
+                    <span class="field-msg" id="msg-fecha"></span>
+                </div>
+
+                <!-- Hora inicio -->
+                <div class="col-md-4">
+                    <label class="form-label">Hora de Inicio *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-clock"></i></span>
+                        <input type="time" name="horaReunion" id="horaReunion" class="form-control" />
+                    </div>
+                    <span class="field-msg" id="msg-hora"></span>
+                </div>
+
+                <!-- Hora fin -->
+                <div class="col-md-4">
+                    <label class="form-label">Hora de Fin *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-clock"></i></span>
+                        <input type="time" name="horaFinReunion" id="horaFinReunion" class="form-control" />
+                    </div>
+                    <span class="field-msg" id="msg-horafin"></span>
+                </div>
+
+                <!-- Duración calculada -->
+                <div class="col-md-12">
+                    <span class="duracion-badge" id="duracionBadge">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span id="duracionTexto">Selecciona hora inicio y fin</span>
+                    </span>
+                </div>
+
+                <!-- Lugar -->
+                <div class="col-md-12">
+                    <label class="form-label">Lugar *</label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="fas fa-map-marker-alt"></i></span>
+                        <input type="text" name="lugarReunion" id="lugarReunion" class="form-control"
+                               placeholder="Ej: Sala de conferencias, Zoom, etc." />
+                    </div>
+                    <span class="field-msg" id="msg-lugar"></span>
+                </div>
+
+                <!-- Semillero -->
+                <div class="col-md-12">
+                    <label class="form-label">Semillero *</label>
+                    @Html.DropDownList("Semillero_idSemillero",
+                             ViewBag.Semilleros as List<SelectListItem>,
+                             "-- Selecciona un semillero --",
+                             new { @class = "form-select", id = "semillero" })
+                    <span class="field-msg" id="msg-semillero"></span>
+                </div>
+
+                <!-- Estado calculado -->
+                <div class="col-md-12">
+                    <label class="form-label">Estado calculado</label>
+                    <div id="estadoPreview" class="estado-preview" style="background:#f0f4f8;color:#aaa;border-color:#dee2e6">
+                        <i class="fas fa-clock"></i>
+                        <span id="estadoTexto">Selecciona fecha y hora</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end mt-2">
+                <a href="@Url.Action("Reuniones","AdminDashboard")" class="btn-cancelar">
+                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn-guardar" id="btnGuardar">
+                    <i class="fas fa-save me-2"></i>Crear Reunión
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+// ── Helpers ───────────────────────────────────────────────────────
+function setValid(id, msgId, txt)   { $('#'+id).removeClass('is-invalid').addClass('is-valid');  $('#'+msgId).removeClass('error').addClass('ok').text(txt||'✓ Correcto'); }
+function setInvalid(id, msgId, txt) { $('#'+id).removeClass('is-valid').addClass('is-invalid'); $('#'+msgId).removeClass('ok').addClass('error').text(txt); }
+function clearState(id, msgId)      { $('#'+id).removeClass('is-valid is-invalid'); $('#'+msgId).removeClass('ok error').text(''); }
+
+// ── Duración entre dos horas ──────────────────────────────────────
+function calcularDuracion() {
+    var hi = $('#horaReunion').val();
+    var hf = $('#horaFinReunion').val();
+    if (!hi || !hf) {
+        $('#duracionTexto').text('Selecciona hora inicio y fin');
+        $('#duracionBadge').css({ background:'#f0f4f8', color:'#555', borderColor:'#dee2e6' });
+        return;
+    }
+    var inicio = new Date('2000-01-01T' + hi);
+    var fin    = new Date('2000-01-01T' + hf);
+    var min    = (fin - inicio) / 60000;
+    if (min <= 0) {
+        $('#duracionTexto').text('Hora fin debe ser mayor a inicio');
+        $('#duracionBadge').css({ background:'#fdf2f2', color:'#e74c3c', borderColor:'#e74c3c' });
+        return;
+    }
+    var h = Math.floor(min / 60);
+    var m = min % 60;
+    var texto = h > 0 ? h + 'h ' + (m > 0 ? m + 'min' : '') : m + ' minutos';
+    $('#duracionTexto').text('Duración: ' + texto.trim());
+    $('#duracionBadge').css({ background:'#eaf4fb', color:'#2e86c1', borderColor:'#2e86c1' });
+}
+
+// ── Estado visual ─────────────────────────────────────────────────
+function calcularEstado() {
+    var fecha = $('#fechaReunion').val();
+    var hi    = $('#horaReunion').val();
+    var hf    = $('#horaFinReunion').val();
+    if (!fecha || !hi) {
+        $('#estadoPreview').css({ background:'#f0f4f8', color:'#aaa', borderColor:'#dee2e6' });
+        $('#estadoTexto').text('Selecciona fecha y hora');
+        return;
+    }
+    var inicio = new Date(fecha + 'T' + hi);
+    var fin    = hf ? new Date(fecha + 'T' + hf) : null;
+    var ahora  = new Date();
+    var diffInicioMin = (inicio - ahora) / 60000;
+
+    var estado, bg, color, borderColor;
+    if (diffInicioMin > 30) {
+        estado = 'Programada'; bg = '#eaf4fb'; color = '#2e86c1'; borderColor = '#2e86c1';
+    } else if (fin && ahora >= inicio && ahora <= fin) {
+        estado = 'En Curso';  bg = '#d5f5e3'; color = '#1e8449'; borderColor = '#28b463';
+    } else if (fin && ahora > fin) {
+        estado = 'Realizada'; bg = '#f0f4f8'; color = '#7f8c8d'; borderColor = '#95a5a6';
+    } else {
+        estado = 'En Curso';  bg = '#d5f5e3'; color = '#1e8449'; borderColor = '#28b463';
+    }
+    $('#estadoPreview').css({ background: bg, color: color, borderColor: borderColor });
+    $('#estadoTexto').text(estado);
+}
+
+// ── Validar fecha ─────────────────────────────────────────────────
+function validarFecha() {
+    var v = $('#fechaReunion').val();
+    if (!v) { clearState('fechaReunion','msg-fecha'); return false; }
+    var hoy       = new Date(); hoy.setHours(0,0,0,0);
+    var seleccion = new Date(v + 'T00:00:00');
+    if (seleccion < hoy) {
+        setInvalid('fechaReunion','msg-fecha','✗ No puedes programar reuniones en fechas pasadas');
+        return false;
+    }
+    setValid('fechaReunion','msg-fecha','✓ Fecha válida');
+    calcularEstado();
+    return true;
+}
+
+// ── Validar hora inicio ───────────────────────────────────────────
+function validarHoraInicio() {
+    var fecha = $('#fechaReunion').val();
+    var hora  = $('#horaReunion').val();
+    if (!hora) { clearState('horaReunion','msg-hora'); return false; }
+    if (!fecha) { setInvalid('horaReunion','msg-hora','✗ Selecciona primero la fecha'); return false; }
+
+    var ahora     = new Date();
+    var fechaHora = new Date(fecha + 'T' + hora);
+    var hoy       = new Date(); hoy.setHours(0,0,0,0);
+    var seleccion = new Date(fecha + 'T00:00:00');
+    var diffMin   = (fechaHora - ahora) / 60000;
+
+    if (seleccion.getTime() === hoy.getTime() && diffMin < 30) {
+        setInvalid('horaReunion','msg-hora','✗ Debe ser al menos 30 minutos después de ahora');
+        return false;
+    }
+    setValid('horaReunion','msg-hora','✓ Hora válida');
+    calcularEstado();
+    calcularDuracion();
+    return true;
+}
+
+// ── Validar hora fin ──────────────────────────────────────────────
+function validarHoraFin() {
+    var hi = $('#horaReunion').val();
+    var hf = $('#horaFinReunion').val();
+    if (!hf) { clearState('horaFinReunion','msg-horafin'); return false; }
+    if (!hi) { setInvalid('horaFinReunion','msg-horafin','✗ Selecciona primero la hora de inicio'); return false; }
+    if (hf <= hi) {
+        setInvalid('horaFinReunion','msg-horafin','✗ La hora de fin debe ser mayor a la de inicio');
+        calcularDuracion();
+        return false;
+    }
+    var inicio = new Date('2000-01-01T' + hi);
+    var fin    = new Date('2000-01-01T' + hf);
+    var minutos = (fin - inicio) / 60000;
+    if (minutos < 15) {
+        setInvalid('horaFinReunion','msg-horafin','✗ La reunión debe durar al menos 15 minutos');
+        return false;
+    }
+    setValid('horaFinReunion','msg-horafin','✓ Hora de fin válida');
+    calcularDuracion();
+    calcularEstado();
+    return true;
+}
+// ── Verificar choque — se llama desde hora inicio Y hora fin ──────
+var chequeoTimeout = null;
+function validarChoque(origenId, origenMsgId) {
+    var fecha = $('#fechaReunion').val();
+    var hi    = $('#horaReunion').val();
+    var hf    = $('#horaFinReunion').val();
+
+    // Si no hay hora fin aún, igual verificar solo con hora inicio
+    if (!fecha || !hi) return;
+
+    clearTimeout(chequeoTimeout);
+    chequeoTimeout = setTimeout(function() {
+        $.getJSON('@Url.Action("VerificarChoqueReunion","AdminDashboard")', {
+            fecha:      fecha,
+            horaInicio: hi,
+            horaFin:    hf || hi,   // si no hay fin, usar inicio como punto de chequeo
+            idExcluir:  0           // en EditarReunion: @Model.idReunion
+        }, function(res) {
+            if (res.choque) {
+                setInvalid(origenId, origenMsgId,
+                    '✗ Choque con: "' + res.motivo + '" (' + res.horaExistente + ')');
+            } else {
+                if ($('#' + origenId).hasClass('is-valid'))
+                    setValid(origenId, origenMsgId, '✓ Sin conflictos de horario');
+            }
+        });
+    }, 600);
+}
+
+// ── Eventos ───────────────────────────────────────────────────────
+$('#motivoReunion').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('motivoReunion','msg-motivo');
+    else if (v.length<5) setInvalid('motivoReunion','msg-motivo','✗ Mínimo 5 caracteres');
+    else                 setValid('motivoReunion','msg-motivo','✓ Correcto');
+});
+
+$('#fechaReunion').on('change blur', function () {
+    if (validarFecha()) {
+        if ($('#horaReunion').val()) validarHoraInicio();
+    } else {
+        clearState('horaReunion','msg-hora');
+        clearState('horaFinReunion','msg-horafin');
+    }
+});
+
+        // Hora inicio: valida Y chequea choque
+        $('#horaReunion').on('change blur', function () {
+            if (validarFecha() && validarHoraInicio()) {
+                validarChoque('horaReunion', 'msg-hora');  // ← chequea desde inicio
+                if ($('#horaFinReunion').val()) {
+                    if (validarHoraFin()) validarChoque('horaFinReunion', 'msg-horafin');
+                }
+            }
+        });
+
+        // Hora fin: valida Y chequea choque con rango completo
+        $('#horaFinReunion').on('change blur', function () {
+            if (validarFecha() && validarHoraInicio() && validarHoraFin()) {
+                validarChoque('horaFinReunion', 'msg-horafin');  // ← chequea con rango completo
+            }
+        });
+
+$('#lugarReunion').on('input blur', function () {
+    var v = $(this).val().trim();
+    if (!v)              clearState('lugarReunion','msg-lugar');
+    else if (v.length<3) setInvalid('lugarReunion','msg-lugar','✗ Mínimo 3 caracteres');
+    else                 setValid('lugarReunion','msg-lugar','✓ Correcto');
+});
+
+$('#semillero').on('change', function () {
+    $(this).val() ? setValid('semillero','msg-semillero','✓ Semillero seleccionado')
+                  : setInvalid('semillero','msg-semillero','✗ Selecciona un semillero');
+});
+
+$('#formCrear').on('submit', function (e) {
+    var fechaOk   = validarFecha();
+    var horaOk    = validarHoraInicio();
+    var horaFinOk = validarHoraFin();
+    $('#motivoReunion').trigger('blur');
+    $('#lugarReunion').trigger('blur');
+    $('#semillero').trigger('change');
+
+    if (!fechaOk || !horaOk || !horaFinOk || $('.is-invalid').length > 0) {
+        e.preventDefault();
+        $('html,body').animate({ scrollTop: $('.is-invalid').first().offset().top - 100 }, 300);
+        return;
+    }
+    $('#btnGuardar').prop('disabled',true)
+                    .html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+});
+    </script>
+}

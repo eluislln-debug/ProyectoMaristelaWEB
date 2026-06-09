@@ -67,6 +67,11 @@ namespace SemillerosApp.Models
                     m.MapRightKey("Investigadores_idInvestigadores");
                 });
 
+            modelBuilder.Entity<Semillero>()
+                .HasOptional(s => s.Reunion)
+                .WithMany(r => r.Semilleros)
+                .HasForeignKey(s => s.Reunion_idReunion);
+
             base.OnModelCreating(modelBuilder);
         }
     }
@@ -173,6 +178,15 @@ namespace SemillerosApp.Models
         [StringLength(40)]
         [Display(Name = "Lugar")]
         public string lugarReunion { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string horaReunion { get; set; }
+
+        [Required(ErrorMessage = "La hora de fin es requerida")]
+        [StringLength(20)]
+        [Display(Name = "Hora de Fin")]
+        public string horaFinReunion { get; set; }
 
         public virtual ICollection<Semillero> Semilleros { get; set; }
     }

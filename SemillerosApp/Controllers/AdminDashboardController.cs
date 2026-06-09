@@ -459,12 +459,6 @@ namespace SemillerosApp.Controllers
             db.Configuration.ValidateOnSaveEnabled = true;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing) db.Dispose();
-            base.Dispose(disposing);
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SuspenderProyecto(int idProyecto, int idSemillero)
@@ -691,6 +685,276 @@ namespace SemillerosApp.Controllers
             }
 
             return RedirectToAction("DetalleEvento", new { id = idEvento });
+        }
+
+        // ────────────────────────────────────────────────────────
+        //  GESTIÓN DE REUNIONES
+        // ────────────────────────────────────────────────────────
+
+        public ActionResult Reuniones()
+        {
+            var reuniones = db.Reuniones
+            .Include("Semilleros")
+            .OrderBy(r => r.fechaReunion)
+            .ToList();
+
+            // Actualizar estados automáticamente
+            ActualizarEstadosReuniones(reuniones);
+
+            return View(reuniones);
+        }
+
+        private void ActualizarEstadosReuniones(List<Reunion> reuniones)
+        {
+            var ahora = DateTime.Now;
+            bool hubocambios = false;
+
+            foreach (var r in reuniones)
+            {
+                if (r.estadoReunion == "Cancelada") continue;
+
+                // Parsear hora
+                DateTime fechaHora;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out fechaHora))
+                    continue;
+
+                string nuevoEstado;
+                if (fechaHora > ahora.AddMinutes(30))
+                    nuevoEstado = "Programada";
+                else if (fechaHora <= ahora.AddMinutes(30) && fechaHora >= ahora.AddMinutes(-90))
+                    nuevoEstado = "En Curso";
+                else
+                    nuevoEstado = "Realizada";
+
+                if (r.estadoReunion != nuevoEstado)
+                {
+                    r.estadoReunion = nuevoEstado;
+                    hubocambios = true;
+                }
+            }
+
+            if (hubocambios)
+            {
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+        }
+
+        public ActionResult CrearReunion()
+        {
+            ViewBag.Semilleros = db.Semilleros
+                .Where(s => s.estadoSemillero == "Activo")
+                .Select(s => new SelectListItem
+                {
+                    Value = s.idSemillero.ToString(),
+                    Text = s.nombreSemillero
+                }).ToList();
+
+            return View(new Reunion { estadoReunion = "Programada" });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CrearReunion(Reunion reunion, int Semillero_idSemillero)
+        {
+            ModelState.Remove("estadoReunion");
+            if (ModelState.IsValid)
+            {
+                reunion.estadoReunion = "Programada";
+                db.Reuniones.Add(reunion);
+                db.SaveChanges(); // necesitamos el id generado
+
+                // Vincular el semillero a esta reunion
+                var semillero = db.Semilleros.Find(Semillero_idSemillero);
+                if (semillero != null)
+                {
+                    semillero.Reunion_idReunion = reunion.idReunion;
+                    db.SaveChanges();
+                }
+
+                TempData["Mensaje"] = $"Reunión '{reunion.motivoReunion}' creada correctamente.";
+                TempData["TipoMensaje"] = "success";
+                return RedirectToAction("Reuniones");
+            }
+
+            ViewBag.Semilleros = db.Semilleros
+                .Where(s => s.estadoSemillero == "Activo")
+                .Select(s => new SelectListItem
+                {
+                    Value = s.idSemillero.ToString(),
+                    Text = s.nombreSemillero
+                }).ToList();
+            return View(reunion);
+        }
+
+        public ActionResult EditarReunion(int id)
+        {
+            var reunion = db.Reuniones.Find(id);
+            if (reunion == null) return HttpNotFound();
+
+            // Buscar semillero actualmente vinculado
+            var semilleroVinculado = db.Semilleros
+                .FirstOrDefault(s => s.Reunion_idReunion == id);
+
+            ViewBag.Semilleros = db.Semilleros
+                .Where(s => s.estadoSemillero == "Activo")
+                .Select(s => new SelectListItem
+                {
+                    Value = s.idSemillero.ToString(),
+                    Text = s.nombreSemillero,
+                    Selected = semilleroVinculado != null && s.idSemillero == semilleroVinculado.idSemillero
+                }).ToList();
+
+            return View(reunion);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditarReunion(int idReunion, string motivoReunion, DateTime fechaReunion,
+        string horaReunion, string horaFinReunion, string lugarReunion, int Semillero_idSemillero)
+        {
+            var reunion = db.Reuniones.Find(idReunion);
+            if (reunion == null) return HttpNotFound();
+
+            reunion.motivoReunion = motivoReunion;
+            reunion.fechaReunion = fechaReunion;
+            reunion.horaReunion = horaReunion;
+            reunion.horaFinReunion = horaFinReunion;
+            reunion.lugarReunion = lugarReunion;
+
+            // Desvincular semillero anterior si cambió
+            var semilleroAnterior = db.Semilleros
+                .FirstOrDefault(s => s.Reunion_idReunion == idReunion);
+            if (semilleroAnterior != null && semilleroAnterior.idSemillero != Semillero_idSemillero)
+                semilleroAnterior.Reunion_idReunion = null;
+
+            // Vincular nuevo semillero
+            var semilleroNuevo = db.Semilleros.Find(Semillero_idSemillero);
+            if (semilleroNuevo != null)
+                semilleroNuevo.Reunion_idReunion = idReunion;
+
+            // Recalcular estado
+            DateTime fechaHoraInicio;
+            if (DateTime.TryParse(fechaReunion.ToString("yyyy-MM-dd") + " " + horaReunion, out fechaHoraInicio))
+            {
+                var ahora = DateTime.Now;
+                if (reunion.estadoReunion != "Cancelada")
+                {
+                    DateTime fechaHoraFin;
+                    bool tieneFin = DateTime.TryParse(
+                        fechaReunion.ToString("yyyy-MM-dd") + " " + horaFinReunion, out fechaHoraFin);
+
+                    if (fechaHoraInicio > ahora.AddMinutes(30))
+                        reunion.estadoReunion = "Programada";
+                    else if (tieneFin && ahora >= fechaHoraInicio && ahora <= fechaHoraFin)
+                        reunion.estadoReunion = "En Curso";
+                    else if (tieneFin && ahora > fechaHoraFin)
+                        reunion.estadoReunion = "Realizada";
+                    else
+                        reunion.estadoReunion = "En Curso";
+                }
+            }
+
+            db.Configuration.ValidateOnSaveEnabled = false;
+            db.SaveChanges();
+            db.Configuration.ValidateOnSaveEnabled = true;
+
+            TempData["Mensaje"] = "Reunión actualizada correctamente.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Reuniones");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CancelarReunion(int id)
+        {
+            var reunion = db.Reuniones.Find(id);
+            if (reunion == null) return HttpNotFound();
+
+            reunion.estadoReunion = "Cancelada";
+            db.Configuration.ValidateOnSaveEnabled = false;
+            db.SaveChanges();
+            db.Configuration.ValidateOnSaveEnabled = true;
+
+            TempData["Mensaje"] = $"Reunión '{reunion.motivoReunion}' cancelada.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Reuniones");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarReunion(int id)
+        {
+            var reunion = db.Reuniones.Find(id);
+            if (reunion == null) return HttpNotFound();
+
+            // Desvincular semilleros que apunten a esta reunion
+            var semillerosVinculados = db.Semilleros
+                .Where(s => s.Reunion_idReunion == id)
+                .ToList();
+
+            foreach (var s in semillerosVinculados)
+                s.Reunion_idReunion = null;
+
+            db.SaveChanges(); // guardar desvinculación primero
+
+            string motivo = reunion.motivoReunion;
+            db.Reuniones.Remove(reunion);
+            db.SaveChanges(); // ahora sí eliminar
+
+            TempData["Mensaje"] = $"Reunión '{motivo}' eliminada.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Reuniones");
+        }
+
+        [HttpGet]
+        public JsonResult VerificarChoqueReunion(string fecha, string horaInicio, string horaFin, int idExcluir = 0)
+        {
+            DateTime nuevaInicio, nuevaFin;
+            if (!DateTime.TryParse(fecha + " " + horaInicio, out nuevaInicio))
+                return Json(new { choque = false }, JsonRequestBehavior.AllowGet);
+
+            // Si no viene hora fin, usar inicio + 1 minuto solo para detectar choque puntual
+            if (!DateTime.TryParse(fecha + " " + horaFin, out nuevaFin))
+                nuevaFin = nuevaInicio.AddMinutes(1);
+
+            var reunionesDelDia = db.Reuniones
+                .Where(r => r.idReunion != idExcluir
+                         && r.estadoReunion != "Cancelada"
+                         && r.fechaReunion == nuevaInicio.Date)
+                .ToList();
+
+            var choque = reunionesDelDia.FirstOrDefault(r => {
+                DateTime rInicio, rFin;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out rInicio)) return false;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaFinReunion, out rFin)) return false;
+
+                // Choque si cualquiera de estos casos ocurre:
+                // 1. La nueva empieza dentro de una existente
+                // 2. La nueva termina dentro de una existente
+                // 3. La nueva envuelve completamente a una existente
+                return (nuevaInicio >= rInicio && nuevaInicio < rFin) ||
+                       (nuevaFin > rInicio && nuevaFin <= rFin) ||
+                       (nuevaInicio <= rInicio && nuevaFin >= rFin);
+            });
+
+            if (choque != null)
+                return Json(new
+                {
+                    choque = true,
+                    fechaExistente = choque.fechaReunion.ToString("dd/MM/yyyy"),
+                    horaExistente = choque.horaReunion + " - " + choque.horaFinReunion,
+                    motivo = choque.motivoReunion
+                }, JsonRequestBehavior.AllowGet);
+
+            return Json(new { choque = false }, JsonRequestBehavior.AllowGet);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) db.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

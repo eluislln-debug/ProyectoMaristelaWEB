@@ -1,0 +1,401 @@
+﻿@model IEnumerable<SemillerosApp.Models.Reunion>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = "Reuniones";
+    ViewBag.Subtitle = "Calendario y gestión de reuniones";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" />
+    <style>
+        .page-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .card-panel-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a5276;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+            .section-title i {
+                color: #2e86c1;
+            }
+
+        .card-panel-body {
+            padding: 20px;
+        }
+
+        #calendario {
+            min-height: 500px;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: .95rem;
+            font-weight: 700;
+            color: #1a5276;
+        }
+
+        .fc .fc-button {
+            font-family: 'Poppins',sans-serif;
+            font-size: .78rem;
+        }
+
+        .fc .fc-button-primary {
+            background: #2e86c1;
+            border-color: #2e86c1;
+        }
+
+            .fc .fc-button-primary:hover {
+                background: #1a5276;
+                border-color: #1a5276;
+            }
+
+        .fc .fc-daygrid-event {
+            border-radius: 6px;
+            font-size: .75rem;
+            padding: 1px 4px;
+        }
+
+        .fc .fc-day-today {
+            background: #eaf4fb !important;
+        }
+
+        .reunion-item {
+            border-left: 4px solid #dee2e6;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border-radius: 0 10px 10px 0;
+            background: #f8fafc;
+            transition: background .2s;
+        }
+
+            .reunion-item:hover {
+                background: #eaf4fb;
+            }
+
+            .reunion-item.programada {
+                border-color: #2e86c1;
+            }
+
+            .reunion-item.en-curso {
+                border-color: #28b463;
+            }
+
+            .reunion-item.realizada {
+                border-color: #95a5a6;
+            }
+
+            .reunion-item.cancelada {
+                border-color: #e74c3c;
+                opacity: .7;
+            }
+
+        .reunion-motivo {
+            font-size: .88rem;
+            font-weight: 600;
+            color: #1a5276;
+            margin-bottom: 3px;
+        }
+
+        .reunion-meta {
+            font-size: .75rem;
+            color: #7f8c8d;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reunion-acciones {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .badge-estado {
+            font-size: .68rem;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .badge-programada {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .badge-en-curso {
+            background: #d5f5e3;
+            color: #1e8449;
+        }
+
+        .badge-realizada {
+            background: #f0f4f8;
+            color: #7f8c8d;
+        }
+
+        .badge-cancelada {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .btn-sm-action {
+            border: none;
+            border-radius: 7px;
+            padding: 4px 10px;
+            font-size: .73rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity .2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .btn-sm-action:hover {
+                opacity: .82;
+            }
+
+        .btn-edit {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .btn-cancel {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .btn-delete {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .btn-primary-sm {
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: .82rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity .2s;
+        }
+
+            .btn-primary-sm:hover {
+                opacity: .88;
+                color: #fff;
+            }
+
+        .filtros {
+            display: flex;
+            gap: 8px;
+            padding: 12px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            flex-wrap: wrap;
+        }
+
+        .filtro-btn {
+            border: 2px solid #dee2e6;
+            background: #fff;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: .75rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            color: #555;
+        }
+
+            .filtro-btn:hover, .filtro-btn.active {
+                border-color: #2e86c1;
+                color: #2e86c1;
+                background: #eaf4fb;
+            }
+
+            .filtro-btn.active {
+                font-weight: 600;
+            }
+
+        .empty-lista {
+            text-align: center;
+            padding: 32px;
+            color: #aaa;
+            font-size: .85rem;
+        }
+
+        @@media (max-width: 1100px) {
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="page-grid">
+
+    <div class="card-panel">
+        <div class="card-panel-header">
+            <div class="section-title"><i class="fas fa-calendar-alt"></i> Calendario</div>
+            <a href="@Url.Action("CrearReunion","AdminDashboard")" class="btn-primary-sm">
+                <i class="fas fa-plus"></i> Nueva Reunión
+            </a>
+        </div>
+        <div class="card-panel-body">
+            <div id="calendario"></div>
+        </div>
+    </div>
+
+
+    <div class="card-panel">
+        <div class="card-panel-header">
+            <div class="section-title"><i class="fas fa-list"></i> Lista de Reuniones</div>
+        </div>
+        <div class="filtros">
+            <button class="filtro-btn active" data-filtro="todas">Todas</button>
+            <button class="filtro-btn" data-filtro="Programada">Programadas</button>
+            <button class="filtro-btn" data-filtro="En Curso">En Curso</button>
+            <button class="filtro-btn" data-filtro="Realizada">Realizadas</button>
+            <button class="filtro-btn" data-filtro="Cancelada">Canceladas</button>
+        </div>
+        <div class="card-panel-body" style="max-height:600px;overflow-y:auto" id="listaReuniones">
+            @if (!Model.Any())
+            {
+                <div class="empty-lista">
+                    <i class="fas fa-calendar-times" style="font-size:2rem;display:block;margin-bottom:8px"></i>
+                    No hay reuniones registradas
+                </div>
+            }
+            @foreach (var r in Model.OrderBy(r => r.fechaReunion))
+            {
+                var estadoClass = r.estadoReunion?.ToLower().Replace(" ", "-") ?? "programada";
+                var semilleroNombre = r.Semilleros != null && r.Semilleros.Any()
+                    ? r.Semilleros.First().nombreSemillero
+                    : "Sin semillero";
+                <div class="reunion-item @estadoClass" data-estado="@r.estadoReunion">
+                    <span class="badge-estado badge-@estadoClass">@r.estadoReunion</span>
+                    <div class="reunion-motivo">@r.motivoReunion</div>
+                    <div class="reunion-meta">
+                        <span><i class="fas fa-calendar me-1"></i>@r.fechaReunion.ToString("dd/MM/yyyy")</span>
+                        <span><i class="fas fa-clock me-1"></i>@r.horaReunion</span>
+                        <span><i class="fas fa-map-marker-alt me-1"></i>@r.lugarReunion</span>
+                        <span><i class="fas fa-leaf me-1"></i>@semilleroNombre</span>
+                    </div>
+                    <div class="reunion-acciones">
+                        @if (r.estadoReunion != "Realizada" && r.estadoReunion != "Cancelada")
+                        {
+                            <a href="@Url.Action("EditarReunion","AdminDashboard", new { id = r.idReunion })"
+                               class="btn-sm-action btn-edit">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        }
+                        @if (r.estadoReunion == "Programada")
+                        {
+                            using (Html.BeginForm("CancelarReunion", "AdminDashboard",
+                                    new { id = r.idReunion }, FormMethod.Post,
+                                    new { style = "display:inline", onsubmit = "return confirm('¿Cancelar esta reunión?')" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-sm-action btn-cancel">
+                                    <i class="fas fa-ban"></i> Cancelar
+                                </button>
+                            }
+                        }
+                        @using (Html.BeginForm("EliminarReunion", "AdminDashboard",
+                        new { id = r.idReunion }, FormMethod.Post,
+                        new { style = "display:inline", onsubmit = "return confirm('¿Eliminar esta reunión? No se puede deshacer.')" }))
+                        {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-sm-action btn-delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+var reuniones = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(
+    Model.Select(r => new {
+        id    = r.idReunion,
+        title = r.motivoReunion,
+        start = r.fechaReunion.ToString("yyyy-MM-dd") + "T" + r.horaReunion,
+        color = r.estadoReunion == "Programada" ? "#2e86c1"
+              : r.estadoReunion == "En Curso"   ? "#28b463"
+              : r.estadoReunion == "Realizada"  ? "#95a5a6"
+              : "#e74c3c",
+        extendedProps = new { estado = r.estadoReunion, lugar = r.lugarReunion }
+    })
+));
+
+document.addEventListener('DOMContentLoaded', function () {
+    var cal = new FullCalendar.Calendar(document.getElementById('calendario'), {
+        initialView:  'dayGridMonth',
+        locale:       'es',
+        headerToolbar: {
+            left:   'prev,next today',
+            center: 'title',
+            right:  'dayGridMonth,listWeek'
+        },
+        events: reuniones,
+        eventClick: function(info) {
+            var p = info.event.extendedProps;
+            alert(info.event.title + '\nEstado: ' + p.estado + '\nLugar: ' + p.lugar);
+        },
+        height: 'auto'
+    });
+    cal.render();
+});
+
+// Filtros lista
+$('.filtro-btn').on('click', function () {
+    $('.filtro-btn').removeClass('active');
+    $(this).addClass('active');
+    var filtro = $(this).data('filtro');
+    $('.reunion-item').each(function () {
+        if (filtro === 'todas' || $(this).data('estado') === filtro)
+            $(this).show();
+        else
+            $(this).hide();
+    });
+});
+    </script>
+}
