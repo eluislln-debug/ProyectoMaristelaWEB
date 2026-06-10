@@ -1,0 +1,627 @@
+﻿@model IEnumerable<SemillerosApp.Models.Reunion>
+@{
+    Layout = "~/Views/Shared/_LayoutLider.cshtml";
+    ViewBag.Title = "Reuniones";
+    ViewBag.Subtitle = "Semillero: " + ViewBag.NombreSemillero;
+}
+
+@section Styles {
+    <style>
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+
+        .card-panel-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #117a65;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .btn-primary-sm {
+            background: linear-gradient(135deg,#0b2d24,#117a65);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: .82rem;
+            font-family: 'Poppins',sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity .2s;
+        }
+
+            .btn-primary-sm:hover {
+                opacity: .88;
+                color: #fff;
+            }
+
+        .reunion-card {
+            background: #fff;
+            border: 2px solid #f0f4f8;
+            border-radius: 14px;
+            padding: 20px 22px;
+            transition: border-color .2s,box-shadow .2s;
+        }
+
+            .reunion-card:hover {
+                border-color: #117a65;
+                box-shadow: 0 4px 16px rgba(17,122,101,.1);
+            }
+
+        .reunion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .reunion-motivo {
+            font-size: .95rem;
+            font-weight: 700;
+            color: #0b2d24;
+        }
+
+        .reunion-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+            .reunion-meta span {
+                font-size: .78rem;
+                color: #7f8c8d;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .reunion-meta i {
+                color: #117a65;
+            }
+
+        .badge-programada {
+            background: #eaf4fb;
+            color: #2e86c1;
+            font-size: .7rem;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-en-curso {
+            background: #d5f5e3;
+            color: #117a65;
+            font-size: .7rem;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-finalizada {
+            background: #f0f4f8;
+            color: #7f8c8d;
+            font-size: .7rem;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .badge-suspendida {
+            background: #fde8e8;
+            color: #a93226;
+            font-size: .7rem;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .btn-sm-action {
+            border: none;
+            border-radius: 7px;
+            padding: 5px 11px;
+            font-size: .75rem;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+            .btn-sm-action:hover {
+                opacity: .8;
+            }
+
+        .btn-edit {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .btn-warn {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .btn-danger {
+            background: #fde8e8;
+            color: #a93226;
+        }
+
+        .modal-input {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .88rem;
+            width: 100%;
+            transition: border-color .2s;
+        }
+
+            .modal-input:focus {
+                outline: none;
+                border-color: #117a65;
+                box-shadow: 0 0 0 3px rgba(17,122,101,.1);
+            }
+
+            .modal-input.is-invalid {
+                border-color: #e74c3c;
+            }
+
+        .modal-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #117a65;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .field-err {
+            font-size: .72rem;
+            color: #e74c3c;
+            margin-top: 3px;
+            display: block;
+            min-height: 16px;
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg,#0b2d24,#117a65);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 22px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-modal-cancel {
+            background: #f0f4f8;
+            color: #555;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 18px;
+            font-size: .85rem;
+            font-family: 'Poppins',sans-serif;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #bbb;
+        }
+
+            .empty-state i {
+                font-size: 2.5rem;
+                margin-bottom: 12px;
+                display: block;
+            }
+
+        .filter-bar {
+            padding: 14px 22px;
+            border-bottom: 1px solid #f0f4f8;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            border: 2px solid #dee2e6;
+            border-radius: 9px;
+            padding: 7px 12px;
+            font-family: 'Poppins',sans-serif;
+            font-size: .82rem;
+            color: #555;
+            cursor: pointer;
+        }
+
+            .filter-select:focus {
+                outline: none;
+                border-color: #117a65;
+            }
+    </style>
+}
+
+<div class="card-panel">
+    <div class="card-panel-header">
+        <div class="section-title"><i class="fas fa-handshake"></i> Reuniones del Semillero</div>
+        <button class="btn-primary-sm" data-bs-toggle="modal" data-bs-target="#modalCrear">
+            <i class="fas fa-plus"></i> Nueva Reunión
+        </button>
+    </div>
+
+    <div class="filter-bar">
+        <select id="filtroEstado" class="filter-select">
+            <option value="">Todos los estados</option>
+            <option value="Programada">Programada</option>
+            <option value="En Curso">En Curso</option>
+            <option value="Finalizada">Finalizada</option>
+            <option value="Suspendida">Suspendida</option>
+        </select>
+        <span style="font-size:.78rem;color:#aaa;margin-left:auto">
+            <i class="fas fa-handshake me-1" style="color:#117a65"></i>
+            <strong id="countReuniones">@Model.Count()</strong> reunión(es)
+        </span>
+    </div>
+
+    <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px" id="listaReuniones">
+        @foreach (var r in Model.OrderByDescending(x => x.fechaReunion))
+        {
+            <div class="reunion-card" data-estado="@r.estadoReunion">
+                <div class="reunion-header">
+                    <div class="reunion-motivo">
+                        <i class="fas fa-handshake me-2" style="color:#117a65;font-size:.85rem"></i>
+                        @r.motivoReunion
+                    </div>
+                    <span class="badge-@r.estadoReunion.ToLower().Replace(" ","-")">
+                        @r.estadoReunion
+                    </span>
+                </div>
+                <div class="reunion-meta">
+                    <span><i class="fas fa-calendar-alt"></i> @r.fechaReunion.ToString("dd/MM/yyyy")</span>
+                    <span><i class="fas fa-clock"></i> @r.horaReunion — @r.horaFinReunion</span>
+                    <span><i class="fas fa-map-marker-alt"></i> @r.lugarReunion</span>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                    @if (string.Equals(r.creadoPor?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <span style="font-size:.75rem;color:#7f8c8d;font-style:italic;
+                     background:#f8f9fa;padding:5px 12px;border-radius:7px;
+                     border:1px dashed #dee2e6">
+                            <i class="fas fa-lock me-1" style="color:#aaa"></i>
+                            Creada por el administrador · Solo lectura
+                        </span>
+                    }
+                    else
+                    {
+                        if (r.estadoReunion != "Finalizada")
+                        {
+                            <button class="btn-sm-action btn-edit"
+                                    onclick="abrirEditar(@r.idReunion,'@r.motivoReunion','@r.fechaReunion.ToString("yyyy-MM-dd")','@r.horaReunion','@r.horaFinReunion','@r.lugarReunion')">
+                                <i class="fas fa-edit me-1"></i>Editar
+                            </button>
+                        }
+                        if (r.estadoReunion == "Programada" || r.estadoReunion == "En Curso")
+                        {
+                            using (Html.BeginForm("SuspenderReunion", "LiderDashboard", new { id = r.idReunion }, FormMethod.Post, new { style = "display:inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-sm-action btn-warn">
+                                    <i class="fas fa-ban me-1"></i>Suspender
+                                </button>
+                            }
+                        }
+                        if (r.estadoReunion != "En Curso")
+                        {
+                            using (Html.BeginForm("EliminarReunion", "LiderDashboard", new { id = r.idReunion }, FormMethod.Post, new { style = "display:inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-sm-action btn-danger">
+                                    <i class="fas fa-trash me-1"></i>Eliminar
+                                </button>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-handshake"></i>
+                <p style="font-weight:600;color:#555">Sin reuniones registradas</p>
+                <p style="font-size:.82rem">Crea la primera reunión de tu semillero.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- MODAL CREAR -->
+<div class="modal fade" id="modalCrear" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0b2d24,#117a65);border:none;padding:18px 24px">
+                <h5 style="color:#fff;font-weight:700;margin:0"><i class="fas fa-plus me-2"></i>Nueva Reunión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1)"></button>
+            </div>
+            @using (Html.BeginForm("CrearReunion", "LiderDashboard", FormMethod.Post, new { id = "formCrear", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idSemillero" value="@ViewBag.IdSemillero" />
+                <div class="modal-body" style="padding:22px 24px">
+                    <div class="mb-3">
+                        <label class="modal-label">Motivo *</label>
+                        <input type="text" name="motivoReunion" id="c-motivo" class="modal-input" placeholder="Ej: Revisión de avances" maxlength="50" />
+                        <span class="field-err" id="err-c-motivo"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Fecha *</label>
+                        <input type="date" name="fechaReunion" id="c-fecha" class="modal-input" />
+                        <span class="field-err" id="err-c-fecha"></span>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="modal-label">Hora Inicio *</label>
+                            <input type="time" name="horaReunion" id="c-horaInicio" class="modal-input" />
+                            <span class="field-err" id="err-c-hora"></span>
+                        </div>
+                        <div class="col-6">
+                            <label class="modal-label">Hora Fin *</label>
+                            <input type="time" name="horaFinReunion" id="c-horaFin" class="modal-input" />
+                            <span class="field-err" id="err-c-horafin"></span>
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <label class="modal-label">Lugar *</label>
+                        <input type="text" name="lugarReunion" id="c-lugar" class="modal-input" placeholder="Ej: Sala de conferencias" maxlength="40" />
+                        <span class="field-err" id="err-c-lugar"></span>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save" id="btnCrear"><i class="fas fa-plus me-1"></i>Crear Reunión</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal fade" id="modalEditar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0b2d24,#117a65);border:none;padding:18px 24px">
+                <h5 style="color:#fff;font-weight:700;margin:0"><i class="fas fa-edit me-2"></i>Editar Reunión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1)"></button>
+            </div>
+            @using (Html.BeginForm("EditarReunion", "LiderDashboard", FormMethod.Post, new { id = "formEditar", novalidate = "novalidate" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="idReunion" id="e-id" />
+                <div class="modal-body" style="padding:22px 24px">
+                    <div class="mb-3">
+                        <label class="modal-label">Motivo *</label>
+                        <input type="text" name="motivoReunion" id="e-motivo" class="modal-input" maxlength="50" />
+                        <span class="field-err" id="err-e-motivo"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="modal-label">Fecha *</label>
+                        <input type="date" name="fechaReunion" id="e-fecha" class="modal-input" />
+                        <span class="field-err" id="err-e-fecha"></span>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="modal-label">Hora Inicio *</label>
+                            <input type="time" name="horaReunion" id="e-horaInicio" class="modal-input" />
+                            <span class="field-err" id="err-e-hora"></span>
+                        </div>
+                        <div class="col-6">
+                            <label class="modal-label">Hora Fin *</label>
+                            <input type="time" name="horaFinReunion" id="e-horaFin" class="modal-input" />
+                            <span class="field-err" id="err-e-horafin"></span>
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <label class="modal-label">Lugar *</label>
+                        <input type="text" name="lugarReunion" id="e-lugar" class="modal-input" maxlength="40" />
+                        <span class="field-err" id="err-e-lugar"></span>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-save"><i class="fas fa-save me-1"></i>Guardar Cambios</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ── VALIDACIONES ──────────────────────────────────────────
+            function setErr(inputId, errId, msg) {
+                var el = document.getElementById(inputId);
+                if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
+                var err = document.getElementById(errId);
+                if (err) err.innerText = msg;
+            }
+            function clearErr(inputId, errId) {
+                var el = document.getElementById(inputId);
+                if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+                var err = document.getElementById(errId);
+                if (err) err.innerText = '';
+            }
+            function validarTexto(inputId, errId, min, msg) {
+                var v = document.getElementById(inputId).value.trim();
+                if (v.length < min) { setErr(inputId, errId, msg); return false; }
+                clearErr(inputId, errId); return true;
+            }
+            function validarFecha(fechaId, errId) {
+                var val = document.getElementById(fechaId).value;
+                var hoy = new Date().toISOString().split('T')[0];
+                if (!val) { setErr(fechaId, errId, 'La fecha es requerida'); return false; }
+                if (val < hoy) { setErr(fechaId, errId, 'La fecha no puede ser en el pasado'); return false; }
+                clearErr(fechaId, errId); return true;
+            }
+            function validarHoraInicio(fechaId, horaInicioId, errId) {
+                var fecha = document.getElementById(fechaId).value;
+                var horaI = document.getElementById(horaInicioId).value;
+                if (!horaI) { setErr(horaInicioId, errId, 'La hora de inicio es requerida'); return false; }
+                var hoy = new Date().toISOString().split('T')[0];
+                var ahora = new Date();
+                var minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+                if (fecha === hoy) {
+                    var parts = horaI.split(':').map(Number);
+                    var minInicio = parts[0] * 60 + parts[1];
+                    if (minInicio <= minAhora) {
+                        setErr(horaInicioId, errId, 'La hora ya pasó'); return false;
+                    }
+                    if ((minInicio - minAhora) < 30) {
+                        setErr(horaInicioId, errId, 'Debe ser al menos 30 min después de ahora'); return false;
+                    }
+                }
+                clearErr(horaInicioId, errId); return true;
+            }
+            function validarHoras(horaInicioId, horaFinId, errFinId) {
+                var hi = document.getElementById(horaInicioId).value;
+                var hf = document.getElementById(horaFinId).value;
+                if (!hi || !hf) return true;
+                var p1 = hi.split(':').map(Number);
+                var p2 = hf.split(':').map(Number);
+                var minInicio = p1[0] * 60 + p1[1];
+                var minFin = p2[0] * 60 + p2[1];
+                if (minFin <= minInicio) {
+                    setErr(horaFinId, errFinId, 'La hora de fin debe ser posterior a la de inicio'); return false;
+                }
+                if ((minFin - minInicio) < 30) {
+                    setErr(horaFinId, errFinId, 'Mínimo 30 minutos de duración'); return false;
+                }
+                clearErr(horaFinId, errFinId); return true;
+            }
+
+            // ── LISTENERS CREAR ───────────────────────────────────────
+            document.getElementById('c-motivo').addEventListener('input', function () {
+                validarTexto('c-motivo', 'err-c-motivo', 5, 'Mínimo 5 caracteres');
+            });
+            document.getElementById('c-lugar').addEventListener('input', function () {
+                validarTexto('c-lugar', 'err-c-lugar', 3, 'Mínimo 3 caracteres');
+            });
+            document.getElementById('c-fecha').addEventListener('change', function () {
+                validarFecha('c-fecha', 'err-c-fecha');
+                if (document.getElementById('c-horaInicio').value)
+                    validarHoraInicio('c-fecha', 'c-horaInicio', 'err-c-hora');
+            });
+            document.getElementById('c-horaInicio').addEventListener('change', function () {
+                validarHoraInicio('c-fecha', 'c-horaInicio', 'err-c-hora');
+                if (document.getElementById('c-horaFin').value)
+                    validarHoras('c-horaInicio', 'c-horaFin', 'err-c-horafin');
+            });
+            document.getElementById('c-horaFin').addEventListener('change', function () {
+                validarHoras('c-horaInicio', 'c-horaFin', 'err-c-horafin');
+            });
+
+            // ── SUBMIT CREAR ──────────────────────────────────────────
+            document.getElementById('formCrear').addEventListener('submit', function (e) {
+                var ok = true;
+                if (!validarTexto('c-motivo', 'err-c-motivo', 5, 'Mínimo 5 caracteres')) ok = false;
+                if (!validarFecha('c-fecha', 'err-c-fecha')) ok = false;
+                if (!validarHoraInicio('c-fecha', 'c-horaInicio', 'err-c-hora')) ok = false;
+                if (!document.getElementById('c-horaFin').value) {
+                    setErr('c-horaFin', 'err-c-horafin', 'La hora de fin es requerida'); ok = false;
+                } else if (!validarHoras('c-horaInicio', 'c-horaFin', 'err-c-horafin')) ok = false;
+                if (!validarTexto('c-lugar', 'err-c-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
+                if (!ok) { e.preventDefault(); return; }
+                document.getElementById('btnCrear').disabled = true;
+            });
+
+            // ── LISTENERS EDITAR ──────────────────────────────────────
+            document.getElementById('e-motivo').addEventListener('input', function () {
+                validarTexto('e-motivo', 'err-e-motivo', 5, 'Mínimo 5 caracteres');
+            });
+            document.getElementById('e-lugar').addEventListener('input', function () {
+                validarTexto('e-lugar', 'err-e-lugar', 3, 'Mínimo 3 caracteres');
+            });
+            document.getElementById('e-fecha').addEventListener('change', function () {
+                validarFecha('e-fecha', 'err-e-fecha');
+                if (document.getElementById('e-horaInicio').value)
+                    validarHoraInicio('e-fecha', 'e-horaInicio', 'err-e-hora');
+            });
+            document.getElementById('e-horaInicio').addEventListener('change', function () {
+                validarHoraInicio('e-fecha', 'e-horaInicio', 'err-e-hora');
+                if (document.getElementById('e-horaFin').value)
+                    validarHoras('e-horaInicio', 'e-horaFin', 'err-e-horafin');
+            });
+            document.getElementById('e-horaFin').addEventListener('change', function () {
+                validarHoras('e-horaInicio', 'e-horaFin', 'err-e-horafin');
+            });
+
+            // ── SUBMIT EDITAR ─────────────────────────────────────────
+            document.getElementById('formEditar').addEventListener('submit', function (e) {
+                var ok = true;
+                if (!validarTexto('e-motivo', 'err-e-motivo', 5, 'Mínimo 5 caracteres')) ok = false;
+                if (!validarFecha('e-fecha', 'err-e-fecha')) ok = false;
+                if (!validarHoraInicio('e-fecha', 'e-horaInicio', 'err-e-hora')) ok = false;
+                if (!document.getElementById('e-horaFin').value) {
+                    setErr('e-horaFin', 'err-e-horafin', 'La hora de fin es requerida'); ok = false;
+                } else if (!validarHoras('e-horaInicio', 'e-horaFin', 'err-e-horafin')) ok = false;
+                if (!validarTexto('e-lugar', 'err-e-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
+                if (!ok) e.preventDefault();
+            });
+
+            // ── ABRIR MODAL EDITAR ────────────────────────────────────
+            window.abrirEditar = function (id, motivo, fecha, horaInicio, horaFin, lugar) {
+                document.getElementById('e-id').value = id;
+                document.getElementById('e-motivo').value = motivo;
+                document.getElementById('e-fecha').value = fecha;
+                document.getElementById('e-horaInicio').value = horaInicio;
+                document.getElementById('e-horaFin').value = horaFin;
+                document.getElementById('e-lugar').value = lugar;
+                ['e-motivo', 'e-fecha', 'e-horaInicio', 'e-horaFin', 'e-lugar'].forEach(function (id) {
+                    document.getElementById(id).classList.remove('is-invalid');
+                    document.getElementById(id).style.borderColor = '';
+                });
+                ['err-e-motivo', 'err-e-fecha', 'err-e-hora', 'err-e-horafin', 'err-e-lugar'].forEach(function (id) {
+                    document.getElementById(id).innerText = '';
+                });
+                new bootstrap.Modal(document.getElementById('modalEditar')).show();
+            };
+
+            // ── FILTRO POR ESTADO ─────────────────────────────────────
+            document.getElementById('filtroEstado').addEventListener('change', function () {
+                var val = this.value;
+                var cards = document.querySelectorAll('.reunion-card');
+                var count = 0;
+                cards.forEach(function (c) {
+                    var match = val === '' || c.dataset.estado === val;
+                    c.style.display = match ? '' : 'none';
+                    if (match) count++;
+                });
+                document.getElementById('countReuniones').textContent = count;
+            });
+
+        }); // fin DOMContentLoaded
+    </script>
+}

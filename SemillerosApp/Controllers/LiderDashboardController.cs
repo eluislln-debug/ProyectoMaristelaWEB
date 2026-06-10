@@ -347,12 +347,6 @@ namespace SemillerosApp.Controllers
             };
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing) db.Dispose();
-            base.Dispose(disposing);
-        }
-
         // ────────────────────────────────────────────────────────
         //  PROYECTOS
         // ────────────────────────────────────────────────────────
@@ -569,6 +563,272 @@ namespace SemillerosApp.Controllers
             TempData["Mensaje"] = $"Actividad '{nombre}' eliminada.";
             TempData["TipoMensaje"] = "warning";
             return RedirectToAction("Index");
+        }
+
+        // ────────────────────────────────────────────────────────
+        // REUNIONES
+        // ────────────────────────────────────────────────────────
+
+        public ActionResult Reuniones()
+        {
+            var semillero = GetSemilleroDelLider();
+            if (semillero == null) return RedirectToAction("Index");
+
+            var reuniones = db.Reuniones
+                .Include("Semilleros")
+                .Where(r => r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero))
+                .ToList();
+
+            var ahora = DateTime.Now;
+            bool huboCambios = false;
+
+            foreach (var r in reuniones)
+            {
+                if (r.estadoReunion == "Suspendida" || r.estadoReunion == "Cancelada") continue;
+
+                DateTime fechaHoraInicio, fechaHoraFin;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out fechaHoraInicio)) continue;
+                bool tieneFin = DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaFinReunion, out fechaHoraFin);
+
+                string nuevoEstado;
+                if (fechaHoraInicio > ahora.AddMinutes(30))
+                    nuevoEstado = "Programada";
+                else if (tieneFin && ahora >= fechaHoraInicio && ahora <= fechaHoraFin)
+                    nuevoEstado = "En Curso";
+                else if (tieneFin && ahora > fechaHoraFin)
+                    nuevoEstado = "Finalizada";
+                else
+                    nuevoEstado = "En Curso";
+
+                if (r.estadoReunion != nuevoEstado)
+                {
+                    r.estadoReunion = nuevoEstado;
+                    huboCambios = true;
+                }
+            }
+
+            if (huboCambios)
+            {
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+
+            ViewBag.NombreSemillero = semillero.nombreSemillero;
+            ViewBag.IdSemillero = semillero.idSemillero;
+            return View(reuniones);
+        }
+
+        public ActionResult CrearReunion()
+        {
+            var semillero = GetSemilleroDelLider();
+            if (semillero == null) return RedirectToAction("Index");
+            ViewBag.NombreSemillero = semillero.nombreSemillero;
+            ViewBag.IdSemillero = semillero.idSemillero;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CrearReunion(Reunion model, int idSemillero)
+        {
+            if (ModelState.IsValid)
+            {
+                model.estadoReunion = "Programada";
+                model.creadoPor = "Lider";
+                db.Reuniones.Add(model);
+                db.SaveChanges();
+
+                var semillero = db.Semilleros.Find(idSemillero);
+                if (semillero != null)
+                {
+                    semillero.Reunion_idReunion = model.idReunion;
+                    db.SaveChanges();
+                }
+
+                TempData["Mensaje"] = $"Reunión '{model.motivoReunion}' creada correctamente.";
+                TempData["TipoMensaje"] = "success";
+                return RedirectToAction("Reuniones");
+            }
+            ViewBag.IdSemillero = idSemillero;
+            return View(model);
+        }
+
+        public ActionResult EditarReunion(int id)
+        {
+            var semillero = GetSemilleroDelLider();
+            var reunion = db.Reuniones
+                .Include("Semilleros")
+                .FirstOrDefault(r => r.idReunion == id &&
+                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+
+            if (reunion == null) return HttpNotFound();
+
+            if (string.Equals(reunion.creadoPor?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Mensaje"] = "No puedes editar una reunión creada por el administrador.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Reuniones");
+            }
+
+            if (reunion.estadoReunion == "Finalizada")
+            {
+                TempData["Mensaje"] = "No puedes editar una reunión finalizada.";
+                TempData["TipoMensaje"] = "warning";
+                return RedirectToAction("Reuniones");
+            }
+
+            return View(reunion);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditarReunion(Reunion model)
+        {
+            var semillero = GetSemilleroDelLider();
+            var reunion = db.Reuniones
+                .Include("Semilleros")
+                .FirstOrDefault(r => r.idReunion == model.idReunion &&
+                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+
+            if (reunion == null) return HttpNotFound();
+
+            if (string.Equals(reunion.creadoPor?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Mensaje"] = "No puedes editar una reunión creada por el administrador.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Reuniones");
+            }
+
+            if (reunion.estadoReunion == "Finalizada")
+            {
+                TempData["Mensaje"] = "No puedes editar una reunión finalizada.";
+                TempData["TipoMensaje"] = "warning";
+                return RedirectToAction("Reuniones");
+            }
+
+            reunion.fechaReunion = model.fechaReunion;
+            reunion.motivoReunion = model.motivoReunion;
+            reunion.lugarReunion = model.lugarReunion;
+            reunion.horaReunion = model.horaReunion;
+            reunion.horaFinReunion = model.horaFinReunion;
+
+            db.Configuration.ValidateOnSaveEnabled = false;
+            db.SaveChanges();
+            db.Configuration.ValidateOnSaveEnabled = true;
+
+            TempData["Mensaje"] = "Reunión actualizada correctamente.";
+            TempData["TipoMensaje"] = "success";
+            return RedirectToAction("Reuniones");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SuspenderReunion(int id)
+        {
+            var semillero = GetSemilleroDelLider();
+            var reunion = db.Reuniones
+                .Include("Semilleros")
+                .FirstOrDefault(r => r.idReunion == id &&
+                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+
+            if (reunion == null) return HttpNotFound();
+
+            if (string.Equals(reunion.creadoPor?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Mensaje"] = "No puedes suspender una reunión creada por el administrador.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Reuniones");
+            }
+
+            if (reunion.estadoReunion == "Finalizada")
+            {
+                TempData["Mensaje"] = "No puedes suspender una reunión ya finalizada.";
+                TempData["TipoMensaje"] = "warning";
+                return RedirectToAction("Reuniones");
+            }
+
+            reunion.estadoReunion = "Suspendida";
+            db.Configuration.ValidateOnSaveEnabled = false;
+            db.SaveChanges();
+            db.Configuration.ValidateOnSaveEnabled = true;
+
+            TempData["Mensaje"] = $"Reunión '{reunion.motivoReunion}' suspendida.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Reuniones");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EliminarReunion(int id)
+        {
+            var semillero = GetSemilleroDelLider();
+            var reunion = db.Reuniones
+                .Include("Semilleros")
+                .FirstOrDefault(r => r.idReunion == id &&
+                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+
+            if (reunion == null) return HttpNotFound();
+
+            if (string.Equals(reunion.creadoPor?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Mensaje"] = "No puedes eliminar una reunión creada por el administrador.";
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Reuniones");
+            }
+
+            // Desvincular semilleros antes de eliminar
+            foreach (var s in reunion.Semilleros.ToList())
+                s.Reunion_idReunion = null;
+
+            db.SaveChanges();
+            db.Reuniones.Remove(reunion);
+            db.SaveChanges();
+
+            TempData["Mensaje"] = "Reunión eliminada correctamente.";
+            TempData["TipoMensaje"] = "warning";
+            return RedirectToAction("Reuniones");
+        }
+
+        // GET: Eventos del semillero del líder
+        public ActionResult Eventos()
+        {
+            var investigador = GetInvestigadorLider();
+
+            if (investigador == null)
+            {
+                TempData["Mensaje"] = "No tienes un semillero asignado.";
+                TempData["TipoMensaje"] = "warning";
+                return RedirectToAction("Index");
+            }
+
+            var semillero = db.Semilleros
+                .Include("SemilleroEventos")
+                .Include("SemilleroEventos.Eventos")
+                .Include("SemilleroEventos.Eventos.Patrocinadores")
+                .FirstOrDefault(s => s.Investigadores_idInvestigadores == investigador.idInvestigadores);
+
+            if (semillero == null)
+            {
+                TempData["Mensaje"] = "No se encontró tu semillero.";
+                TempData["TipoMensaje"] = "warning";
+                return RedirectToAction("Index");
+            }
+
+            var eventos = semillero.SemilleroEventos?
+                .Where(se => se.Eventos != null)
+                .Select(se => se.Eventos)
+                .OrderBy(e => e.fechaEvento)
+                .ToList() ?? new List<Eventos>();
+
+            ViewBag.NombreSemillero = semillero.nombreSemillero;
+            return View(eventos);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) db.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

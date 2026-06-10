@@ -188,6 +188,10 @@ namespace SemillerosApp.Models
         [Display(Name = "Hora de Fin")]
         public string horaFinReunion { get; set; }
 
+        [StringLength(10)]
+        [Display(Name = "Creado por")]
+        public string creadoPor { get; set; } = "Lider";
+
         public virtual ICollection<Semillero> Semilleros { get; set; }
     }
 
@@ -458,9 +462,13 @@ namespace SemillerosApp.Models
         public string lugarEvento { get; set; }
 
         [Required]
-        [StringLength(20)]
-        [Display(Name = "Hora")]
+        [StringLength(10)]
+        [Display(Name = "Hora de Inicio")]
         public string horaEvento { get; set; }
+
+        [StringLength(10)]
+        [Display(Name = "Hora de Fin")]
+        public string horaFinEvento { get; set; }
 
         public virtual ICollection<Patrocinadores> Patrocinadores { get; set; }
         public virtual ICollection<Semillero_has_Eventos> SemilleroEventos { get; set; }

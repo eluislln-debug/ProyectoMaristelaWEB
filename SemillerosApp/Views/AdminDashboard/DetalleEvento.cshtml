@@ -369,12 +369,21 @@
                     <span class="field-err" id="err-edit-fecha"></span>
                 </div>
                 <div class="col-md-3">
-                    <label class="modal-label">Hora *</label>
+                    <label class="modal-label">Hora Inicio *</label>
                     <input type="time" name="horaEvento" id="edit-hora" class="modal-input"
                            value="@Model.horaEvento" />
                     <span class="field-err" id="err-edit-hora"></span>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
+                    <label class="modal-label">
+                        Hora Fin
+                        <span style="color:#95a5a6;font-size:.65rem">(opcional)</span>
+                    </label>
+                    <input type="time" name="horaFinEvento" id="edit-horafin" class="modal-input"
+                           value="@Model.horaFinEvento" />
+                    <span class="field-err" id="err-edit-horafin"></span>
+                </div>
+                <div class="col-md-4">
                     <label class="modal-label">Lugar *</label>
                     <input type="text" name="lugarEvento" id="edit-lugar" class="modal-input"
                            value="@Model.lugarEvento" maxlength="40" />
@@ -519,97 +528,120 @@ function validarCampo(id, errId, min, msg) {
     return true;
 }
 function validarEmail(id, errId) {
-    var v = document.getElementById(id).value.trim();
+    var v  = document.getElementById(id).value.trim();
     var re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
-    if (!v) { setError(id, errId, 'El correo es requerido'); return false; }
-    if (!re.test(v)) { setError(id, errId, 'Correo inválido'); return false; }
+    if (!v)        { setError(id, errId, 'El correo es requerido'); return false; }
+    if (!re.test(v)) { setError(id, errId, 'Correo inválido');      return false; }
     clearError(id, errId);
     return true;
 }
 
 // ── EDITAR EVENTO ─────────────────────────────────────────
 document.getElementById('edit-nombre').addEventListener('input', function () {
-    validarCampo('edit-nombre','err-edit-nombre',3,'Mínimo 3 caracteres');
+    validarCampo('edit-nombre', 'err-edit-nombre', 3, 'Mínimo 3 caracteres');
 });
 document.getElementById('edit-lugar').addEventListener('input', function () {
-    validarCampo('edit-lugar','err-edit-lugar',3,'Mínimo 3 caracteres');
+    validarCampo('edit-lugar', 'err-edit-lugar', 3, 'Mínimo 3 caracteres');
 });
 document.getElementById('edit-fecha').addEventListener('change', function () {
-    if (!this.value) { setError('edit-fecha','err-edit-fecha','La fecha es requerida'); }
-    else { clearError('edit-fecha','err-edit-fecha'); }
+    if (!this.value) setError('edit-fecha', 'err-edit-fecha', 'La fecha es requerida');
+    else             clearError('edit-fecha', 'err-edit-fecha');
 });
 document.getElementById('edit-hora').addEventListener('change', function () {
-    if (!this.value) { setError('edit-hora','err-edit-hora','La hora es requerida'); }
-    else { clearError('edit-hora','err-edit-hora'); }
+    if (!this.value) {
+        setError('edit-hora', 'err-edit-hora', 'La hora de inicio es requerida');
+    } else {
+        clearError('edit-hora', 'err-edit-hora');
+    }
+    // Revalidar hora fin si ya tiene valor
+    var fin = document.getElementById('edit-horafin').value;
+    if (fin) {
+        if (fin <= this.value) setError('edit-horafin', 'err-edit-horafin', 'Debe ser posterior a la hora de inicio');
+        else                   clearError('edit-horafin', 'err-edit-horafin');
+    }
+});
+document.getElementById('edit-horafin').addEventListener('change', function () {
+    var ini = document.getElementById('edit-hora').value;
+    if (this.value && ini && this.value <= ini) {
+        setError('edit-horafin', 'err-edit-horafin', 'Debe ser posterior a la hora de inicio');
+    } else {
+        clearError('edit-horafin', 'err-edit-horafin');
+    }
 });
 document.getElementById('formEditarEvento').addEventListener('submit', function (e) {
     var ok = true;
-    if (!validarCampo('edit-nombre','err-edit-nombre',3,'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('edit-nombre', 'err-edit-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
     if (!document.getElementById('edit-fecha').value) {
-        setError('edit-fecha','err-edit-fecha','La fecha es requerida'); ok = false;
+        setError('edit-fecha', 'err-edit-fecha', 'La fecha es requerida'); ok = false;
     }
     if (!document.getElementById('edit-hora').value) {
-        setError('edit-hora','err-edit-hora','La hora es requerida'); ok = false;
+        setError('edit-hora', 'err-edit-hora', 'La hora de inicio es requerida'); ok = false;
     }
-    if (!validarCampo('edit-lugar','err-edit-lugar',3,'Mínimo 3 caracteres')) ok = false;
+    // Validar hora fin vs hora inicio
+    var horaIni = document.getElementById('edit-hora').value;
+    var horaFin = document.getElementById('edit-horafin').value;
+    if (horaFin && horaIni && horaFin <= horaIni) {
+        setError('edit-horafin', 'err-edit-horafin', 'Debe ser posterior a la hora de inicio');
+        ok = false;
+    }
+    if (!validarCampo('edit-lugar', 'err-edit-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
     if (!ok) { e.preventDefault(); return; }
     document.getElementById('btnGuardarEvento').disabled = true;
 });
 
 // ── PATROCINADOR ──────────────────────────────────────────
 document.getElementById('pat-nombre').addEventListener('input', function () {
-    validarCampo('pat-nombre','err-pat-nombre',3,'Mínimo 3 caracteres');
+    validarCampo('pat-nombre', 'err-pat-nombre', 3, 'Mínimo 3 caracteres');
 });
 document.getElementById('pat-tipo').addEventListener('change', function () {
-    if (!this.value) { setError('pat-tipo','err-pat-tipo','Selecciona un tipo'); }
-    else { clearError('pat-tipo','err-pat-tipo'); }
+    if (!this.value) setError('pat-tipo', 'err-pat-tipo', 'Selecciona un tipo');
+    else             clearError('pat-tipo', 'err-pat-tipo');
 });
 document.getElementById('pat-correo').addEventListener('input', function () {
-    validarEmail('pat-correo','err-pat-correo');
+    validarEmail('pat-correo', 'err-pat-correo');
 });
 document.getElementById('pat-tel').addEventListener('input', function () {
     var v = this.value.trim();
-    if (v.length < 7) { setError('pat-tel','err-pat-tel','Teléfono inválido'); }
-    else { clearError('pat-tel','err-pat-tel'); }
+    if (v.length < 7) setError('pat-tel', 'err-pat-tel', 'Teléfono inválido');
+    else              clearError('pat-tel', 'err-pat-tel');
 });
 document.getElementById('pat-dir').addEventListener('input', function () {
-    validarCampo('pat-dir','err-pat-dir',5,'Mínimo 5 caracteres');
+    validarCampo('pat-dir', 'err-pat-dir', 5, 'Mínimo 5 caracteres');
 });
 document.getElementById('formPatrocinador').addEventListener('submit', function (e) {
     var ok = true;
-    if (!validarCampo('pat-nombre','err-pat-nombre',3,'Mínimo 3 caracteres')) ok = false;
+    if (!validarCampo('pat-nombre', 'err-pat-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
     if (!document.getElementById('pat-tipo').value) {
-        setError('pat-tipo','err-pat-tipo','Selecciona un tipo'); ok = false;
+        setError('pat-tipo', 'err-pat-tipo', 'Selecciona un tipo'); ok = false;
     }
-    if (!validarEmail('pat-correo','err-pat-correo')) ok = false;
+    if (!validarEmail('pat-correo', 'err-pat-correo')) ok = false;
     if (document.getElementById('pat-tel').value.trim().length < 7) {
-        setError('pat-tel','err-pat-tel','Teléfono inválido'); ok = false;
+        setError('pat-tel', 'err-pat-tel', 'Teléfono inválido'); ok = false;
     }
-    if (!validarCampo('pat-dir','err-pat-dir',5,'Mínimo 5 caracteres')) ok = false;
+    if (!validarCampo('pat-dir', 'err-pat-dir', 5, 'Mínimo 5 caracteres')) ok = false;
     if (!ok) { e.preventDefault(); return; }
     document.getElementById('btnAgregarPat').disabled = true;
 });
 
 // Limpiar modal patrocinador al cerrar
 document.getElementById('modalAgregarPatrocinador').addEventListener('hidden.bs.modal', function () {
-    ['pat-nombre','pat-tipo','pat-correo','pat-tel','pat-dir'].forEach(function(id){
+    ['pat-nombre','pat-tipo','pat-correo','pat-tel','pat-dir'].forEach(function (id) {
         var el = document.getElementById(id);
-        el.value = '';
-        el.classList.remove('is-invalid');
-        el.style.borderColor = '';
-        document.getElementById('err-'+id).innerText = '';
+        if (el) { el.value = ''; el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+        var err = document.getElementById('err-' + id);
+        if (err) err.innerText = '';
     });
     document.getElementById('btnAgregarPat').disabled = false;
 });
 
 // ── VINCULAR SEMILLERO ────────────────────────────────────
 document.getElementById('vinc-semillero').addEventListener('change', function () {
-    if (!this.value) { setError('vinc-semillero','err-vinc-semillero','Selecciona un semillero'); }
-    else { clearError('vinc-semillero','err-vinc-semillero'); }
+    if (!this.value) setError('vinc-semillero', 'err-vinc-semillero', 'Selecciona un semillero');
+    else             clearError('vinc-semillero', 'err-vinc-semillero');
 });
 document.getElementById('formVincular').addEventListener('submit', function (e) {
     if (!document.getElementById('vinc-semillero').value) {
-        setError('vinc-semillero','err-vinc-semillero','Selecciona un semillero');
+        setError('vinc-semillero', 'err-vinc-semillero', 'Selecciona un semillero');
         e.preventDefault(); return;
     }
     document.getElementById('btnVincular').disabled = true;

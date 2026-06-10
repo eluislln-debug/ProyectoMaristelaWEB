@@ -1,0 +1,540 @@
+﻿@model List<SemillerosApp.Models.Eventos>
+@{
+    Layout = "~/Views/Shared/_LayoutLider.cshtml";
+    ViewBag.Title = "Eventos";
+    ViewBag.Subtitle = "Eventos vinculados a " + ViewBag.NombreSemillero;
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+            .page-header h3 {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #1a5276;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 9px;
+            }
+
+        .semillero-tag {
+            background: #eaf4fb;
+            color: #2e86c1;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: .75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .eventos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .evento-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.07);
+            overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .evento-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 28px rgba(0,0,0,.11);
+            }
+
+        .evento-card-stripe {
+            height: 6px;
+        }
+
+        .stripe-pasado {
+            background: #bdc3c7;
+        }
+
+        .stripe-hoy {
+            background: linear-gradient(90deg,#f39c12,#e67e22);
+        }
+
+        .stripe-proximo {
+            background: linear-gradient(90deg,#2e86c1,#28b463);
+        }
+
+        .stripe-futuro {
+            background: linear-gradient(90deg,#8e44ad,#2e86c1);
+        }
+
+        .evento-card-body {
+            padding: 20px 22px;
+            flex: 1;
+        }
+
+        .evento-tipo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f0f4f8;
+            color: #5d6d7e;
+            border-radius: 20px;
+            padding: 3px 11px;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 10px;
+        }
+
+        .evento-nombre {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a5276;
+            margin-bottom: 14px;
+            line-height: 1.3;
+        }
+
+        .evento-info-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: .8rem;
+            color: #5d6d7e;
+            margin-bottom: 8px;
+        }
+
+            .evento-info-row i {
+                width: 16px;
+                text-align: center;
+                color: #2e86c1;
+                flex-shrink: 0;
+            }
+
+        .evento-estado-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: .72rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .estado-proximo {
+            background: #eaf4fb;
+            color: #2e86c1;
+        }
+
+        .estado-hoy {
+            background: #fef5ec;
+            color: #ca6f1e;
+        }
+
+        .estado-pasado {
+            background: #f2f3f4;
+            color: #7f8c8d;
+        }
+
+        .estado-esta-sem {
+            background: #fef9e7;
+            color: #d4ac0d;
+        }
+
+        .evento-card-footer {
+            padding: 14px 22px;
+            border-top: 1px solid #f0f4f8;
+            background: #fafbfc;
+        }
+
+        .patrocinadores-label {
+            font-size: .68rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 10px;
+        }
+
+        .patrocinador-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 10px;
+            border-radius: 9px;
+            background: #fff;
+            border: 1px solid #f0f4f8;
+            margin-bottom: 6px;
+            transition: border-color .2s;
+        }
+
+            .patrocinador-item:hover {
+                border-color: #2e86c1;
+            }
+
+        .patrocinador-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg,#1a5276,#2e86c1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: .78rem;
+            flex-shrink: 0;
+        }
+
+        .patrocinador-nombre {
+            font-size: .8rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .patrocinador-tipo {
+            font-size: .68rem;
+            color: #aaa;
+        }
+
+        .patrocinador-contacto {
+            margin-left: auto;
+            font-size: .68rem;
+            color: #7f8c8d;
+            text-align: right;
+        }
+
+        .countdown-box {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            background: #f0f4f8;
+            border-radius: 8px;
+            padding: 5px 10px;
+            text-align: center;
+            min-width: 42px;
+        }
+
+        .countdown-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a5276;
+            line-height: 1;
+        }
+
+        .countdown-lbl {
+            font-size: .58rem;
+            color: #95a5a6;
+            text-transform: uppercase;
+        }
+
+        .empty-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.06);
+            padding: 60px 40px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+            .empty-card i {
+                font-size: 3rem;
+                color: #d5dbdb;
+                display: block;
+                margin-bottom: 16px;
+            }
+
+            .empty-card h5 {
+                font-size: 1rem;
+                font-weight: 700;
+                color: #555;
+                margin-bottom: 6px;
+            }
+
+            .empty-card p {
+                font-size: .84rem;
+                color: #aaa;
+            }
+
+        .resumen-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .resumen-chip {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            font-size: .8rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+            .resumen-chip .num {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+    </style>
+}
+
+<div class="page-header">
+    <h3>
+        <i class="fas fa-star" style="color:#f39c12"></i>
+        Eventos del Semillero
+    </h3>
+    <span class="semillero-tag">
+        <i class="fas fa-seedling"></i>
+        @ViewBag.NombreSemillero
+    </span>
+</div>
+
+@{
+    DateTime hoyGlobal = DateTime.Today;
+    DateTime ahoraGlobal = DateTime.Now;
+    var proximos = Model.Where(e => e.fechaEvento.Date >= hoyGlobal).ToList();
+    var pasados = Model.Where(e => e.fechaEvento.Date < hoyGlobal).ToList();
+    var estaSemana = Model.Where(e => e.fechaEvento.Date >= hoyGlobal
+                                   && e.fechaEvento.Date <= hoyGlobal.AddDays(7)).ToList();
+}
+
+@if (Model.Any())
+{
+    <div class="resumen-bar">
+        <div class="resumen-chip">
+            <i class="fas fa-calendar-alt" style="color:#2e86c1"></i>
+            <span class="num" style="color:#2e86c1">@Model.Count</span> Total
+        </div>
+        <div class="resumen-chip">
+            <i class="fas fa-calendar-check" style="color:#28b463"></i>
+            <span class="num" style="color:#28b463">@proximos.Count</span> Próximos
+        </div>
+        <div class="resumen-chip">
+            <i class="fas fa-fire" style="color:#f39c12"></i>
+            <span class="num" style="color:#f39c12">@estaSemana.Count</span> Esta semana
+        </div>
+        <div class="resumen-chip">
+            <i class="fas fa-history" style="color:#95a5a6"></i>
+            <span class="num" style="color:#95a5a6">@pasados.Count</span> Pasados
+        </div>
+    </div>
+}
+
+<div class="eventos-grid">
+    @if (!Model.Any())
+    {
+        <div class="empty-card">
+            <i class="fas fa-star"></i>
+            <h5>Sin eventos vinculados</h5>
+            <p>Tu semillero no tiene eventos asignados aún.<br />El administrador puede vincularte a eventos desde su panel.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var ev in Model.OrderBy(e => e.fechaEvento))
+        {
+            @* ── Calcular estado con hora inicio + hora fin ── *@
+            
+                DateTime? dtInicio = null;
+                DateTime? dtFin = null;
+
+                if (TimeSpan.TryParse(ev.horaEvento, out var tIni))
+                { dtInicio = ev.fechaEvento.Date + tIni; }
+                if (!string.IsNullOrEmpty(ev.horaFinEvento) &&
+                    TimeSpan.TryParse(ev.horaFinEvento, out var tFin))
+                { dtFin = ev.fechaEvento.Date + tFin; }
+
+                bool esPasado, esEnCurso, esHoy;
+
+                if (dtFin.HasValue)
+                {
+                    esPasado = ahoraGlobal > dtFin.Value;
+                    esEnCurso = dtInicio.HasValue && ahoraGlobal >= dtInicio.Value && ahoraGlobal <= dtFin.Value;
+                    esHoy = !esPasado && !esEnCurso && ev.fechaEvento.Date == hoyGlobal;
+                }
+                else if (dtInicio.HasValue)
+                {
+                    esPasado = ahoraGlobal > dtInicio.Value.AddHours(2);
+                    esEnCurso = ahoraGlobal >= dtInicio.Value && !esPasado;
+                    esHoy = !esPasado && !esEnCurso && ev.fechaEvento.Date == hoyGlobal;
+                }
+                else
+                {
+                    esPasado = ev.fechaEvento.Date < hoyGlobal;
+                    esEnCurso = false;
+                    esHoy = ev.fechaEvento.Date == hoyGlobal;
+                }
+
+                bool esEstaSem = !esPasado && !esEnCurso && ev.fechaEvento.Date <= hoyGlobal.AddDays(7);
+                int diasRestantes = Math.Max(0, (int)(ev.fechaEvento.Date - hoyGlobal).TotalDays);
+
+                string stripeClass = esPasado ? "stripe-pasado"
+                                   : esEnCurso ? "stripe-hoy"
+                                   : esHoy ? "stripe-hoy"
+                                   : esEstaSem ? "stripe-proximo"
+                                   : "stripe-futuro";
+
+                string estadoClass = esPasado ? "estado-pasado"
+                                   : esEnCurso ? "estado-hoy"
+                                   : esHoy ? "estado-hoy"
+                                   : esEstaSem ? "estado-esta-sem"
+                                   : "estado-proximo";
+
+                string estadoTxt = esPasado ? "Finalizado"
+                                 : esEnCurso ? "En curso ahora"
+                                 : esHoy ? "Hoy"
+                                 : diasRestantes == 1 ? "Mañana"
+                                 : $"En {diasRestantes} días";
+
+                string estadoIcono = esPasado ? "check-circle"
+                                   : esEnCurso ? "fire"
+                                   : esHoy ? "calendar-day"
+                                   : "clock";
+            
+
+            <div class="evento-card">
+                <div class="evento-card-stripe @stripeClass"></div>
+                <div class="evento-card-body">
+
+                    <div class="evento-tipo-badge">
+                        <i class="fas fa-tag"></i>@ev.tipoEvento
+                    </div>
+
+                    <div class="evento-nombre">@ev.nombreEvento</div>
+
+                    <div class="evento-info-row">
+                        <i class="fas fa-calendar-alt"></i>
+                        @ev.fechaEvento.ToString("dddd dd 'de' MMMM, yyyy",
+                            new System.Globalization.CultureInfo("es-ES"))
+                    </div>
+
+                    <div class="evento-info-row">
+                        <i class="fas fa-clock"></i>
+                        @ev.horaEvento
+                        @if (!string.IsNullOrEmpty(ev.horaFinEvento))
+                        {
+                            <text> — @ev.horaFinEvento</text>
+                        }
+                    </div>
+
+                    <div class="evento-info-row">
+                        <i class="fas fa-map-marker-alt"></i>@ev.lugarEvento
+                    </div>
+
+                    <span class="evento-estado-badge @estadoClass">
+                        <i class="fas fa-@estadoIcono"></i>@estadoTxt
+                    </span>
+
+                    @* Countdown para eventos futuros *@
+                    @if (!esPasado && !esEnCurso && diasRestantes > 0)
+                    {
+                        <div class="countdown-box">
+                            <div class="countdown-unit">
+                                <div class="countdown-val">@diasRestantes</div>
+                                <div class="countdown-lbl">días</div>
+                            </div>
+                            @if (dtInicio.HasValue)
+                            {
+                                <div class="countdown-unit">
+                                    <div class="countdown-val">@dtInicio.Value.Hour.ToString("00")</div>
+                                    <div class="countdown-lbl">inicio</div>
+                                </div>
+                            }
+                            @if (dtFin.HasValue)
+                            {
+                                <div class="countdown-unit">
+                                    <div class="countdown-val">@dtFin.Value.Hour.ToString("00")</div>
+                                    <div class="countdown-lbl">fin</div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @* Countdown para evento en curso *@
+                    @if (esEnCurso && dtFin.HasValue)
+                    {
+                        var restante = dtFin.Value - ahoraGlobal;
+                        <div class="countdown-box">
+                            <div class="countdown-unit" style="background:#fef5ec">
+                                <div class="countdown-val" style="color:#ca6f1e">
+                                    @((int)restante.TotalHours)
+                                </div>
+                                <div class="countdown-lbl">horas</div>
+                            </div>
+                            <div class="countdown-unit" style="background:#fef5ec">
+                                <div class="countdown-val" style="color:#ca6f1e">
+                                    @restante.Minutes.ToString("00")
+                                </div>
+                                <div class="countdown-lbl">min restantes</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Patrocinadores *@
+                <div class="evento-card-footer">
+                    <div class="patrocinadores-label">
+                        <i class="fas fa-handshake me-1"></i>
+                        Patrocinadores (@(ev.Patrocinadores?.Count ?? 0))
+                    </div>
+                    @if (ev.Patrocinadores != null && ev.Patrocinadores.Any())
+                    {
+                        foreach (var pat in ev.Patrocinadores)
+                        {
+                            <div class="patrocinador-item">
+                                <div class="patrocinador-avatar">
+                                    @pat.nombrePatrocinador.Substring(0, 1).ToUpper()
+                                </div>
+                                <div>
+                                    <div class="patrocinador-nombre">@pat.nombrePatrocinador</div>
+                                    <div class="patrocinador-tipo">@pat.tipoPatrocinador</div>
+                                </div>
+                                <div class="patrocinador-contacto">
+                                    <div>@pat.correoPatrocinador</div>
+                                    <div>@pat.telefonoPatrocinador</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="font-size:.78rem;color:#ccc;text-align:center;padding:6px 0;margin:0">
+                            Sin patrocinadores registrados
+                        </p>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Recargar si hay evento en curso para mantener countdown actualizado
+        setInterval(function () {
+            if (document.querySelector('.stripe-hoy')) location.reload();
+        }, 60000);
+    </script>
+}

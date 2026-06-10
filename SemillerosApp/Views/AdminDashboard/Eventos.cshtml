@@ -398,9 +398,19 @@
                             <span class="field-err" id="err-ev-fecha"></span>
                         </div>
                         <div class="col-5">
-                            <label class="modal-label">Hora *</label>
+                            <label class="modal-label">Hora Inicio *</label>
                             <input type="time" name="horaEvento" id="ev-hora" class="modal-input" />
                             <span class="field-err" id="err-ev-hora"></span>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="modal-label">
+                                Hora Fin
+                                <span style="color:#95a5a6;font-size:.65rem">(opcional)</span>
+                            </label>
+                            <input type="time" name="horaFinEvento" id="ev-horafin" class="modal-input" />
+                            <span class="field-err" id="err-ev-horafin"></span>
                         </div>
                     </div>
                     <div class="mb-1">
@@ -422,109 +432,135 @@
 </div>
 
 @section Scripts {
-    <script>// ── UTILIDADES ────────────────────────────────────────────
-function setError(id, errId, msg) {
-    var el = document.getElementById(id);
-    if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
-    var err = document.getElementById(errId);
-    if (err) err.innerText = msg;
-}
-function clearError(id, errId) {
-    var el = document.getElementById(id);
-    if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
-    var err = document.getElementById(errId);
-    if (err) err.innerText = '';
-}
-function validarCampo(id, errId, min, msg) {
-    var v = document.getElementById(id).value.trim();
-    if (v.length < min) { setError(id, errId, msg); return false; }
-    clearError(id, errId);
-    return true;
-}
+    <script>
+        // ── UTILIDADES ────────────────────────────────────────────
+        function setError(id, errId, msg) {
+            var el = document.getElementById(id);
+            if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
+            var err = document.getElementById(errId);
+            if (err) err.innerText = msg;
+        }
+        function clearError(id, errId) {
+            var el = document.getElementById(id);
+            if (el) { el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+            var err = document.getElementById(errId);
+            if (err) err.innerText = '';
+        }
+        function validarCampo(id, errId, min, msg) {
+            var v = document.getElementById(id).value.trim();
+            if (v.length < min) { setError(id, errId, msg); return false; }
+            clearError(id, errId);
+            return true;
+        }
 
-// ── VALIDACIONES EN TIEMPO REAL ───────────────────────────
-document.getElementById('ev-nombre').addEventListener('input', function () {
-    validarCampo('ev-nombre', 'err-ev-nombre', 3, 'Mínimo 3 caracteres');
-});
-document.getElementById('ev-tipo').addEventListener('change', function () {
-    if (!this.value) { setError('ev-tipo', 'err-ev-tipo', 'Selecciona un tipo'); }
-    else { clearError('ev-tipo', 'err-ev-tipo'); }
-});
-document.getElementById('ev-lugar').addEventListener('input', function () {
-    validarCampo('ev-lugar', 'err-ev-lugar', 3, 'Mínimo 3 caracteres');
-});
-document.getElementById('ev-fecha').addEventListener('change', function () {
-    var hoy = new Date().toISOString().split('T')[0];
-    if (!this.value) {
-        setError('ev-fecha', 'err-ev-fecha', 'La fecha es requerida');
-    } else if (this.value < hoy) {
-        setError('ev-fecha', 'err-ev-fecha', 'La fecha no puede ser en el pasado');
-    } else {
-        clearError('ev-fecha', 'err-ev-fecha');
-        // Revalidar hora si ya tiene valor
-        if (document.getElementById('ev-hora').value) validarHoraEvento();
-    }
-});
-document.getElementById('ev-hora').addEventListener('change', validarHoraEvento);
+        // ── VALIDACIONES EN TIEMPO REAL ───────────────────────────
+        document.getElementById('ev-nombre').addEventListener('input', function () {
+            validarCampo('ev-nombre', 'err-ev-nombre', 3, 'Mínimo 3 caracteres');
+        });
+        document.getElementById('ev-tipo').addEventListener('change', function () {
+            if (!this.value) setError('ev-tipo', 'err-ev-tipo', 'Selecciona un tipo');
+            else clearError('ev-tipo', 'err-ev-tipo');
+        });
+        document.getElementById('ev-lugar').addEventListener('input', function () {
+            validarCampo('ev-lugar', 'err-ev-lugar', 3, 'Mínimo 3 caracteres');
+        });
+        document.getElementById('ev-fecha').addEventListener('change', function () {
+            var hoy = new Date().toISOString().split('T')[0];
+            if (!this.value) {
+                setError('ev-fecha', 'err-ev-fecha', 'La fecha es requerida');
+            } else if (this.value < hoy) {
+                setError('ev-fecha', 'err-ev-fecha', 'La fecha no puede ser en el pasado');
+            } else {
+                clearError('ev-fecha', 'err-ev-fecha');
+                if (document.getElementById('ev-hora').value) validarHoraEvento();
+            }
+        });
+        document.getElementById('ev-hora').addEventListener('change', function () {
+            validarHoraEvento();
+            // Revalidar hora fin si ya tiene valor
+            var fin = document.getElementById('ev-horafin').value;
+            if (fin) {
+                if (fin <= this.value) setError('ev-horafin', 'err-ev-horafin', 'Debe ser posterior a la hora de inicio');
+                else clearError('ev-horafin', 'err-ev-horafin');
+            }
+        });
+        document.getElementById('ev-horafin').addEventListener('change', function () {
+            var ini = document.getElementById('ev-hora').value;
+            if (this.value && ini && this.value <= ini) {
+                setError('ev-horafin', 'err-ev-horafin', 'Debe ser posterior a la hora de inicio');
+            } else {
+                clearError('ev-horafin', 'err-ev-horafin');
+            }
+        });
 
-function validarHoraEvento() {
-    var fecha = document.getElementById('ev-fecha').value;
-    var hora  = document.getElementById('ev-hora').value;
-    var ahora = new Date();
-    var hoy   = ahora.toISOString().split('T')[0];
-    var horaActual = ahora.getHours().toString().padStart(2,'0') + ':' + ahora.getMinutes().toString().padStart(2,'0');
+        function validarHoraEvento() {
+            var fecha = document.getElementById('ev-fecha').value;
+            var hora = document.getElementById('ev-hora').value;
+            var horaFin = document.getElementById('ev-horafin').value;
+            var ahora = new Date();
+            var hoy = ahora.toISOString().split('T')[0];
+            var horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + ahora.getMinutes().toString().padStart(2, '0');
 
-    if (!hora) {
-        setError('ev-hora', 'err-ev-hora', 'La hora es requerida');
-        return false;
-    }
-    if (fecha === hoy && hora <= horaActual) {
-        setError('ev-hora', 'err-ev-hora', 'La hora debe ser posterior a la actual (' + horaActual + ')');
-        return false;
-    }
-    clearError('ev-hora', 'err-ev-hora');
-    return true;
-}
+            if (!hora) {
+                setError('ev-hora', 'err-ev-hora', 'La hora de inicio es requerida');
+                return false;
+            }
+            if (fecha === hoy && hora <= horaActual) {
+                setError('ev-hora', 'err-ev-hora', 'La hora debe ser posterior a la actual (' + horaActual + ')');
+                return false;
+            }
+            clearError('ev-hora', 'err-ev-hora');
 
-// ── SUBMIT ────────────────────────────────────────────────
-document.getElementById('formCrearEvento').addEventListener('submit', function (e) {
-    var ok = true;
-    var hoy = new Date().toISOString().split('T')[0];
+            // Validar hora fin si fue ingresada
+            if (horaFin) {
+                if (horaFin <= hora) {
+                    setError('ev-horafin', 'err-ev-horafin', 'La hora de fin debe ser posterior al inicio');
+                    return false;
+                }
+                clearError('ev-horafin', 'err-ev-horafin');
+            }
+            return true;
+        }
 
-    if (!validarCampo('ev-nombre', 'err-ev-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
+        // ── SUBMIT ────────────────────────────────────────────────
+        document.getElementById('formCrearEvento').addEventListener('submit', function (e) {
+            var ok = true;
+            var hoy = new Date().toISOString().split('T')[0];
 
-    if (!document.getElementById('ev-tipo').value) {
-        setError('ev-tipo', 'err-ev-tipo', 'Selecciona un tipo');
-        ok = false;
-    }
+            if (!validarCampo('ev-nombre', 'err-ev-nombre', 3, 'Mínimo 3 caracteres')) ok = false;
 
-    var fecha = document.getElementById('ev-fecha').value;
-    if (!fecha) {
-        setError('ev-fecha', 'err-ev-fecha', 'La fecha es requerida');
-        ok = false;
-    } else if (fecha < hoy) {
-        setError('ev-fecha', 'err-ev-fecha', 'La fecha no puede ser en el pasado');
-        ok = false;
-    }
+            if (!document.getElementById('ev-tipo').value) {
+                setError('ev-tipo', 'err-ev-tipo', 'Selecciona un tipo');
+                ok = false;
+            }
 
-    if (!validarHoraEvento()) ok = false;
-    if (!validarCampo('ev-lugar', 'err-ev-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
+            var fecha = document.getElementById('ev-fecha').value;
+            if (!fecha) {
+                setError('ev-fecha', 'err-ev-fecha', 'La fecha es requerida');
+                ok = false;
+            } else if (fecha < hoy) {
+                setError('ev-fecha', 'err-ev-fecha', 'La fecha no puede ser en el pasado');
+                ok = false;
+            }
 
-    if (!ok) { e.preventDefault(); return; }
-    document.getElementById('btnCrearEvento').disabled = true;
-});
+            if (!validarHoraEvento()) ok = false;
+            if (!validarCampo('ev-lugar', 'err-ev-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
 
-// Limpiar modal al cerrar
-document.getElementById('modalCrearEvento').addEventListener('hidden.bs.modal', function () {
-    ['ev-nombre', 'ev-tipo', 'ev-fecha', 'ev-hora', 'ev-lugar'].forEach(function (id) {
-        var el = document.getElementById(id);
-        el.value = '';
-        el.classList.remove('is-invalid');
-        el.style.borderColor = '';
-    });
-    ['err-ev-nombre','err-ev-tipo','err-ev-fecha','err-ev-hora','err-ev-lugar'].forEach(function (id) {
-        document.getElementById(id).innerText = '';
-    });
-    document.getElementById('btnCrearEvento').disabled = false;
-});</script>
+            if (!ok) { e.preventDefault(); return; }
+            document.getElementById('btnCrearEvento').disabled = true;
+        });
+
+        // ── LIMPIAR MODAL AL CERRAR ───────────────────────────────
+        document.getElementById('modalCrearEvento').addEventListener('hidden.bs.modal', function () {
+            ['ev-nombre', 'ev-tipo', 'ev-fecha', 'ev-hora', 'ev-horafin', 'ev-lugar'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) { el.value = ''; el.classList.remove('is-invalid'); el.style.borderColor = ''; }
+            });
+            ['err-ev-nombre', 'err-ev-tipo', 'err-ev-fecha', 'err-ev-hora', 'err-ev-horafin', 'err-ev-lugar'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.innerText = '';
+            });
+            document.getElementById('btnCrearEvento').disabled = false;
+        });
+    </script>
 }

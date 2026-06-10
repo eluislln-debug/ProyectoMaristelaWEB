@@ -511,7 +511,7 @@ namespace SemillerosApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CrearEvento(string nombreEvento, string tipoEvento,
-            string fechaEvento, string lugarEvento, string horaEvento)
+        string fechaEvento, string lugarEvento, string horaEvento, string horaFinEvento)
         {
             if (!DateTime.TryParse(fechaEvento, out var fecha))
             {
@@ -520,13 +520,27 @@ namespace SemillerosApp.Controllers
                 return RedirectToAction("Eventos");
             }
 
+            // Validar que hora fin sea posterior a hora inicio
+            if (!string.IsNullOrEmpty(horaEvento) && !string.IsNullOrEmpty(horaFinEvento))
+            {
+                if (TimeSpan.TryParse(horaEvento, out var tIni) &&
+                    TimeSpan.TryParse(horaFinEvento, out var tFin) &&
+                    tFin <= tIni)
+                {
+                    TempData["Mensaje"] = "La hora de fin debe ser posterior a la hora de inicio.";
+                    TempData["TipoMensaje"] = "danger";
+                    return RedirectToAction("Eventos");
+                }
+            }
+
             var evento = new Eventos
             {
                 nombreEvento = nombreEvento,
                 tipoEvento = tipoEvento,
                 fechaEvento = fecha,
                 lugarEvento = lugarEvento,
-                horaEvento = horaEvento
+                horaEvento = horaEvento,
+                horaFinEvento = horaFinEvento
             };
             db.Eventos.Add(evento);
             db.SaveChanges();
@@ -539,7 +553,7 @@ namespace SemillerosApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult EditarEvento(int idEvento, string nombreEvento, string tipoEvento,
-            string fechaEvento, string lugarEvento, string horaEvento)
+        string fechaEvento, string lugarEvento, string horaEvento, string horaFinEvento)
         {
             var evento = db.Eventos.Find(idEvento);
             if (evento == null) return HttpNotFound();
@@ -551,11 +565,24 @@ namespace SemillerosApp.Controllers
                 return RedirectToAction("DetalleEvento", new { id = idEvento });
             }
 
+            if (!string.IsNullOrEmpty(horaEvento) && !string.IsNullOrEmpty(horaFinEvento))
+            {
+                if (TimeSpan.TryParse(horaEvento, out var tIni) &&
+                    TimeSpan.TryParse(horaFinEvento, out var tFin) &&
+                    tFin <= tIni)
+                {
+                    TempData["Mensaje"] = "La hora de fin debe ser posterior a la hora de inicio.";
+                    TempData["TipoMensaje"] = "danger";
+                    return RedirectToAction("DetalleEvento", new { id = idEvento });
+                }
+            }
+
             evento.nombreEvento = nombreEvento;
             evento.tipoEvento = tipoEvento;
             evento.fechaEvento = fecha;
             evento.lugarEvento = lugarEvento;
             evento.horaEvento = horaEvento;
+            evento.horaFinEvento = horaFinEvento;
 
             db.Configuration.ValidateOnSaveEnabled = false;
             db.SaveChanges();
@@ -762,6 +789,7 @@ namespace SemillerosApp.Controllers
             if (ModelState.IsValid)
             {
                 reunion.estadoReunion = "Programada";
+                reunion.creadoPor = "Admin";
                 db.Reuniones.Add(reunion);
                 db.SaveChanges(); // necesitamos el id generado
 
