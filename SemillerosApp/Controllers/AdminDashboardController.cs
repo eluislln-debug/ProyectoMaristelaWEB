@@ -156,16 +156,33 @@ namespace SemillerosApp.Controllers
         // GET: Formulario para crear semillero (con asignación de líder)
         public ActionResult CrearSemillero()
         {
-            // Trae los investigadores que son líderes (tipo Principal)
+            // IDs de investigadores que ya son líderes de algún semillero
+            var conSemillero = db.Semilleros
+                .Select(s => s.Investigadores_idInvestigadores)
+                .ToList();
+
+            // Solo mostrar líderes que NO tienen semillero aún
             ViewBag.Lideres = db.Investigadores
-                .Where(i => i.tipoInvestigador == "Principal")
-                .Select(i => new { i.idInvestigadores, i.nombreInvestigador })
-                .ToList()
+                .Where(i => i.tipoInvestigador == "Principal"
+                         && !conSemillero.Contains(i.idInvestigadores))
                 .Select(i => new SelectListItem
                 {
                     Value = i.idInvestigadores.ToString(),
                     Text = i.nombreInvestigador
                 }).ToList();
+
+            // Si no hay líderes disponibles, avisar
+            var lideresList = db.Investigadores
+            .Where(i => i.tipoInvestigador == "Principal"
+                     && !conSemillero.Contains(i.idInvestigadores))
+            .Select(i => new SelectListItem
+            {
+                Value = i.idInvestigadores.ToString(),
+                Text = i.nombreInvestigador
+            }).ToList();
+
+            ViewBag.Lideres = lideresList;
+            ViewBag.SinLideresDisponibles = !lideresList.Any();
 
             return View(new Semillero { estadoSemillero = "Activo", fechacreaSemillero = DateTime.Now });
         }
@@ -175,6 +192,17 @@ namespace SemillerosApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CrearSemillero(Semillero semillero)
         {
+            // Verificar si el investigador ya es líder de otro semillero
+            bool yaEsLider = db.Semilleros
+                .Any(s => s.Investigadores_idInvestigadores == semillero.Investigadores_idInvestigadores);
+
+            if (yaEsLider)
+            {
+                var investigador = db.Investigadores.Find(semillero.Investigadores_idInvestigadores);
+                ModelState.AddModelError("Investigadores_idInvestigadores",
+                    $"{investigador?.nombreInvestigador} ya es líder de otro semillero activo. Un líder solo puede tener un semillero.");
+            }
+
             if (ModelState.IsValid)
             {
                 semillero.fechacreaSemillero = DateTime.Now;
@@ -182,9 +210,9 @@ namespace SemillerosApp.Controllers
                 db.Semilleros.Add(semillero);
                 db.SaveChanges();
 
-                TempData["Mensaje"] = "Semillero creado correctamente.";
+                TempData["Mensaje"] = $"Semillero '{semillero.nombreSemillero}' creado correctamente.";
                 TempData["TipoMensaje"] = "success";
-                return RedirectToAction("Index");
+                return RedirectToAction("Semilleros");
             }
 
             ViewBag.Lideres = db.Investigadores

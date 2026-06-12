@@ -80,9 +80,15 @@ namespace SemillerosApp.Controllers
 
             // ── Redirección por rol ──────────────────────────────
             if (usuario.rolUsuario == "Admin")
+            {
+                TempData["Bienvenida"] = $"¡Bienvenido de nuevo, {usuario.nombreUsuario}! Tienes acceso completo al sistema.";
                 return RedirectToAction("Index", "AdminDashboard");
+            }
             else
+            {
+                TempData["Bienvenida"] = $"¡Hola, {usuario.nombreUsuario}! Bienvenido a tu panel de semillero.";
                 return RedirectToAction("Index", "LiderDashboard");
+            }
         }
 
         // POST: /Account/Logout

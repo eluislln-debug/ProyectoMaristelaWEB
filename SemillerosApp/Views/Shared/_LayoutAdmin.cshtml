@@ -368,9 +368,64 @@
             </div>
         }
 
-        <main class="content">
-            @RenderBody()
-        </main>
+    <main class="content">
+        @if (TempData["Bienvenida"] != null)
+        {
+            <div id="toast-bienvenida"
+                 style="position:fixed;bottom:28px;right:28px;z-index:9999;
+                background:linear-gradient(135deg,#1a5276,#2e86c1);
+                color:#fff;border-radius:16px;padding:18px 24px;
+                box-shadow:0 8px 32px rgba(26,82,118,.35);
+                display:flex;align-items:center;gap:14px;
+                max-width:360px;animation:slideIn .4s ease">
+                <div style="width:42px;height:42px;background:rgba(255,255,255,.15);
+                    border-radius:50%;display:flex;align-items:center;
+                    justify-content:center;flex-shrink:0">
+                    <i class="fas fa-hand-wave" style="font-size:1.1rem"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700;font-size:.88rem;margin-bottom:2px">
+                        ¡Bienvenido!
+                    </div>
+                    <div style="font-size:.78rem;opacity:.88">
+                        @TempData["Bienvenida"]
+                    </div>
+                </div>
+                <button onclick="document.getElementById('toast-bienvenida').remove()"
+                        style="background:none;border:none;color:#fff;cursor:pointer;
+                       margin-left:auto;opacity:.7;font-size:1rem;padding:0">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <style>
+                @@keyframes slideIn {
+                    from {
+                        transform: translateX(120%);
+                        opacity: 0;
+                    }
+
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            </style>
+
+            <script>
+                setTimeout(function () {
+                    var t = document.getElementById('toast-bienvenida');
+                    if (t) {
+                        t.style.transition = 'opacity .5s, transform .5s';
+                        t.style.opacity = '0';
+                        t.style.transform = 'translateX(120%)';
+                        setTimeout(function () { if (t) t.remove(); }, 500);
+                    }
+                }, 4500);
+            </script>
+        }
+        @RenderBody()
+    </main>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
