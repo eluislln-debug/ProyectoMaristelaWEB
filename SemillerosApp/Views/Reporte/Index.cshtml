@@ -6,127 +6,237 @@
 
 @section Styles {
     <style>
-        .page-header {
-            margin-bottom: 24px;
-        }
-
         .reportes-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
         }
 
         .reporte-card {
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            border-radius: 18px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.07);
             overflow: hidden;
-            transition: transform .2s;
+            transition: transform .25s, box-shadow .25s;
+            display: flex;
+            flex-direction: column;
         }
 
             .reporte-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 28px rgba(0,0,0,.12);
+                transform: translateY(-4px);
+                box-shadow: 0 10px 32px rgba(0,0,0,.13);
             }
 
         .reporte-card-header {
-            background: linear-gradient(135deg, #1a5276, #2e86c1);
-            padding: 20px;
+            padding: 28px 20px 22px;
             color: #fff;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-            .reporte-card-header i {
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-                display: block;
+            .reporte-card-header::before {
+                content: '';
+                position: absolute;
+                top: -30px;
+                right: -30px;
+                width: 100px;
+                height: 100px;
+                background: rgba(255,255,255,.08);
+                border-radius: 50%;
+            }
+
+            .reporte-card-header::after {
+                content: '';
+                position: absolute;
+                bottom: -20px;
+                left: -20px;
+                width: 70px;
+                height: 70px;
+                background: rgba(255,255,255,.06);
+                border-radius: 50%;
+            }
+
+            .reporte-card-header .icon-wrap {
+                width: 60px;
+                height: 60px;
+                background: rgba(255,255,255,.2);
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 14px;
+                font-size: 1.6rem;
+                position: relative;
+                z-index: 1;
             }
 
             .reporte-card-header h3 {
-                font-size: 1.1rem;
+                font-size: 1rem;
                 font-weight: 700;
                 margin: 0;
+                position: relative;
+                z-index: 1;
+            }
+
+            .reporte-card-header p {
+                font-size: .72rem;
+                color: rgba(255,255,255,.75);
+                margin: 6px 0 0;
+                position: relative;
+                z-index: 1;
             }
 
         .reporte-card-body {
-            padding: 25px;
-            text-align: center;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* ESTILO ÚNICO PARA BOTÓN GENERAR */
-        .btn-generar-reporte {
-            display: block;
+        .reporte-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .78rem;
+            color: #7f8c8d;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+            .reporte-info i {
+                color: #2e86c1;
+                width: 14px;
+                text-align: center;
+            }
+
+            .reporte-info:last-of-type {
+                border-bottom: none;
+            }
+
+        .btn-generar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             width: 100%;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: .85rem;
             font-weight: 700;
             text-align: center;
             text-decoration: none;
-            background: #2c3e50;
             color: #fff;
-            transition: background 0.3s;
             border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: opacity .2s, transform .1s;
+            margin-top: auto;
         }
 
-            .btn-generar-reporte:hover {
-                background: #1a252f;
+            .btn-generar:hover {
+                opacity: .88;
                 color: #fff;
                 text-decoration: none;
+                transform: scale(1.01);
+            }
+
+        .seccion-titulo {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .seccion-titulo::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: #f0f4f8;
             }
     </style>
 }
 
-<div class="page-header">
-    <h3>Centro de Reportes</h3>
-</div>
+<div class="seccion-titulo"><i class="fas fa-file-pdf"></i> Informes disponibles</div>
 
 <div class="reportes-grid">
+
+    <!-- SEMILLEROS -->
     <div class="reporte-card">
-        <div class="reporte-card-header">
-            <i class="glyphicon glyphicon-leaf"></i>
+        <div class="reporte-card-header" style="background:linear-gradient(135deg,#1a5276,#2e86c1)">
+            <div class="icon-wrap"><i class="fas fa-leaf"></i></div>
             <h3>Semilleros</h3>
+            <p>Listado general de semilleros</p>
         </div>
         <div class="reporte-card-body">
-            <a href="@Url.Action("VisualizarSemillero", "Reporte")" class="btn-generar-reporte" target="_blank">
-                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            <div class="reporte-info"><i class="fas fa-circle-check"></i> Estado del semillero</div>
+            <div class="reporte-info"><i class="fas fa-user-tie"></i> Líder asignado</div>
+            <div class="reporte-info"><i class="fas fa-flask"></i> Línea de investigación</div>
+            <a href="@Url.Action("VisualizarSemillero","Reporte")" target="_blank"
+               class="btn-generar" style="background:linear-gradient(135deg,#1a5276,#2e86c1)">
+                <i class="fas fa-file-pdf"></i> Generar PDF
             </a>
         </div>
     </div>
 
+    <!-- REUNIONES -->
     <div class="reporte-card">
-        <div class="reporte-card-header" style="background: linear-gradient(135deg, #0e6655, #16a085);">
-            <i class="glyphicon glyphicon-calendar"></i>
+        <div class="reporte-card-header" style="background:linear-gradient(135deg,#0e6655,#16a085)">
+            <div class="icon-wrap"><i class="fas fa-handshake"></i></div>
             <h3>Reuniones</h3>
+            <p>Historial de reuniones registradas</p>
         </div>
         <div class="reporte-card-body">
-            <a href="@Url.Action("VisualizarReunion", "Reporte")" class="btn-generar-reporte" target="_blank">
-                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            <div class="reporte-info"><i class="fas fa-calendar-alt"></i> Fecha y hora</div>
+            <div class="reporte-info"><i class="fas fa-map-marker-alt"></i> Lugar de reunión</div>
+            <div class="reporte-info"><i class="fas fa-circle-check"></i> Estado actual</div>
+            <a href="@Url.Action("VisualizarReunion","Reporte")" target="_blank"
+               class="btn-generar" style="background:linear-gradient(135deg,#0e6655,#16a085)">
+                <i class="fas fa-file-pdf"></i> Generar PDF
             </a>
         </div>
     </div>
 
+    <!-- USUARIOS -->
     <div class="reporte-card">
-        <div class="reporte-card-header" style="background: linear-gradient(135deg, #7d3c98, #8e44ad);">
-            <i class="glyphicon glyphicon-user"></i>
+        <div class="reporte-card-header" style="background:linear-gradient(135deg,#7d3c98,#8e44ad)">
+            <div class="icon-wrap"><i class="fas fa-users"></i></div>
             <h3>Usuarios</h3>
+            <p>Cuentas registradas en el sistema</p>
         </div>
         <div class="reporte-card-body">
-            <a href="@Url.Action("VisualizarUsuario", "Reporte")" class="btn-generar-reporte" target="_blank">
-                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            <div class="reporte-info"><i class="fas fa-shield-alt"></i> Rol del usuario</div>
+            <div class="reporte-info"><i class="fas fa-envelope"></i> Correo electrónico</div>
+            <div class="reporte-info"><i class="fas fa-circle-check"></i> Estado de la cuenta</div>
+            <a href="@Url.Action("VisualizarUsuario","Reporte")" target="_blank"
+               class="btn-generar" style="background:linear-gradient(135deg,#7d3c98,#8e44ad)">
+                <i class="fas fa-file-pdf"></i> Generar PDF
             </a>
         </div>
     </div>
 
+    <!-- EVENTOS -->
     <div class="reporte-card">
-        <div class="reporte-card-header" style="background: linear-gradient(135deg, #b03a2e, #e74c3c);">
-            <i class="glyphicon glyphicon-star"></i>
+        <div class="reporte-card-header" style="background:linear-gradient(135deg,#b03a2e,#e74c3c)">
+            <div class="icon-wrap"><i class="fas fa-calendar-alt"></i></div>
             <h3>Eventos</h3>
+            <p>Eventos institucionales registrados</p>
         </div>
         <div class="reporte-card-body">
-            <a href="@Url.Action("VisualizarEvento", "Reporte")" class="btn-generar-reporte" target="_blank">
-                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            <div class="reporte-info"><i class="fas fa-tag"></i> Tipo de evento</div>
+            <div class="reporte-info"><i class="fas fa-map-marker-alt"></i> Lugar del evento</div>
+            <div class="reporte-info"><i class="fas fa-clock"></i> Hora de inicio y fin</div>
+            <a href="@Url.Action("VisualizarEvento","Reporte")" target="_blank"
+               class="btn-generar" style="background:linear-gradient(135deg,#b03a2e,#e74c3c)">
+                <i class="fas fa-file-pdf"></i> Generar PDF
             </a>
         </div>
     </div>
+
 </div>

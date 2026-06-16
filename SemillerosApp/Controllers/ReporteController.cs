@@ -1,5 +1,6 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using Microsoft.Ajax.Utilities;
 using SemillerosApp.Models;
 using SemillerosApp.Report;
 using System;
@@ -62,7 +63,8 @@ namespace SemillerosApp.Controllers
                     {
                         if (prop.PropertyType.IsValueType || prop.PropertyType == typeof(string))
                         {
-                            dt.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                            // Columnas — todo como string
+                            dt.Columns.Add(prop.Name, typeof(string));
                         }
                     }
 
@@ -73,7 +75,15 @@ namespace SemillerosApp.Controllers
                         foreach (var prop in props)
                         {
                             if (dt.Columns.Contains(prop.Name))
-                                dr[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                            {
+                                var val = prop.GetValue(item);
+                                if (val is decimal d)
+                                    dr[prop.Name] = ((long)d).ToString();
+                                else if (val is DateTime dt2)
+                                    dr[prop.Name] = dt2.ToString("dd/MM/yyyy");
+                                else
+                                    dr[prop.Name] = val?.ToString() ?? "";
+                            }
                         }
                         dt.Rows.Add(dr);
                     }
