@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "Reportes";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Subtitle = "Generación de informes institucionales";
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .reportes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .reporte-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.07);
+            overflow: hidden;
+            transition: transform .2s;
+        }
+
+            .reporte-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 28px rgba(0,0,0,.12);
+            }
+
+        .reporte-card-header {
+            background: linear-gradient(135deg, #1a5276, #2e86c1);
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+        }
+
+            .reporte-card-header i {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+            .reporte-card-header h3 {
+                font-size: 1.1rem;
+                font-weight: 700;
+                margin: 0;
+            }
+
+        .reporte-card-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        /* ESTILO ÚNICO PARA BOTÓN GENERAR */
+        .btn-generar-reporte {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            background: #2c3e50;
+            color: #fff;
+            transition: background 0.3s;
+            border: none;
+        }
+
+            .btn-generar-reporte:hover {
+                background: #1a252f;
+                color: #fff;
+                text-decoration: none;
+            }
+    </style>
+}
+
+<div class="page-header">
+    <h3>Centro de Reportes</h3>
+</div>
+
+<div class="reportes-grid">
+    <div class="reporte-card">
+        <div class="reporte-card-header">
+            <i class="glyphicon glyphicon-leaf"></i>
+            <h3>Semilleros</h3>
+        </div>
+        <div class="reporte-card-body">
+            <a href="@Url.Action("VisualizarSemillero", "Reporte")" class="btn-generar-reporte" target="_blank">
+                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            </a>
+        </div>
+    </div>
+
+    <div class="reporte-card">
+        <div class="reporte-card-header" style="background: linear-gradient(135deg, #0e6655, #16a085);">
+            <i class="glyphicon glyphicon-calendar"></i>
+            <h3>Reuniones</h3>
+        </div>
+        <div class="reporte-card-body">
+            <a href="@Url.Action("VisualizarReunion", "Reporte")" class="btn-generar-reporte" target="_blank">
+                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            </a>
+        </div>
+    </div>
+
+    <div class="reporte-card">
+        <div class="reporte-card-header" style="background: linear-gradient(135deg, #7d3c98, #8e44ad);">
+            <i class="glyphicon glyphicon-user"></i>
+            <h3>Usuarios</h3>
+        </div>
+        <div class="reporte-card-body">
+            <a href="@Url.Action("VisualizarUsuario", "Reporte")" class="btn-generar-reporte" target="_blank">
+                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            </a>
+        </div>
+    </div>
+
+    <div class="reporte-card">
+        <div class="reporte-card-header" style="background: linear-gradient(135deg, #b03a2e, #e74c3c);">
+            <i class="glyphicon glyphicon-star"></i>
+            <h3>Eventos</h3>
+        </div>
+        <div class="reporte-card-body">
+            <a href="@Url.Action("VisualizarEvento", "Reporte")" class="btn-generar-reporte" target="_blank">
+                <i class="glyphicon glyphicon-eye-open"></i> Generar Reporte
+            </a>
+        </div>
+    </div>
+</div>
