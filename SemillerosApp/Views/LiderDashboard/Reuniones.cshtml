@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_LayoutLider.cshtml";
     ViewBag.Title = "Reuniones";
     ViewBag.Subtitle = "Semillero: " + ViewBag.NombreSemillero;
+    var investigadores = ViewBag.Investigadores as List<SemillerosApp.Models.Investigadores> ?? new List<SemillerosApp.Models.Investigadores>();
 }
 
 @section Styles {
@@ -84,7 +85,7 @@
             display: flex;
             gap: 16px;
             flex-wrap: wrap;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
             .reunion-meta span {
@@ -98,6 +99,23 @@
             .reunion-meta i {
                 color: #117a65;
             }
+
+        .participantes-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .chip-participante {
+            background: #eafaf1;
+            color: #117a65;
+            font-size: .72rem;
+            font-weight: 600;
+            padding: 3px 11px;
+            border-radius: 20px;
+            border: 1px solid #c8f0dd;
+        }
 
         .badge-programada {
             background: #eaf4fb;
@@ -214,6 +232,11 @@
             cursor: pointer;
         }
 
+            .btn-modal-save:disabled {
+                opacity: .55;
+                cursor: not-allowed;
+            }
+
         .btn-modal-cancel {
             background: #f0f4f8;
             color: #555;
@@ -260,6 +283,79 @@
                 outline: none;
                 border-color: #117a65;
             }
+
+        /* ── PARTICIPANTES (checkbox list) ── */
+        .participantes-box {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 8px 6px;
+        }
+
+        .participante-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            transition: background .15s;
+            cursor: pointer;
+        }
+
+            .participante-item:hover {
+                background: #f4faf8;
+            }
+
+            .participante-item input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                accent-color: #117a65;
+                cursor: pointer;
+            }
+
+            .participante-item label {
+                font-size: .85rem;
+                color: #2c3e50;
+                cursor: pointer;
+                margin: 0;
+                flex: 1;
+            }
+
+            .participante-item .lider-tag {
+                font-size: .65rem;
+                background: #eafaf1;
+                color: #117a65;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-weight: 700;
+            }
+
+        .choque-alert {
+            background: #fdecea;
+            border: 1px solid #f5c6c1;
+            color: #a93226;
+            font-size: .78rem;
+            padding: 9px 13px;
+            border-radius: 9px;
+            margin-top: 8px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .choque-ok {
+            background: #eafaf1;
+            border: 1px solid #c8f0dd;
+            color: #117a65;
+            font-size: .78rem;
+            padding: 9px 13px;
+            border-radius: 9px;
+            margin-top: 8px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 }
 
@@ -303,6 +399,19 @@
                     <span><i class="fas fa-clock"></i> @r.horaReunion — @r.horaFinReunion</span>
                     <span><i class="fas fa-map-marker-alt"></i> @r.lugarReunion</span>
                 </div>
+                <div class="participantes-chips">
+                    @if (r.Participantes != null && r.Participantes.Any())
+                    {
+                        foreach (var p in r.Participantes)
+                        {
+                            <span class="chip-participante"><i class="fas fa-user-circle me-1"></i>@p.nombreInvestigador</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="chip-participante" style="background:#f8f9fa;color:#aaa;border-color:#eee">Sin participantes</span>
+                    }
+                </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                     @if (string.Equals(r.creadoPor?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
                     {
@@ -317,8 +426,9 @@
                     {
                         if (r.estadoReunion != "Finalizada")
                         {
+                            var idsPart = r.Participantes != null ? string.Join(",", r.Participantes.Select(p => p.idInvestigadores)) : "";
                             <button class="btn-sm-action btn-edit"
-                                    onclick="abrirEditar(@r.idReunion,'@r.motivoReunion','@r.fechaReunion.ToString("yyyy-MM-dd")','@r.horaReunion','@r.horaFinReunion','@r.lugarReunion')">
+                                    onclick="abrirEditar(@r.idReunion,'@r.motivoReunion','@r.fechaReunion.ToString("yyyy-MM-dd")','@r.horaReunion','@r.horaFinReunion','@r.lugarReunion','@idsPart')">
                                 <i class="fas fa-edit me-1"></i>Editar
                             </button>
                         }
@@ -392,10 +502,39 @@
                             <span class="field-err" id="err-c-horafin"></span>
                         </div>
                     </div>
-                    <div class="mb-1">
+                    <div class="mb-3">
                         <label class="modal-label">Lugar *</label>
                         <input type="text" name="lugarReunion" id="c-lugar" class="modal-input" placeholder="Ej: Sala de conferencias" maxlength="40" />
                         <span class="field-err" id="err-c-lugar"></span>
+                    </div>
+
+                    <!-- PARTICIPANTES -->
+                    <div class="mb-1">
+                        <label class="modal-label">Participantes *</label>
+                        <div class="participantes-box" id="c-participantes-box">
+                            @foreach (var inv in investigadores)
+                            {
+                                <div class="participante-item">
+                                    <input type="checkbox" name="participantes" value="@inv.idInvestigadores"
+                                           id="c-part-@inv.idInvestigadores" class="c-participante-check"
+                                           @(inv.idInvestigadores == (int)ViewBag.IdLider ? "checked" : "") />
+                                    <label for="c-part-@inv.idInvestigadores">@inv.nombreInvestigador</label>
+                                    @if (inv.idInvestigadores == (int)ViewBag.IdLider)
+                                    {
+                                        <span class="lider-tag">Líder</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <span class="field-err" id="err-c-participantes"></span>
+                        <div class="choque-alert" id="c-choque-alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="c-choque-msg"></span>
+                        </div>
+                        <div class="choque-ok" id="c-choque-ok">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Sin conflictos de horario</span>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
@@ -442,15 +581,43 @@
                             <span class="field-err" id="err-e-horafin"></span>
                         </div>
                     </div>
-                    <div class="mb-1">
+                    <div class="mb-3">
                         <label class="modal-label">Lugar *</label>
                         <input type="text" name="lugarReunion" id="e-lugar" class="modal-input" maxlength="40" />
                         <span class="field-err" id="err-e-lugar"></span>
                     </div>
+
+                    <!-- PARTICIPANTES -->
+                    <div class="mb-1">
+                        <label class="modal-label">Participantes *</label>
+                        <div class="participantes-box" id="e-participantes-box">
+                            @foreach (var inv in investigadores)
+                            {
+                                <div class="participante-item">
+                                    <input type="checkbox" name="participantes" value="@inv.idInvestigadores"
+                                           id="e-part-@inv.idInvestigadores" class="e-participante-check" />
+                                    <label for="e-part-@inv.idInvestigadores">@inv.nombreInvestigador</label>
+                                    @if (inv.idInvestigadores == (int)ViewBag.IdLider)
+                                    {
+                                        <span class="lider-tag">Líder</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <span class="field-err" id="err-e-participantes"></span>
+                        <div class="choque-alert" id="e-choque-alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="e-choque-msg"></span>
+                        </div>
+                        <div class="choque-ok" id="e-choque-ok">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Sin conflictos de horario</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer" style="border-top:1px solid #f0f4f8;padding:14px 24px">
                     <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-modal-save"><i class="fas fa-save me-1"></i>Guardar Cambios</button>
+                    <button type="submit" class="btn-modal-save" id="btnGuardarEditar"><i class="fas fa-save me-1"></i>Guardar Cambios</button>
                 </div>
             }
         </div>
@@ -461,7 +628,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            // ── VALIDACIONES ──────────────────────────────────────────
+            // ── VALIDACIONES BÁSICAS ──────────────────────────────────
             function setErr(inputId, errId, msg) {
                 var el = document.getElementById(inputId);
                 if (el) { el.classList.add('is-invalid'); el.style.borderColor = '#e74c3c'; }
@@ -521,6 +688,62 @@
                 }
                 clearErr(horaFinId, errFinId); return true;
             }
+            function validarParticipantes(checkClass, errId) {
+                var checks = document.querySelectorAll('.' + checkClass + ':checked');
+                if (checks.length === 0) {
+                    document.getElementById(errId).innerText = 'Selecciona al menos un participante';
+                    return false;
+                }
+                document.getElementById(errId).innerText = '';
+                return true;
+            }
+            function getParticipantesSeleccionados(checkClass) {
+                var checks = document.querySelectorAll('.' + checkClass + ':checked');
+                return Array.from(checks).map(function (c) { return c.value; }).join(',');
+            }
+
+            // ── CHEQUEO DE CHOQUE (AJAX) ──────────────────────────────
+            var timeoutChoqueCrear = null;
+            var timeoutChoqueEditar = null;
+
+            function verificarChoque(prefijo, idExcluir) {
+                var fecha = document.getElementById(prefijo + '-fecha').value;
+                var horaInicio = document.getElementById(prefijo + '-horaInicio').value;
+                var horaFin = document.getElementById(prefijo + '-horaFin').value;
+                var participantesCsv = getParticipantesSeleccionados(prefijo + '-participante-check');
+
+                var alertBox = document.getElementById(prefijo + '-choque-alert');
+                var okBox = document.getElementById(prefijo + '-choque-ok');
+                var btnSubmit = prefijo === 'c' ? document.getElementById('btnCrear') : document.getElementById('btnGuardarEditar');
+
+                alertBox.style.display = 'none';
+                okBox.style.display = 'none';
+
+                if (!fecha || !horaInicio || !horaFin || !participantesCsv) return;
+
+                var timeoutVar = prefijo === 'c' ? 'timeoutChoqueCrear' : 'timeoutChoqueEditar';
+                clearTimeout(window[timeoutVar]);
+                window[timeoutVar] = setTimeout(function () {
+                    fetch('@Url.Action("VerificarChoqueReunionLider", "LiderDashboard")' +
+                        '?fecha=' + encodeURIComponent(fecha) +
+                        '&horaInicio=' + encodeURIComponent(horaInicio) +
+                        '&horaFin=' + encodeURIComponent(horaFin) +
+                        '&participantesCsv=' + encodeURIComponent(participantesCsv) +
+                        '&idExcluir=' + idExcluir)
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) {
+                            if (data.choque) {
+                                document.getElementById(prefijo + '-choque-msg').innerText = data.mensaje;
+                                alertBox.style.display = 'flex';
+                                if (btnSubmit) btnSubmit.disabled = true;
+                            } else {
+                                okBox.style.display = 'flex';
+                                if (btnSubmit) btnSubmit.disabled = false;
+                            }
+                        })
+                        .catch(function () { /* silencioso si falla la red */ });
+                }, 500);
+            }
 
             // ── LISTENERS CREAR ───────────────────────────────────────
             document.getElementById('c-motivo').addEventListener('input', function () {
@@ -533,14 +756,23 @@
                 validarFecha('c-fecha', 'err-c-fecha');
                 if (document.getElementById('c-horaInicio').value)
                     validarHoraInicio('c-fecha', 'c-horaInicio', 'err-c-hora');
+                verificarChoque('c', 0);
             });
             document.getElementById('c-horaInicio').addEventListener('change', function () {
                 validarHoraInicio('c-fecha', 'c-horaInicio', 'err-c-hora');
                 if (document.getElementById('c-horaFin').value)
                     validarHoras('c-horaInicio', 'c-horaFin', 'err-c-horafin');
+                verificarChoque('c', 0);
             });
             document.getElementById('c-horaFin').addEventListener('change', function () {
                 validarHoras('c-horaInicio', 'c-horaFin', 'err-c-horafin');
+                verificarChoque('c', 0);
+            });
+            document.querySelectorAll('.c-participante-check').forEach(function (chk) {
+                chk.addEventListener('change', function () {
+                    validarParticipantes('c-participante-check', 'err-c-participantes');
+                    verificarChoque('c', 0);
+                });
             });
 
             // ── SUBMIT CREAR ──────────────────────────────────────────
@@ -553,6 +785,8 @@
                     setErr('c-horaFin', 'err-c-horafin', 'La hora de fin es requerida'); ok = false;
                 } else if (!validarHoras('c-horaInicio', 'c-horaFin', 'err-c-horafin')) ok = false;
                 if (!validarTexto('c-lugar', 'err-c-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
+                if (!validarParticipantes('c-participante-check', 'err-c-participantes')) ok = false;
+                if (document.getElementById('c-choque-alert').style.display === 'flex') ok = false;
                 if (!ok) { e.preventDefault(); return; }
                 document.getElementById('btnCrear').disabled = true;
             });
@@ -568,14 +802,23 @@
                 validarFecha('e-fecha', 'err-e-fecha');
                 if (document.getElementById('e-horaInicio').value)
                     validarHoraInicio('e-fecha', 'e-horaInicio', 'err-e-hora');
+                verificarChoque('e', document.getElementById('e-id').value || 0);
             });
             document.getElementById('e-horaInicio').addEventListener('change', function () {
                 validarHoraInicio('e-fecha', 'e-horaInicio', 'err-e-hora');
                 if (document.getElementById('e-horaFin').value)
                     validarHoras('e-horaInicio', 'e-horaFin', 'err-e-horafin');
+                verificarChoque('e', document.getElementById('e-id').value || 0);
             });
             document.getElementById('e-horaFin').addEventListener('change', function () {
                 validarHoras('e-horaInicio', 'e-horaFin', 'err-e-horafin');
+                verificarChoque('e', document.getElementById('e-id').value || 0);
+            });
+            document.querySelectorAll('.e-participante-check').forEach(function (chk) {
+                chk.addEventListener('change', function () {
+                    validarParticipantes('e-participante-check', 'err-e-participantes');
+                    verificarChoque('e', document.getElementById('e-id').value || 0);
+                });
             });
 
             // ── SUBMIT EDITAR ─────────────────────────────────────────
@@ -588,24 +831,37 @@
                     setErr('e-horaFin', 'err-e-horafin', 'La hora de fin es requerida'); ok = false;
                 } else if (!validarHoras('e-horaInicio', 'e-horaFin', 'err-e-horafin')) ok = false;
                 if (!validarTexto('e-lugar', 'err-e-lugar', 3, 'Mínimo 3 caracteres')) ok = false;
+                if (!validarParticipantes('e-participante-check', 'err-e-participantes')) ok = false;
+                if (document.getElementById('e-choque-alert').style.display === 'flex') ok = false;
                 if (!ok) e.preventDefault();
             });
 
             // ── ABRIR MODAL EDITAR ────────────────────────────────────
-            window.abrirEditar = function (id, motivo, fecha, horaInicio, horaFin, lugar) {
+            window.abrirEditar = function (id, motivo, fecha, horaInicio, horaFin, lugar, idsParticipantesCsv) {
                 document.getElementById('e-id').value = id;
                 document.getElementById('e-motivo').value = motivo;
                 document.getElementById('e-fecha').value = fecha;
                 document.getElementById('e-horaInicio').value = horaInicio;
                 document.getElementById('e-horaFin').value = horaFin;
                 document.getElementById('e-lugar').value = lugar;
+
+                // Marcar checkboxes de participantes actuales
+                var idsActuales = (idsParticipantesCsv || '').split(',').filter(Boolean);
+                document.querySelectorAll('.e-participante-check').forEach(function (chk) {
+                    chk.checked = idsActuales.indexOf(chk.value) !== -1;
+                });
+
                 ['e-motivo', 'e-fecha', 'e-horaInicio', 'e-horaFin', 'e-lugar'].forEach(function (id) {
                     document.getElementById(id).classList.remove('is-invalid');
                     document.getElementById(id).style.borderColor = '';
                 });
-                ['err-e-motivo', 'err-e-fecha', 'err-e-hora', 'err-e-horafin', 'err-e-lugar'].forEach(function (id) {
+                ['err-e-motivo', 'err-e-fecha', 'err-e-hora', 'err-e-horafin', 'err-e-lugar', 'err-e-participantes'].forEach(function (id) {
                     document.getElementById(id).innerText = '';
                 });
+                document.getElementById('e-choque-alert').style.display = 'none';
+                document.getElementById('e-choque-ok').style.display = 'none';
+                document.getElementById('btnGuardarEditar').disabled = false;
+
                 new bootstrap.Modal(document.getElementById('modalEditar')).show();
             };
 

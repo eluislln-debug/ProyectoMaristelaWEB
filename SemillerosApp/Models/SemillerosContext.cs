@@ -67,10 +67,21 @@ namespace SemillerosApp.Models
                     m.MapRightKey("Investigadores_idInvestigadores");
                 });
 
-            modelBuilder.Entity<Semillero>()
-                .HasOptional(s => s.Reunion)
-                .WithMany(r => r.Semilleros)
-                .HasForeignKey(s => s.Reunion_idReunion);
+            // Relación Reunion → Semillero (un semillero tiene muchas reuniones)
+            modelBuilder.Entity<Reunion>()
+                .HasOptional(r => r.Semillero)
+                .WithMany(s => s.Reuniones)
+                .HasForeignKey(r => r.Semillero_idSemillero);
+
+            // Relación N:M Reunion ↔ Investigadores (participantes)
+            modelBuilder.Entity<Reunion>()
+                .HasMany(r => r.Participantes)
+                .WithMany(i => i.Reuniones)
+                .Map(m => {
+                    m.ToTable("Reunion_has_Investigadores");
+                    m.MapLeftKey("Reunion_idReunion");
+                    m.MapRightKey("Investigadores_idInvestigadores");
+                });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -160,6 +171,9 @@ namespace SemillerosApp.Models
         [Key]
         public int idReunion { get; set; }
 
+        [ForeignKey("Semillero")]
+        public int? Semillero_idSemillero { get; set; }
+
         [Required(ErrorMessage = "La fecha es requerida")]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha")]
@@ -188,11 +202,12 @@ namespace SemillerosApp.Models
         [Display(Name = "Hora de Fin")]
         public string horaFinReunion { get; set; }
 
-        [StringLength(10)]
-        [Display(Name = "Creado por")]
-        public string creadoPor { get; set; } = "Lider";
+        [StringLength(20)]
+        public string creadoPor { get; set; }
 
-        public virtual ICollection<Semillero> Semilleros { get; set; }
+        // ── Navegación ────────────────────────────────────────────
+        public virtual Semillero Semillero { get; set; }                       
+        public virtual ICollection<Investigadores> Participantes { get; set; }
     }
 
     // ── INVESTIGADORES ────────────────────────────────────────────
@@ -231,6 +246,8 @@ namespace SemillerosApp.Models
 
         public virtual Usuario Usuario { get; set; }
         public virtual ICollection<Semillero> Semilleros { get; set; }
+
+        public virtual ICollection<Reunion> Reuniones { get; set; }
     }
 
     // ── SEMILLERO ─────────────────────────────────────────────────
@@ -238,9 +255,6 @@ namespace SemillerosApp.Models
     {
         [Key]
         public int idSemillero { get; set; }
-
-        [ForeignKey("Reunion")]
-        public int? Reunion_idReunion { get; set; }
 
         [ForeignKey("Investigadores")]
         public int Investigadores_idInvestigadores { get; set; }
@@ -269,11 +283,11 @@ namespace SemillerosApp.Models
         public string descripcionSemillero { get; set; }
 
         // Navegación
-        public virtual Reunion Reunion { get; set; }
         public virtual Investigadores Investigadores { get; set; }
         public virtual ICollection<Proyecto> Proyectos { get; set; }
         public virtual ICollection<Semillero_has_Eventos> SemilleroEventos { get; set; }
         public virtual ICollection<Investigadores> Integrantes { get; set; }
+        public virtual ICollection<Reunion> Reuniones { get; set; }
     }
 
     // ── PROYECTO ──────────────────────────────────────────────────
@@ -536,5 +550,15 @@ namespace SemillerosApp.Models
 
         [Display(Name = "Recordarme")]
         public bool RememberMe { get; set; }
+    }
+
+    // ── REUNION_HAS_INVESTIGADORES (N:M) ──────────────────────────
+    public class Reunion_has_Investigadores
+    {
+        public int Reunion_idReunion { get; set; }
+        public int Investigadores_idInvestigadores { get; set; }
+
+        public virtual Reunion Reunion { get; set; }
+        public virtual Investigadores Investigadores { get; set; }
     }
 }

@@ -749,9 +749,9 @@ namespace SemillerosApp.Controllers
         public ActionResult Reuniones()
         {
             var reuniones = db.Reuniones
-            .Include("Semilleros")
-            .OrderBy(r => r.fechaReunion)
-            .ToList();
+                .Include("Semillero")
+                .OrderBy(r => r.fechaReunion)
+                .ToList();
 
             // Actualizar estados automáticamente
             ActualizarEstadosReuniones(reuniones);
@@ -766,20 +766,24 @@ namespace SemillerosApp.Controllers
 
             foreach (var r in reuniones)
             {
-                if (r.estadoReunion == "Cancelada") continue;
+                if (r.estadoReunion == "Cancelada" || r.estadoReunion == "Suspendida") continue;
 
-                // Parsear hora
-                DateTime fechaHora;
-                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out fechaHora))
+                DateTime fechaHoraInicio;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out fechaHoraInicio))
                     continue;
 
+                DateTime fechaHoraFin;
+                bool tieneFin = DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaFinReunion, out fechaHoraFin);
+
                 string nuevoEstado;
-                if (fechaHora > ahora.AddMinutes(30))
+                if (fechaHoraInicio > ahora.AddMinutes(30))
                     nuevoEstado = "Programada";
-                else if (fechaHora <= ahora.AddMinutes(30) && fechaHora >= ahora.AddMinutes(-90))
+                else if (tieneFin && ahora >= fechaHoraInicio && ahora <= fechaHoraFin)
                     nuevoEstado = "En Curso";
-                else
+                else if (tieneFin && ahora > fechaHoraFin)
                     nuevoEstado = "Realizada";
+                else
+                    nuevoEstado = "En Curso";
 
                 if (r.estadoReunion != nuevoEstado)
                 {
@@ -814,20 +818,19 @@ namespace SemillerosApp.Controllers
         public ActionResult CrearReunion(Reunion reunion, int Semillero_idSemillero)
         {
             ModelState.Remove("estadoReunion");
+            ModelState.Remove("creadoPor");
+            ModelState.Remove("Semillero");
+            ModelState.Remove("Semillero_idSemillero");
+            ModelState.Remove("Participantes");
+
             if (ModelState.IsValid)
             {
                 reunion.estadoReunion = "Programada";
                 reunion.creadoPor = "Admin";
-                db.Reuniones.Add(reunion);
-                db.SaveChanges(); // necesitamos el id generado
+                reunion.Semillero_idSemillero = Semillero_idSemillero;   // ← directo, ya no hay que tocar Semillero
 
-                // Vincular el semillero a esta reunion
-                var semillero = db.Semilleros.Find(Semillero_idSemillero);
-                if (semillero != null)
-                {
-                    semillero.Reunion_idReunion = reunion.idReunion;
-                    db.SaveChanges();
-                }
+                db.Reuniones.Add(reunion);
+                db.SaveChanges();
 
                 TempData["Mensaje"] = $"Reunión '{reunion.motivoReunion}' creada correctamente.";
                 TempData["TipoMensaje"] = "success";
@@ -849,17 +852,13 @@ namespace SemillerosApp.Controllers
             var reunion = db.Reuniones.Find(id);
             if (reunion == null) return HttpNotFound();
 
-            // Buscar semillero actualmente vinculado
-            var semilleroVinculado = db.Semilleros
-                .FirstOrDefault(s => s.Reunion_idReunion == id);
-
             ViewBag.Semilleros = db.Semilleros
                 .Where(s => s.estadoSemillero == "Activo")
                 .Select(s => new SelectListItem
                 {
                     Value = s.idSemillero.ToString(),
                     Text = s.nombreSemillero,
-                    Selected = semilleroVinculado != null && s.idSemillero == semilleroVinculado.idSemillero
+                    Selected = reunion.Semillero_idSemillero.HasValue && s.idSemillero == reunion.Semillero_idSemillero.Value
                 }).ToList();
 
             return View(reunion);
@@ -868,7 +867,7 @@ namespace SemillerosApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult EditarReunion(int idReunion, string motivoReunion, DateTime fechaReunion,
-        string horaReunion, string horaFinReunion, string lugarReunion, int Semillero_idSemillero)
+            string horaReunion, string horaFinReunion, string lugarReunion, int Semillero_idSemillero)
         {
             var reunion = db.Reuniones.Find(idReunion);
             if (reunion == null) return HttpNotFound();
@@ -878,24 +877,14 @@ namespace SemillerosApp.Controllers
             reunion.horaReunion = horaReunion;
             reunion.horaFinReunion = horaFinReunion;
             reunion.lugarReunion = lugarReunion;
-
-            // Desvincular semillero anterior si cambió
-            var semilleroAnterior = db.Semilleros
-                .FirstOrDefault(s => s.Reunion_idReunion == idReunion);
-            if (semilleroAnterior != null && semilleroAnterior.idSemillero != Semillero_idSemillero)
-                semilleroAnterior.Reunion_idReunion = null;
-
-            // Vincular nuevo semillero
-            var semilleroNuevo = db.Semilleros.Find(Semillero_idSemillero);
-            if (semilleroNuevo != null)
-                semilleroNuevo.Reunion_idReunion = idReunion;
+            reunion.Semillero_idSemillero = Semillero_idSemillero;   // ← simple reasignación directa
 
             // Recalcular estado
             DateTime fechaHoraInicio;
             if (DateTime.TryParse(fechaReunion.ToString("yyyy-MM-dd") + " " + horaReunion, out fechaHoraInicio))
             {
                 var ahora = DateTime.Now;
-                if (reunion.estadoReunion != "Cancelada")
+                if (reunion.estadoReunion != "Cancelada" && reunion.estadoReunion != "Suspendida")
                 {
                     DateTime fechaHoraFin;
                     bool tieneFin = DateTime.TryParse(
@@ -942,22 +931,20 @@ namespace SemillerosApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EliminarReunion(int id)
         {
-            var reunion = db.Reuniones.Find(id);
+            var reunion = db.Reuniones
+                .Include("Participantes")
+                .FirstOrDefault(r => r.idReunion == id);
+
             if (reunion == null) return HttpNotFound();
 
-            // Desvincular semilleros que apunten a esta reunion
-            var semillerosVinculados = db.Semilleros
-                .Where(s => s.Reunion_idReunion == id)
-                .ToList();
-
-            foreach (var s in semillerosVinculados)
-                s.Reunion_idReunion = null;
-
-            db.SaveChanges(); // guardar desvinculación primero
-
             string motivo = reunion.motivoReunion;
+
+            // Limpiar participantes (tabla intermedia) antes de eliminar
+            reunion.Participantes.Clear();
+            db.SaveChanges();
+
             db.Reuniones.Remove(reunion);
-            db.SaveChanges(); // ahora sí eliminar
+            db.SaveChanges();
 
             TempData["Mensaje"] = $"Reunión '{motivo}' eliminada.";
             TempData["TipoMensaje"] = "warning";
@@ -971,13 +958,13 @@ namespace SemillerosApp.Controllers
             if (!DateTime.TryParse(fecha + " " + horaInicio, out nuevaInicio))
                 return Json(new { choque = false }, JsonRequestBehavior.AllowGet);
 
-            // Si no viene hora fin, usar inicio + 1 minuto solo para detectar choque puntual
             if (!DateTime.TryParse(fecha + " " + horaFin, out nuevaFin))
                 nuevaFin = nuevaInicio.AddMinutes(1);
 
             var reunionesDelDia = db.Reuniones
                 .Where(r => r.idReunion != idExcluir
                          && r.estadoReunion != "Cancelada"
+                         && r.estadoReunion != "Suspendida"
                          && r.fechaReunion == nuevaInicio.Date)
                 .ToList();
 
@@ -986,10 +973,6 @@ namespace SemillerosApp.Controllers
                 if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out rInicio)) return false;
                 if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaFinReunion, out rFin)) return false;
 
-                // Choque si cualquiera de estos casos ocurre:
-                // 1. La nueva empieza dentro de una existente
-                // 2. La nueva termina dentro de una existente
-                // 3. La nueva envuelve completamente a una existente
                 return (nuevaInicio >= rInicio && nuevaInicio < rFin) ||
                        (nuevaFin > rInicio && nuevaFin <= rFin) ||
                        (nuevaInicio <= rInicio && nuevaFin >= rFin);

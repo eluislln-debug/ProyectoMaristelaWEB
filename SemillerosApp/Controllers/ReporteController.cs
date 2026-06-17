@@ -1,8 +1,7 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
-using Microsoft.Ajax.Utilities;
 using SemillerosApp.Models;
-using SemillerosApp.Report;
+using SemillerosApp.Filters;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,28 +11,97 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-
 namespace SemillerosApp.Controllers
 {
+    [RoleAuthorize("Admin", "Lider")]
     public class ReporteController : Controller
     {
         private SemillerosContext db = new SemillerosContext();
 
+        private bool EsAdmin() => RoleAuthorizeAttribute.GetUserRole(HttpContext) == "Admin";
+
+        private int GetUsuarioId()
+        {
+            var identity = User.Identity as System.Web.Security.FormsIdentity;
+            string userData = identity?.Ticket.UserData ?? "";
+            string[] parts = userData.Split('|');
+            return parts.Length >= 1 ? int.Parse(parts[0]) : 0;
+        }
+
+        private Semillero GetSemilleroDelLider()
+        {
+            int uid = GetUsuarioId();
+            var inv = db.Investigadores.FirstOrDefault(i =>
+                i.Usuario_idUsuario == uid && i.tipoInvestigador == "Principal");
+            if (inv == null) return null;
+
+            return db.Semilleros
+                .Include("Integrantes")
+                .FirstOrDefault(s => s.Investigadores_idInvestigadores == inv.idInvestigadores);
+        }
+
         public ActionResult Index() => View();
 
-        // --- MÉTODOS DE ACCIÓN ---
+        // ── SEMILLEROS (solo Admin) ───────────────────────────────
+        public ActionResult VisualizarSemillero()
+        {
+            if (!EsAdmin()) return new HttpStatusCodeResult(403);
+            return GenerarReportePdf("Reporte_Semillero.rpt", "SemillerosTable", db.Semilleros.ToList());
+        }
 
-        public ActionResult VisualizarSemillero() =>
-            GenerarReportePdf("Reporte_Semillero.rpt", "SemillerosTable", db.Semilleros.ToList());
+        // ── USUARIOS (solo Admin) ─────────────────────────────────
+        public ActionResult VisualizarUsuario()
+        {
+            if (!EsAdmin()) return new HttpStatusCodeResult(403);
+            return GenerarReportePdf("Reporte_Usuario.rpt", "UsuariosTable", db.Usuarios.ToList());
+        }
 
-        public ActionResult VisualizarUsuario() =>
-            GenerarReportePdf("Reporte_Usuario.rpt", "UsuariosTable", db.Usuarios.ToList());
+        // ── REUNIONES (Admin: todas | Lider: solo su semillero) ───
+        public ActionResult VisualizarReunion()
+        {
+            List<Reunion> reuniones;
 
-        public ActionResult VisualizarReunion() =>
-            GenerarReportePdf("Reporte_Reunio.rpt", "ReunionesTable", db.Reuniones.ToList());
+            if (EsAdmin())
+            {
+                reuniones = db.Reuniones.Include("Semillero").ToList();
+            }
+            else
+            {
+                var semillero = GetSemilleroDelLider();
+                if (semillero == null) return Content("No tienes un semillero asignado.");
 
-        public ActionResult VisualizarEvento() =>
-            GenerarReportePdf("Reporte_Evento.rpt", "EventosTable", db.Eventos.ToList());
+                reuniones = db.Reuniones
+                    .Include("Semillero")
+                    .Where(r => r.Semillero_idSemillero == semillero.idSemillero)
+                    .ToList();
+            }
+
+            return GenerarReportePdf("Reporte_Reunio.rpt", "ReunionesTable", reuniones);
+        }
+
+        // ── EVENTOS (Admin: todos | Lider: solo vinculados a su semillero) ──
+        public ActionResult VisualizarEvento()
+        {
+            List<Eventos> eventos;
+
+            if (EsAdmin())
+            {
+                eventos = db.Eventos.ToList();
+            }
+            else
+            {
+                var semillero = GetSemilleroDelLider();
+                if (semillero == null) return Content("No tienes un semillero asignado.");
+
+                eventos = db.SemilleroEventos
+                    .Include("Eventos")
+                    .Where(se => se.Semillero_idSemillero == semillero.idSemillero)
+                    .Select(se => se.Eventos)
+                    .ToList();
+            }
+
+            return GenerarReportePdf("Reporte_Evento.rpt", "EventosTable", eventos);
+        }
 
         // --- MÉTODO MAESTRO (PROCESA TODOS) ---
         private ActionResult GenerarReportePdf(string nombreRpt, string nombreTabla, IEnumerable listaDatos)
@@ -43,11 +111,8 @@ namespace SemillerosApp.Controllers
 
             try
             {
-                // Validación crítica: verificar si el archivo existe físicamente
                 if (!System.IO.File.Exists(rutaReporte))
-                {
                     return Content("Error: No se encontró el archivo de reporte en la ruta: " + rutaReporte);
-                }
 
                 reporte.Load(rutaReporte);
 
@@ -58,17 +123,12 @@ namespace SemillerosApp.Controllers
                 {
                     var props = lista[0].GetType().GetProperties();
 
-                    // Crear columnas
                     foreach (var prop in props)
                     {
                         if (prop.PropertyType.IsValueType || prop.PropertyType == typeof(string))
-                        {
-                            // Columnas — todo como string
                             dt.Columns.Add(prop.Name, typeof(string));
-                        }
                     }
 
-                    // Llenar datos
                     foreach (var item in lista)
                     {
                         DataRow dr = dt.NewRow();
@@ -91,7 +151,6 @@ namespace SemillerosApp.Controllers
 
                 reporte.SetDataSource(dt);
 
-                // Exportar a stream
                 Stream stream = reporte.ExportToStream(ExportFormatType.PortableDocFormat);
                 return File(stream, "application/pdf");
             }

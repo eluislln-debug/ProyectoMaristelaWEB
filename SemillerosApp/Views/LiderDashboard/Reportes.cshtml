@@ -1,0 +1,229 @@
+﻿@{
+    ViewBag.Title = "Reportes";
+    Layout = "~/Views/Shared/_LayoutLider.cshtml";
+    ViewBag.Subtitle = "Informes de tu semillero";
+}
+
+@section Styles {
+    <style>
+        .reportes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
+        }
+
+        .reporte-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.07);
+            overflow: hidden;
+            transition: transform .25s, box-shadow .25s;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .reporte-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 32px rgba(0,0,0,.13);
+            }
+
+        .reporte-card-header {
+            padding: 28px 20px 22px;
+            color: #fff;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .reporte-card-header::before {
+                content: '';
+                position: absolute;
+                top: -30px;
+                right: -30px;
+                width: 100px;
+                height: 100px;
+                background: rgba(255,255,255,.08);
+                border-radius: 50%;
+            }
+
+            .reporte-card-header::after {
+                content: '';
+                position: absolute;
+                bottom: -20px;
+                left: -20px;
+                width: 70px;
+                height: 70px;
+                background: rgba(255,255,255,.06);
+                border-radius: 50%;
+            }
+
+            .reporte-card-header .icon-wrap {
+                width: 60px;
+                height: 60px;
+                background: rgba(255,255,255,.2);
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 14px;
+                font-size: 1.6rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .reporte-card-header h3 {
+                font-size: 1rem;
+                font-weight: 700;
+                margin: 0;
+                position: relative;
+                z-index: 1;
+            }
+
+            .reporte-card-header p {
+                font-size: .72rem;
+                color: rgba(255,255,255,.75);
+                margin: 6px 0 0;
+                position: relative;
+                z-index: 1;
+            }
+
+        .reporte-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reporte-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .78rem;
+            color: #7f8c8d;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+            .reporte-info i {
+                color: #117a65;
+                width: 14px;
+                text-align: center;
+            }
+
+            .reporte-info:last-of-type {
+                border-bottom: none;
+            }
+
+        .btn-generar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: .85rem;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: opacity .2s, transform .1s;
+            margin-top: auto;
+        }
+
+            .btn-generar:hover {
+                opacity: .88;
+                color: #fff;
+                text-decoration: none;
+                transform: scale(1.01);
+            }
+
+        .seccion-titulo {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .seccion-titulo::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: #f0f4f8;
+            }
+
+        .aviso-alcance {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #eafaf1;
+            border: 1px solid #c8f0dd;
+            color: #0e6655;
+            font-size: .82rem;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+        }
+
+            .aviso-alcance i {
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+    </style>
+}
+
+<div class="aviso-alcance">
+    <i class="fas fa-info-circle"></i>
+    Estos informes solo incluyen información de tu semillero: <strong>@ViewBag.NombreSemillero</strong>.
+</div>
+
+<div class="seccion-titulo"><i class="fas fa-file-pdf"></i> Informes disponibles</div>
+
+<div class="reportes-grid">
+
+    <!-- REUNIONES -->
+    <div class="reporte-card">
+        <div class="reporte-card-header" style="background:linear-gradient(135deg,#0e6655,#16a085)">
+            <div class="icon-wrap"><i class="fas fa-handshake"></i></div>
+            <h3>Reuniones</h3>
+            <p>Historial de reuniones de tu semillero</p>
+        </div>
+        <div class="reporte-card-body">
+            <div class="reporte-info"><i class="fas fa-calendar-alt"></i> Fecha y hora</div>
+            <div class="reporte-info"><i class="fas fa-map-marker-alt"></i> Lugar de reunión</div>
+            <div class="reporte-info"><i class="fas fa-circle-check"></i> Estado actual</div>
+            <a href="@Url.Action("VisualizarReunion","Reporte")" target="_blank"
+               class="btn-generar" style="background:linear-gradient(135deg,#0e6655,#16a085)">
+                <i class="fas fa-file-pdf"></i> Generar PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- EVENTOS -->
+    <div class="reporte-card">
+        <div class="reporte-card-header" style="background:linear-gradient(135deg,#b03a2e,#e74c3c)">
+            <div class="icon-wrap"><i class="fas fa-calendar-alt"></i></div>
+            <h3>Eventos</h3>
+            <p>Eventos vinculados a tu semillero</p>
+        </div>
+        <div class="reporte-card-body">
+            <div class="reporte-info"><i class="fas fa-tag"></i> Tipo de evento</div>
+            <div class="reporte-info"><i class="fas fa-map-marker-alt"></i> Lugar del evento</div>
+            <div class="reporte-info"><i class="fas fa-clock"></i> Hora de inicio y fin</div>
+            <a href="@Url.Action("VisualizarEvento","Reporte")" target="_blank"
+               class="btn-generar" style="background:linear-gradient(135deg,#b03a2e,#e74c3c)">
+                <i class="fas fa-file-pdf"></i> Generar PDF
+            </a>
+        </div>
+    </div>
+
+</div>

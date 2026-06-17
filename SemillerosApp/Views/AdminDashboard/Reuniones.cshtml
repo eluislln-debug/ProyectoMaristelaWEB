@@ -302,8 +302,8 @@
             @foreach (var r in Model.OrderBy(r => r.fechaReunion))
             {
                 var estadoClass = r.estadoReunion?.ToLower().Replace(" ", "-") ?? "programada";
-                var semilleroNombre = r.Semilleros != null && r.Semilleros.Any()
-                    ? r.Semilleros.First().nombreSemillero
+                var semilleroNombre = r.Semillero != null
+                    ? r.Semillero.nombreSemillero
                     : "Sin semillero";
                 <div class="reunion-item @estadoClass" data-estado="@r.estadoReunion">
                     <span class="badge-estado badge-@estadoClass">@r.estadoReunion</span>

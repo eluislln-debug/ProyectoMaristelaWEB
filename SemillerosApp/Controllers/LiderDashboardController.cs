@@ -574,9 +574,12 @@ namespace SemillerosApp.Controllers
             var semillero = GetSemilleroDelLider();
             if (semillero == null) return RedirectToAction("Index");
 
+            var lider = GetInvestigadorLider();
+
             var reuniones = db.Reuniones
-                .Include("Semilleros")
-                .Where(r => r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero))
+                .Include("Semillero")
+                .Include("Participantes")
+                .Where(r => r.Semillero_idSemillero == semillero.idSemillero)
                 .ToList();
 
             var ahora = DateTime.Now;
@@ -616,33 +619,88 @@ namespace SemillerosApp.Controllers
 
             ViewBag.NombreSemillero = semillero.nombreSemillero;
             ViewBag.IdSemillero = semillero.idSemillero;
+            ViewBag.Investigadores = GetInvestigadoresDisponibles(semillero, lider);
+            ViewBag.IdLider = lider.idInvestigadores;
+
             return View(reuniones);
+        }
+
+        // ── Helper: lista de investigadores disponibles para elegir ──────
+        // (integrantes del semillero + el propio líder)
+        private List<Investigadores> GetInvestigadoresDisponibles(Semillero semillero, Investigadores lider)
+        {
+            var semilleroConIntegrantes = db.Semilleros
+                .Include("Integrantes")
+                .FirstOrDefault(s => s.idSemillero == semillero.idSemillero);
+
+            var lista = semilleroConIntegrantes?.Integrantes?.ToList() ?? new List<Investigadores>();
+
+            // Asegurar que el líder esté incluido siempre
+            if (!lista.Any(i => i.idInvestigadores == lider.idInvestigadores))
+                lista.Insert(0, lider);
+
+            return lista.OrderBy(i => i.nombreInvestigador).ToList();
         }
 
         public ActionResult CrearReunion()
         {
             var semillero = GetSemilleroDelLider();
-            if (semillero == null) return RedirectToAction("Index");
+            var lider = GetInvestigadorLider();
+            if (semillero == null || lider == null) return RedirectToAction("Index");
+
             ViewBag.NombreSemillero = semillero.nombreSemillero;
             ViewBag.IdSemillero = semillero.idSemillero;
+            ViewBag.Investigadores = GetInvestigadoresDisponibles(semillero, lider);
+            ViewBag.IdLider = lider.idInvestigadores;
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CrearReunion(Reunion model, int idSemillero)
+        public ActionResult CrearReunion(Reunion model, int idSemillero, int[] participantes)
         {
+            var semillero = GetSemilleroDelLider();
+            var lider = GetInvestigadorLider();
+            if (semillero == null || lider == null) return RedirectToAction("Index");
+
+            ModelState.Remove("creadoPor");
+            ModelState.Remove("estadoReunion");
+            ModelState.Remove("Participantes");
+            ModelState.Remove("Semillero");
+            ModelState.Remove("Semillero_idSemillero");
+
+            if (participantes == null || participantes.Length == 0)
+                ModelState.AddModelError("", "Debes seleccionar al menos un participante para la reunión.");
+
             if (ModelState.IsValid)
             {
+                var conflicto = VerificarChoqueInterno(model.fechaReunion, model.horaReunion, model.horaFinReunion,
+                                                         participantes, idExcluir: 0);
+                if (conflicto != null)
+                {
+                    TempData["Mensaje"] = conflicto;
+                    TempData["TipoMensaje"] = "danger";
+                    return RedirectToAction("Reuniones");
+                }
+
                 model.estadoReunion = "Programada";
                 model.creadoPor = "Lider";
+                model.Semillero_idSemillero = idSemillero;   // ← directo, ya no hay que tocar Semillero
                 db.Reuniones.Add(model);
                 db.SaveChanges();
 
-                var semillero = db.Semilleros.Find(idSemillero);
-                if (semillero != null)
+                var reunionConParticipantes = db.Reuniones
+                    .Include("Participantes")
+                    .FirstOrDefault(r => r.idReunion == model.idReunion);
+
+                if (reunionConParticipantes != null && participantes != null)
                 {
-                    semillero.Reunion_idReunion = model.idReunion;
+                    foreach (var idInv in participantes)
+                    {
+                        var inv = db.Investigadores.Find(idInv);
+                        if (inv != null) reunionConParticipantes.Participantes.Add(inv);
+                    }
                     db.SaveChanges();
                 }
 
@@ -650,17 +708,30 @@ namespace SemillerosApp.Controllers
                 TempData["TipoMensaje"] = "success";
                 return RedirectToAction("Reuniones");
             }
-            ViewBag.IdSemillero = idSemillero;
-            return View(model);
+
+            var primerError = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault();
+
+            TempData["Mensaje"] = string.IsNullOrEmpty(primerError)
+                ? "No se pudo crear la reunión. Verifica los datos."
+                : primerError;
+            TempData["TipoMensaje"] = "danger";
+            return RedirectToAction("Reuniones");
         }
 
         public ActionResult EditarReunion(int id)
         {
             var semillero = GetSemilleroDelLider();
+            var lider = GetInvestigadorLider();
+            if (semillero == null || lider == null) return RedirectToAction("Index");
+
             var reunion = db.Reuniones
-                .Include("Semilleros")
+                .Include("Semillero")
+                .Include("Participantes")
                 .FirstOrDefault(r => r.idReunion == id &&
-                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+                                r.Semillero_idSemillero == semillero.idSemillero);
 
             if (reunion == null) return HttpNotFound();
 
@@ -677,19 +748,26 @@ namespace SemillerosApp.Controllers
                 TempData["TipoMensaje"] = "warning";
                 return RedirectToAction("Reuniones");
             }
+
+            ViewBag.Investigadores = GetInvestigadoresDisponibles(semillero, lider);
+            ViewBag.ParticipantesActuales = reunion.Participantes.Select(p => p.idInvestigadores).ToList();
 
             return View(reunion);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditarReunion(Reunion model)
+        public ActionResult EditarReunion(Reunion model, int[] participantes)
         {
             var semillero = GetSemilleroDelLider();
+            var lider = GetInvestigadorLider();
+            if (semillero == null || lider == null) return RedirectToAction("Index");
+
             var reunion = db.Reuniones
-                .Include("Semilleros")
+                .Include("Semillero")
+                .Include("Participantes")
                 .FirstOrDefault(r => r.idReunion == model.idReunion &&
-                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+                                r.Semillero_idSemillero == semillero.idSemillero);
 
             if (reunion == null) return HttpNotFound();
 
@@ -704,6 +782,38 @@ namespace SemillerosApp.Controllers
             {
                 TempData["Mensaje"] = "No puedes editar una reunión finalizada.";
                 TempData["TipoMensaje"] = "warning";
+                return RedirectToAction("Reuniones");
+            }
+
+            ModelState.Remove("creadoPor");
+            ModelState.Remove("estadoReunion");
+            ModelState.Remove("Participantes");
+            ModelState.Remove("Semillero");
+            ModelState.Remove("Semillero_idSemillero");
+
+            if (participantes == null || participantes.Length == 0)
+                ModelState.AddModelError("", "Debes seleccionar al menos un participante.");
+
+            if (!ModelState.IsValid)
+            {
+                var primerError = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .FirstOrDefault();
+
+                TempData["Mensaje"] = string.IsNullOrEmpty(primerError)
+                    ? "No se pudo actualizar la reunión. Verifica los datos."
+                    : primerError;
+                TempData["TipoMensaje"] = "danger";
+                return RedirectToAction("Reuniones");
+            }
+
+            var conflicto = VerificarChoqueInterno(model.fechaReunion, model.horaReunion, model.horaFinReunion,
+                                                     participantes, idExcluir: model.idReunion);
+            if (conflicto != null)
+            {
+                TempData["Mensaje"] = conflicto;
+                TempData["TipoMensaje"] = "danger";
                 return RedirectToAction("Reuniones");
             }
 
@@ -712,6 +822,13 @@ namespace SemillerosApp.Controllers
             reunion.lugarReunion = model.lugarReunion;
             reunion.horaReunion = model.horaReunion;
             reunion.horaFinReunion = model.horaFinReunion;
+
+            reunion.Participantes.Clear();
+            foreach (var idInv in participantes)
+            {
+                var inv = db.Investigadores.Find(idInv);
+                if (inv != null) reunion.Participantes.Add(inv);
+            }
 
             db.Configuration.ValidateOnSaveEnabled = false;
             db.SaveChanges();
@@ -728,9 +845,7 @@ namespace SemillerosApp.Controllers
         {
             var semillero = GetSemilleroDelLider();
             var reunion = db.Reuniones
-                .Include("Semilleros")
-                .FirstOrDefault(r => r.idReunion == id &&
-                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+                .FirstOrDefault(r => r.idReunion == id && r.Semillero_idSemillero == semillero.idSemillero);
 
             if (reunion == null) return HttpNotFound();
 
@@ -764,9 +879,8 @@ namespace SemillerosApp.Controllers
         {
             var semillero = GetSemilleroDelLider();
             var reunion = db.Reuniones
-                .Include("Semilleros")
-                .FirstOrDefault(r => r.idReunion == id &&
-                                r.Semilleros.Any(s => s.idSemillero == semillero.idSemillero));
+                .Include("Participantes")
+                .FirstOrDefault(r => r.idReunion == id && r.Semillero_idSemillero == semillero.idSemillero);
 
             if (reunion == null) return HttpNotFound();
 
@@ -777,17 +891,82 @@ namespace SemillerosApp.Controllers
                 return RedirectToAction("Reuniones");
             }
 
-            // Desvincular semilleros antes de eliminar
-            foreach (var s in reunion.Semilleros.ToList())
-                s.Reunion_idReunion = null;
-
+            reunion.Participantes.Clear();
             db.SaveChanges();
+
             db.Reuniones.Remove(reunion);
             db.SaveChanges();
 
             TempData["Mensaje"] = "Reunión eliminada correctamente.";
             TempData["TipoMensaje"] = "warning";
             return RedirectToAction("Reuniones");
+        }
+
+        // ── Verificación de choque en SERVIDOR (fecha+hora+participantes) ─
+        // Devuelve null si no hay conflicto, o un mensaje describiendo el choque.
+        private string VerificarChoqueInterno(DateTime fecha, string horaInicio, string horaFin,
+            int[] participantes, int idExcluir)
+        {
+            DateTime nuevaInicio, nuevaFin;
+            if (!DateTime.TryParse(fecha.ToString("yyyy-MM-dd") + " " + horaInicio, out nuevaInicio))
+                return null;
+            if (!DateTime.TryParse(fecha.ToString("yyyy-MM-dd") + " " + horaFin, out nuevaFin))
+                nuevaFin = nuevaInicio.AddMinutes(1);
+
+            if (participantes == null || participantes.Length == 0) return null;
+
+            var reunionesDelDia = db.Reuniones
+                .Include("Participantes")
+                .Where(r => r.idReunion != idExcluir
+                         && r.estadoReunion != "Cancelada"
+                         && r.estadoReunion != "Suspendida"
+                         && r.fechaReunion == nuevaInicio.Date)
+                .ToList();
+
+            foreach (var r in reunionesDelDia)
+            {
+                DateTime rInicio, rFin;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaReunion, out rInicio)) continue;
+                if (!DateTime.TryParse(r.fechaReunion.ToString("yyyy-MM-dd") + " " + r.horaFinReunion, out rFin)) continue;
+
+                bool seSolapan = nuevaInicio < rFin && nuevaFin > rInicio;
+                if (!seSolapan) continue;
+
+                var idsParticipantesExistentes = r.Participantes.Select(p => p.idInvestigadores).ToHashSet();
+                var choque = participantes.FirstOrDefault(idsParticipantesExistentes.Contains);
+
+                if (choque != 0 || (choque == 0 && idsParticipantesExistentes.Contains(0)))
+                {
+                    var invChoque = db.Investigadores.Find(choque);
+                    string nombreInv = invChoque != null ? invChoque.nombreInvestigador : "Un participante";
+                    return $"{nombreInv} ya tiene la reunión \"{r.motivoReunion}\" de {r.horaReunion} a {r.horaFinReunion} ese día.";
+                }
+            }
+
+            return null;
+        }
+
+        // ── AJAX: verificar choque desde el formulario (tiempo real) ──────
+        [HttpGet]
+        public JsonResult VerificarChoqueReunionLider(string fecha, string horaInicio, string horaFin,
+            string participantesCsv, int idExcluir = 0)
+        {
+            DateTime fechaParsed;
+            if (!DateTime.TryParse(fecha, out fechaParsed))
+                return Json(new { choque = false }, JsonRequestBehavior.AllowGet);
+
+            int[] participantes = (participantesCsv ?? "")
+                .Split(',')
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(int.Parse)
+                .ToArray();
+
+            string conflicto = VerificarChoqueInterno(fechaParsed, horaInicio, horaFin, participantes, idExcluir);
+
+            if (conflicto != null)
+                return Json(new { choque = true, mensaje = conflicto }, JsonRequestBehavior.AllowGet);
+
+            return Json(new { choque = false }, JsonRequestBehavior.AllowGet);
         }
 
         // GET: Eventos del semillero del líder
@@ -823,6 +1002,15 @@ namespace SemillerosApp.Controllers
 
             ViewBag.NombreSemillero = semillero.nombreSemillero;
             return View(eventos);
+        }
+
+        public ActionResult Reportes()
+        {
+            var semillero = GetSemilleroDelLider();
+            if (semillero == null) return RedirectToAction("Index");
+
+            ViewBag.NombreSemillero = semillero.nombreSemillero;
+            return View();
         }
 
         protected override void Dispose(bool disposing)
