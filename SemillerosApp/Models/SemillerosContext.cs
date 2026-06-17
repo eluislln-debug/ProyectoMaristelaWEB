@@ -217,7 +217,7 @@ namespace SemillerosApp.Models
         public int idInvestigadores { get; set; }
 
         [ForeignKey("Usuario")]
-        public int Usuario_idUsuario { get; set; }
+        public int? Usuario_idUsuario { get; set; }
 
         [Required(ErrorMessage = "El tipo es requerido")]
         [StringLength(20)]

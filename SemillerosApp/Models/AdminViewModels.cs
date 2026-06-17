@@ -82,5 +82,7 @@ namespace SemillerosApp.Models
         public int TotalActividades { get; set; }
         public int ActividadesPendientes { get; set; }
         public int PorcentajeActividad { get; set; }
+
+        public List<Reunion> Reuniones { get; set; } = new List<Reunion>();
     }
 }

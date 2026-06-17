@@ -235,7 +235,6 @@ namespace SemillerosApp.Controllers
                 .Include("Proyectos")
                 .Include("Proyectos.Fases")
                 .Include("Proyectos.Fases.Actividades")
-                .Include("Reunion")
                 .Include("SemilleroEventos")
                 .Include("SemilleroEventos.Eventos")
                 .Include("Integrantes")
@@ -243,10 +242,16 @@ namespace SemillerosApp.Controllers
 
             if (semillero == null) return HttpNotFound();
 
+            var reunionesDelSemillero = db.Reuniones
+                .Where(r => r.Semillero_idSemillero == id)
+                .OrderByDescending(r => r.fechaReunion)
+                .ToList();
+
             var vm = new DetalleSemilleroViewModel
             {
                 Semillero = semillero,
                 Integrantes = semillero.Integrantes?.ToList() ?? new List<Investigadores>(),
+                Reuniones = reunionesDelSemillero,
                 TotalProyectos = semillero.Proyectos?.Count ?? 0,
                 ProyectosActivos = semillero.Proyectos?.Count(p => p.estadoProyecto == "En Proceso") ?? 0,
                 TotalFases = semillero.Proyectos?.SelectMany(p => p.Fases).Count() ?? 0,

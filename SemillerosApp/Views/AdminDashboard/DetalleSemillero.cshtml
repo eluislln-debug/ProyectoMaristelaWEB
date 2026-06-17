@@ -815,7 +815,7 @@
 <div class="tabs-nav">
     <button class="tab-btn active" onclick="switchTab('tab-proyectos',this)"><i class="fas fa-project-diagram"></i>Proyectos (@Model.TotalProyectos)</button>
     <button class="tab-btn" onclick="switchTab('tab-integrantes',this)"><i class="fas fa-users"></i>Integrantes (@Model.Integrantes.Count)</button>
-    <button class="tab-btn" onclick="switchTab('tab-reuniones',this)"><i class="fas fa-calendar-check"></i>Reunión (@(Model.Semillero.Reunion != null ? 1 : 0))</button>
+    <button class="tab-btn" onclick="switchTab('tab-reuniones',this)"><i class="fas fa-calendar-check"></i>Reuniones (@Model.Reuniones.Count)</button>
     <button class="tab-btn" onclick="switchTab('tab-eventos',this)"><i class="fas fa-star"></i>Eventos (@(Model.Semillero.SemilleroEventos?.Count ?? 0))</button>
 </div>
 
@@ -1012,25 +1012,29 @@
 <!-- TAB REUNIONES -->
 <div id="tab-reuniones" class="tab-pane">
     <div class="card-panel">
-        @if (Model.Semillero.Reunion != null)
+        @if (Model.Reuniones != null && Model.Reuniones.Any())
         {
-            <div class="reunion-item">
-                <div class="reunion-date">
-                    <div class="day">@Model.Semillero.Reunion.fechaReunion.Day.ToString("00")</div>
-                    <div class="mon">@Model.Semillero.Reunion.fechaReunion.ToString("MMM", new System.Globalization.CultureInfo("es-ES"))</div>
-                </div>
-                <div>
-                    <div class="reunion-motivo">@Model.Semillero.Reunion.motivoReunion</div>
-                    <div class="reunion-meta">
-                        <span><i class="fas fa-map-marker-alt me-1"></i>@Model.Semillero.Reunion.lugarReunion</span>
-                        <span><i class="fas fa-circle me-1" style="font-size:.45rem;color:@(Model.Semillero.Reunion.estadoReunion=="Programada"?"#2e86c1":"#28b463")"></i>@Model.Semillero.Reunion.estadoReunion</span>
+            foreach (var r in Model.Reuniones)
+            {
+                <div class="reunion-item">
+                    <div class="reunion-date">
+                        <div class="day">@r.fechaReunion.Day.ToString("00")</div>
+                        <div class="mon">@r.fechaReunion.ToString("MMM", new System.Globalization.CultureInfo("es-ES"))</div>
+                    </div>
+                    <div>
+                        <div class="reunion-motivo">@r.motivoReunion</div>
+                        <div class="reunion-meta">
+                            <span><i class="fas fa-map-marker-alt me-1"></i>@r.lugarReunion</span>
+                            <span><i class="fas fa-clock me-1"></i>@r.horaReunion - @r.horaFinReunion</span>
+                            <span><i class="fas fa-circle me-1" style="font-size:.45rem;color:@(r.estadoReunion=="Programada"?"#2e86c1":r.estadoReunion=="En Curso"?"#28b463":r.estadoReunion=="Cancelada"||r.estadoReunion=="Suspendida"?"#e74c3c":"#7f8c8d")"></i>@r.estadoReunion</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         }
         else
         {
-            <div class="empty-tab"><i class="fas fa-calendar"></i><p style="font-weight:600;color:#555">Sin reunión vinculada</p></div>
+            <div class="empty-tab"><i class="fas fa-calendar"></i><p style="font-weight:600;color:#555">Sin reuniones registradas</p></div>
         }
     </div>
 </div>
